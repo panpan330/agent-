@@ -28,6 +28,8 @@
 - [x] 确认 Python 3.12.3 可用
 - [x] 确认 JDK 17 可用
 - [ ] 安装或配置 Docker
+- [x] 完成第 1 层：Python 项目环境和 uv 基础练习
+- [x] 完成 Python 基础语法第 1 节：变量和基本类型
 - [ ] 创建 `projects/ai-service`
 - [ ] 搭建 FastAPI 基础项目
 - [ ] 实现 `/health`
@@ -180,3 +182,9 @@ M0/M1 第一阶段完成时，必须满足：
 - 完善学习路径：将 12 周计划拆成 M0-M6，收敛为两个主项目，并把日志、评测、安全前置。
 - 安装 uv 0.11.26 到 `D:\tools\uv\bin`，并配置 `UV_CACHE_DIR`、`UV_PYTHON_INSTALL_DIR`、`UV_TOOL_DIR` 到 D 盘。
 - 检查环境：Python 3.12.3 可用，JDK 17 可用，Docker 暂不可用。
+- 创建 `projects/python-basics`，完成 uv 项目初始化、虚拟环境创建、`requests` 依赖安装和 HTTP 请求练习。
+- 新增笔记 `notes/python-project-environment.md`。
+- 明确后续教学主旨：所有知识从基础讲起，不默认已经会；目标是会用、理解原理、能解释给别人听，并通过代码和自测验证。
+- 新增 `docs/learning-resources.md`，开始维护官方文档、GitHub 学习笔记、视频课程和阶段资料组合。
+- 完成变量和基本类型练习，新增 `projects/python-basics/01_variables_types.py` 和 `notes/python-variables-and-types.md`。
+- 明确笔记规则：以后每节练习和自测问题都要附参考答案；已补充到变量和基本类型笔记。

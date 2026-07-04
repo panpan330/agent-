@@ -29,6 +29,7 @@ projects/ 练习项目、Demo 和完整作品
 - [学习上下文](docs/learning-context.md)
 - [AI 应用工程学习路线图](docs/ai-application-learning-roadmap.md)
 - [学习进度](docs/learning-progress.md)
+- [学习资料清单](docs/learning-resources.md)
 - [旧版长期进度文档](docs/ai-application-learning-progress.md)
 
 ## 当前目标
