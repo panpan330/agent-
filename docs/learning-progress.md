@@ -24,6 +24,10 @@
 ## 近期任务
 
 - [ ] 确认 Python、Java、Docker 环境
+- [x] 安装并配置 uv 到 D 盘
+- [x] 确认 Python 3.12.3 可用
+- [x] 确认 JDK 17 可用
+- [ ] 安装或配置 Docker
 - [ ] 创建 `projects/ai-service`
 - [ ] 搭建 FastAPI 基础项目
 - [ ] 实现 `/health`
@@ -39,6 +43,10 @@
 M0/M1 第一阶段完成时，必须满足：
 
 - [ ] 本地能运行 Python、Java、Docker。
+- [x] 本地能运行 Python。
+- [x] 本地能运行 Java。
+- [ ] 本地能运行 Docker。
+- [x] uv 安装在 D 盘，缓存、Python 管理目录和工具目录都指向 D 盘。
 - [ ] `projects/ai-service` 有清晰目录结构。
 - [ ] FastAPI 服务能启动。
 - [ ] `/health` 返回正常。
@@ -170,3 +178,5 @@ M0/M1 第一阶段完成时，必须满足：
 - 明确产出：企业知识库 RAG、智能工单 Agent。
 - 当前项目目录作为后续学习主仓库。
 - 完善学习路径：将 12 周计划拆成 M0-M6，收敛为两个主项目，并把日志、评测、安全前置。
+- 安装 uv 0.11.26 到 `D:\tools\uv\bin`，并配置 `UV_CACHE_DIR`、`UV_PYTHON_INSTALL_DIR`、`UV_TOOL_DIR` 到 D 盘。
+- 检查环境：Python 3.12.3 可用，JDK 17 可用，Docker 暂不可用。
