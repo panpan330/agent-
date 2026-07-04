@@ -1,0 +1,22 @@
+[
+  {
+    "name": "学习变量",
+    "done": true
+  },
+  {
+    "name": "学习字符串",
+    "done": true
+  },
+  {
+    "name": "学习列表",
+    "done": true
+  },
+  {
+    "name": "学习文件读写",
+    "done": false
+  },
+  {
+    "name": "学习 JSON 文件",
+    "done": false
+  }
+]

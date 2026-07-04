@@ -34,6 +34,14 @@
 - [x] 完成 Python 基础语法第 3 节：列表
 - [x] 完成 Python 基础语法第 4 节：字典
 - [x] 完成 Python 基础语法第 5 节：条件判断
+- [x] 完成 Python 基础语法第 6 节：循环
+- [x] 完成 Python 基础语法第 7 节：函数
+- [x] 完成 Python 基础语法第 8 节：模块导入
+- [x] 完成 Python 基础语法第 9 节：异常处理
+- [x] 完成 Python 基础语法第 10 节：文件读写和 JSON
+- [x] 完成 Python 基础语法第 11 节：类型提示
+- [x] 完成 Python 基础语法第 12 节：类和对象
+- [x] 完成 Python 基础语法第 13 节：元组和集合
 - [ ] 创建 `projects/ai-service`
 - [ ] 搭建 FastAPI 基础项目
 - [ ] 实现 `/health`
@@ -196,3 +204,11 @@ M0/M1 第一阶段完成时，必须满足：
 - 完成列表练习，新增 `projects/python-basics/03_lists.py`、`projects/python-basics/03_practice_task_list.py` 和 `notes/python-lists.md`。
 - 完成字典练习，新增 `projects/python-basics/04_dicts.py`、`projects/python-basics/04_practice_user_profile.py` 和 `notes/python-dicts.md`。
 - 完成条件判断练习，新增 `projects/python-basics/05_conditions.py`、`projects/python-basics/05_practice_question_check.py` 和 `notes/python-conditions.md`。
+- 完成循环练习，新增 `projects/python-basics/06_loops.py`、`projects/python-basics/06_practice_batch_tasks.py` 和 `notes/python-loops.md`。
+- 完成函数练习，新增 `projects/python-basics/07_functions.py`、`projects/python-basics/07_practice_question_functions.py` 和 `notes/python-functions.md`。
+- 完成模块导入练习，新增 `projects/python-basics/question_utils.py`、`projects/python-basics/08_imports.py`、`projects/python-basics/08_practice_import_question_utils.py` 和 `notes/python-imports.md`。
+- 完成异常处理练习，新增 `projects/python-basics/09_exceptions.py`、`projects/python-basics/09_practice_safe_request.py` 和 `notes/python-exceptions.md`。
+- 完成文件读写和 JSON 练习，新增 `projects/python-basics/10_files_json.py`、`projects/python-basics/10_practice_task_json.py`、示例 JSON 数据和 `notes/python-files-json.md`。
+- 完成类型提示练习，新增 `projects/python-basics/11_type_hints.py`、`projects/python-basics/11_practice_typed_question.py` 和 `notes/python-type-hints.md`。
+- 完成类和对象练习，新增 `projects/python-basics/12_classes.py`、`projects/python-basics/12_practice_learning_task.py` 和 `notes/python-classes.md`。
+- 完成元组和集合练习，新增 `projects/python-basics/13_tuple_set.py`、`projects/python-basics/13_practice_tuple_set.py` 和 `notes/python-tuples-sets.md`。

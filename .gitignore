@@ -49,3 +49,8 @@ tmp/
 temp/
 *.sqlite
 *.db
+
+# Tracked learning sample data
+!projects/python-basics/data/
+!projects/python-basics/data/*.json
+!projects/python-basics/data/*.txt
