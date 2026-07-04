@@ -42,6 +42,7 @@
 - [x] 完成 Python 基础语法第 11 节：类型提示
 - [x] 完成 Python 基础语法第 12 节：类和对象
 - [x] 完成 Python 基础语法第 13 节：元组和集合
+- [x] 完成 Python 基础语法第 14 节：常用数据处理写法
 - [ ] 创建 `projects/ai-service`
 - [ ] 搭建 FastAPI 基础项目
 - [ ] 实现 `/health`
@@ -212,3 +213,4 @@ M0/M1 第一阶段完成时，必须满足：
 - 完成类型提示练习，新增 `projects/python-basics/11_type_hints.py`、`projects/python-basics/11_practice_typed_question.py` 和 `notes/python-type-hints.md`。
 - 完成类和对象练习，新增 `projects/python-basics/12_classes.py`、`projects/python-basics/12_practice_learning_task.py` 和 `notes/python-classes.md`。
 - 完成元组和集合练习，新增 `projects/python-basics/13_tuple_set.py`、`projects/python-basics/13_practice_tuple_set.py` 和 `notes/python-tuples-sets.md`。
+- 完成常用数据处理写法练习，新增 `projects/python-basics/14_data_processing.py`、`projects/python-basics/14_practice_data_processing.py` 和 `notes/python-data-processing.md`。
