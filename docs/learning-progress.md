@@ -30,6 +30,10 @@
 - [ ] 安装或配置 Docker
 - [x] 完成第 1 层：Python 项目环境和 uv 基础练习
 - [x] 完成 Python 基础语法第 1 节：变量和基本类型
+- [x] 完成 Python 基础语法第 2 节：字符串
+- [x] 完成 Python 基础语法第 3 节：列表
+- [x] 完成 Python 基础语法第 4 节：字典
+- [x] 完成 Python 基础语法第 5 节：条件判断
 - [ ] 创建 `projects/ai-service`
 - [ ] 搭建 FastAPI 基础项目
 - [ ] 实现 `/health`
@@ -188,3 +192,7 @@ M0/M1 第一阶段完成时，必须满足：
 - 新增 `docs/learning-resources.md`，开始维护官方文档、GitHub 学习笔记、视频课程和阶段资料组合。
 - 完成变量和基本类型练习，新增 `projects/python-basics/01_variables_types.py` 和 `notes/python-variables-and-types.md`。
 - 明确笔记规则：以后每节练习和自测问题都要附参考答案；已补充到变量和基本类型笔记。
+- 完成字符串练习，新增 `projects/python-basics/02_strings.py`、`projects/python-basics/02_practice_clean_question.py` 和 `notes/python-strings.md`。
+- 完成列表练习，新增 `projects/python-basics/03_lists.py`、`projects/python-basics/03_practice_task_list.py` 和 `notes/python-lists.md`。
+- 完成字典练习，新增 `projects/python-basics/04_dicts.py`、`projects/python-basics/04_practice_user_profile.py` 和 `notes/python-dicts.md`。
+- 完成条件判断练习，新增 `projects/python-basics/05_conditions.py`、`projects/python-basics/05_practice_question_check.py` 和 `notes/python-conditions.md`。
