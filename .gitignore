@@ -23,11 +23,11 @@ out/
 *.jar
 *.war
 *.ear
+.gradle/
 
 # Node / frontend experiments
 node_modules/
 .next/
-dist/
 
 # IDE
 .idea/
@@ -45,5 +45,7 @@ logs/
 # Local data
 data/
 storage/
+tmp/
+temp/
 *.sqlite
 *.db
