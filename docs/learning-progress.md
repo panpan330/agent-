@@ -50,6 +50,7 @@
 - [x] 完成 Python 基础语法第 19 节：调试和报错阅读
 - [x] 完成 Python 基础语法第 20 节：HTTP/API 基础
 - [x] 完成 Python 基础语法第 21 节：async/await 异步基础
+- [x] 完成 Python 基础综合项目：Learning Task Assistant
 - [ ] 创建 `projects/ai-service`
 - [ ] 搭建 FastAPI 基础项目
 - [ ] 实现 `/health`
@@ -231,3 +232,4 @@ M0/M1 第一阶段完成时，必须满足：
 - 完成调试和报错阅读练习，新增 `projects/python-basics/lesson19_debugging_traceback.py`、`projects/python-basics/lesson19_practice_debugging.py`、测试文件和 `notes/python-debugging-traceback.md`。
 - 完成 HTTP/API 基础练习，新增 `projects/python-basics/lesson20_http_api.py`、`projects/python-basics/lesson20_practice_http_api.py`、测试文件和 `notes/python-http-api.md`。
 - 完成 async/await 异步基础练习，新增 `projects/python-basics/lesson21_async_await.py`、`projects/python-basics/lesson21_practice_async_await.py`、测试文件和 `notes/python-async-await.md`。
+- 完成 Python 基础综合项目 Learning Task Assistant，新增 `projects/python-basics/learning_task_assistant/`、`projects/python-basics/lesson22_mini_project_demo.py`、测试文件和 `notes/python-mini-project.md`。
