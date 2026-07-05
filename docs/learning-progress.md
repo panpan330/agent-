@@ -43,6 +43,13 @@
 - [x] 完成 Python 基础语法第 12 节：类和对象
 - [x] 完成 Python 基础语法第 13 节：元组和集合
 - [x] 完成 Python 基础语法第 14 节：常用数据处理写法
+- [x] 完成 Python 基础语法第 15 节：函数进阶
+- [x] 完成 Python 基础语法第 16 节：标准库基础
+- [x] 完成 Python 基础语法第 17 节：正则表达式 re
+- [x] 完成 Python 基础语法第 18 节：pytest 测试基础
+- [x] 完成 Python 基础语法第 19 节：调试和报错阅读
+- [x] 完成 Python 基础语法第 20 节：HTTP/API 基础
+- [x] 完成 Python 基础语法第 21 节：async/await 异步基础
 - [ ] 创建 `projects/ai-service`
 - [ ] 搭建 FastAPI 基础项目
 - [ ] 实现 `/health`
@@ -112,7 +119,7 @@ M0/M1 第一阶段完成时，必须满足：
 - [ ] Pydantic
 - [ ] httpx
 - [ ] logging
-- [ ] pytest
+- [x] pytest
 - [ ] Dockerfile
 
 ### LLM API
@@ -214,3 +221,13 @@ M0/M1 第一阶段完成时，必须满足：
 - 完成类和对象练习，新增 `projects/python-basics/12_classes.py`、`projects/python-basics/12_practice_learning_task.py` 和 `notes/python-classes.md`。
 - 完成元组和集合练习，新增 `projects/python-basics/13_tuple_set.py`、`projects/python-basics/13_practice_tuple_set.py` 和 `notes/python-tuples-sets.md`。
 - 完成常用数据处理写法练习，新增 `projects/python-basics/14_data_processing.py`、`projects/python-basics/14_practice_data_processing.py` 和 `notes/python-data-processing.md`。
+
+### 2026-07-05
+
+- 完成函数进阶练习，新增 `projects/python-basics/15_function_advanced.py`、`projects/python-basics/15_practice_function_advanced.py` 和 `notes/python-function-advanced.md`。
+- 完成标准库基础练习，新增 `projects/python-basics/16_standard_library.py`、`projects/python-basics/16_practice_standard_library.py` 和 `notes/python-standard-library.md`。
+- 完成正则表达式练习，新增 `projects/python-basics/17_regex.py`、`projects/python-basics/17_practice_regex.py` 和 `notes/python-regex.md`。
+- 完成 pytest 测试基础练习，新增 `projects/python-basics/lesson18_pytest_basics.py`、`projects/python-basics/lesson18_practice_pytest.py`、测试文件和 `notes/python-pytest.md`。
+- 完成调试和报错阅读练习，新增 `projects/python-basics/lesson19_debugging_traceback.py`、`projects/python-basics/lesson19_practice_debugging.py`、测试文件和 `notes/python-debugging-traceback.md`。
+- 完成 HTTP/API 基础练习，新增 `projects/python-basics/lesson20_http_api.py`、`projects/python-basics/lesson20_practice_http_api.py`、测试文件和 `notes/python-http-api.md`。
+- 完成 async/await 异步基础练习，新增 `projects/python-basics/lesson21_async_await.py`、`projects/python-basics/lesson21_practice_async_await.py`、测试文件和 `notes/python-async-await.md`。
