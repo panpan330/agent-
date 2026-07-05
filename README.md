@@ -32,6 +32,36 @@ projects/ 练习项目、Demo 和完整作品
 - [学习资料清单](docs/learning-resources.md)
 - [旧版长期进度文档](docs/ai-application-learning-progress.md)
 
+## Python 基础学习笔记索引
+
+| 顺序 | 主题 | 笔记路径 |
+| --- | --- | --- |
+| 0 | Python 项目环境和 uv | [notes/python-project-environment.md](notes/python-project-environment.md) |
+| 1 | 变量和基本类型 | [notes/python-variables-and-types.md](notes/python-variables-and-types.md) |
+| 2 | 字符串 | [notes/python-strings.md](notes/python-strings.md) |
+| 3 | 列表 | [notes/python-lists.md](notes/python-lists.md) |
+| 4 | 字典 | [notes/python-dicts.md](notes/python-dicts.md) |
+| 5 | 条件判断 | [notes/python-conditions.md](notes/python-conditions.md) |
+| 6 | 循环 | [notes/python-loops.md](notes/python-loops.md) |
+| 7 | 函数 | [notes/python-functions.md](notes/python-functions.md) |
+| 8 | 模块导入 | [notes/python-imports.md](notes/python-imports.md) |
+| 9 | 异常处理 | [notes/python-exceptions.md](notes/python-exceptions.md) |
+| 10 | 文件读写和 JSON | [notes/python-files-json.md](notes/python-files-json.md) |
+| 11 | 类型提示 | [notes/python-type-hints.md](notes/python-type-hints.md) |
+| 12 | 类和对象 | [notes/python-classes.md](notes/python-classes.md) |
+| 13 | 元组和集合 | [notes/python-tuples-sets.md](notes/python-tuples-sets.md) |
+| 14 | 常用数据处理写法 | [notes/python-data-processing.md](notes/python-data-processing.md) |
+| 15 | 函数进阶 | [notes/python-function-advanced.md](notes/python-function-advanced.md) |
+| 16 | 标准库基础 | [notes/python-standard-library.md](notes/python-standard-library.md) |
+| 17 | 正则表达式 re | [notes/python-regex.md](notes/python-regex.md) |
+| 18 | pytest 测试基础 | [notes/python-pytest.md](notes/python-pytest.md) |
+| 19 | 调试和报错阅读 | [notes/python-debugging-traceback.md](notes/python-debugging-traceback.md) |
+| 20 | HTTP/API 基础 | [notes/python-http-api.md](notes/python-http-api.md) |
+| 21 | async/await 异步基础 | [notes/python-async-await.md](notes/python-async-await.md) |
+| 22 | Python 基础综合项目 | [notes/python-mini-project.md](notes/python-mini-project.md) |
+
+对应练习代码主要在 [projects/python-basics](projects/python-basics)。
+
 ## 当前目标
 
 12 周内完成两个能展示的项目：
