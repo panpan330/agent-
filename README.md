@@ -62,6 +62,13 @@ projects/ 练习项目、Demo 和完整作品
 
 对应练习代码主要在 [projects/python-basics](projects/python-basics)。
 
+## 阶段 1：Python AI 服务学习笔记索引
+
+| 顺序 | 主题 | 笔记路径 | 代码路径 |
+| --- | --- | --- | --- |
+| 1 | Web 服务、HTTP 和 API 是什么 | [notes/fastapi-stage1-01-web-http-api.md](notes/fastapi-stage1-01-web-http-api.md) | [projects/ai-service](projects/ai-service) |
+| 2 | FastAPI 项目结构和最小服务 | [notes/fastapi-stage1-project-structure.md](notes/fastapi-stage1-project-structure.md) | [projects/ai-service](projects/ai-service) |
+
 ## 当前目标
 
 12 周内完成两个能展示的项目：

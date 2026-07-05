@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：第 0 周，项目和学习上下文初始化
+当前阶段：第 1 周，Python AI 服务基础
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -14,7 +14,7 @@
 | 阶段 | 时间 | 主题 | 状态 | 产出 |
 | --- | --- | --- | --- | --- |
 | M0 | 第 0 周 | 环境与仓库 | 进行中 | README、上下文、路线图、进度表 |
-| M1 | 第 1-2 周 | Python AI 服务基础 | 未开始 | `projects/ai-service`、聊天接口、流式输出、结构化输出 |
+| M1 | 第 1-2 周 | Python AI 服务基础 | 进行中 | `projects/ai-service`、聊天接口、流式输出、结构化输出 |
 | M2 | 第 3-4 周 | LangChain + Java 工具调用 | 未开始 | 客服助手 v1、Java mock 业务服务 |
 | M3 | 第 5-7 周 | 企业知识库 RAG | 未开始 | 文档入库、检索问答、引用来源、权限过滤、初版评测 |
 | M4 | 第 8-9 周 | LangGraph 智能工单 | 未开始 | 工单 Agent v1 |
@@ -51,15 +51,39 @@
 - [x] 完成 Python 基础语法第 20 节：HTTP/API 基础
 - [x] 完成 Python 基础语法第 21 节：async/await 异步基础
 - [x] 完成 Python 基础综合项目：Learning Task Assistant
-- [ ] 创建 `projects/ai-service`
-- [ ] 搭建 FastAPI 基础项目
-- [ ] 实现 `/health`
+- [x] 创建 `projects/ai-service`
+- [x] 搭建 FastAPI 基础项目
+- [x] 实现 `/health`
 - [ ] 实现 `/chat`
 - [ ] 实现 `/stream-chat`
 - [ ] 加入 `.env` 配置读取
 - [ ] 加入基础日志、trace_id 和异常处理
 - [ ] 增加结构化输出练习接口
-- [ ] 写第 1 篇学习笔记：Python AI 服务项目结构
+- [x] 完成阶段 1 第 1 节：Web 服务、HTTP 和 API 是什么
+- [x] 写 FastAPI 项目结构学习笔记
+
+## 阶段 1 细化学习清单
+
+学习状态和代码状态分开看。即使代码已经提前搭好，学习上也按下面顺序重新讲透。
+
+| 节 | 主题 | 学习状态 | 对应产出 |
+| --- | --- | --- | --- |
+| 1 | Web 服务、HTTP 和 API 是什么 | 已完成 | `notes/fastapi-stage1-01-web-http-api.md` |
+| 2 | FastAPI 是什么 | 未开始 | FastAPI 概念笔记 |
+| 3 | 创建 `projects/ai-service` 项目骨架 | 代码已完成，待重讲 | 项目目录说明 |
+| 4 | FastAPI 最小服务 `/health` | 代码已完成，待重讲 | `/health` 逐行解释 |
+| 5 | router 路由拆分 | 代码已完成，待重讲 | `app/routers/` 说明 |
+| 6 | POST、请求体和 JSON | 未开始 | 请求体基础笔记 |
+| 7 | Pydantic 请求模型 | 未开始 | 请求模型代码和测试 |
+| 8 | Pydantic 响应模型 | 未开始 | 响应模型代码和测试 |
+| 9 | 模拟 `/chat` 接口 | 未开始 | `/chat` mock 接口 |
+| 10 | 测试 FastAPI 接口 | 进行中 | `/health` 已有测试，后续补更多 |
+| 11 | `.env` 配置读取 | 未开始 | `.env.example` 和配置模块 |
+| 12 | `logging` 日志 | 未开始 | 基础日志配置 |
+| 13 | `trace_id` 请求追踪 | 未开始 | 请求追踪中间件 |
+| 14 | 统一异常处理 | 未开始 | 稳定错误响应格式 |
+| 15 | CORS 基础 | 未开始 | CORS 配置和说明 |
+| 16 | 阶段 1 项目整理 | 未开始 | README、测试、复盘 |
 
 ## 当前 Sprint 验收标准
 
@@ -70,9 +94,9 @@ M0/M1 第一阶段完成时，必须满足：
 - [x] 本地能运行 Java。
 - [ ] 本地能运行 Docker。
 - [x] uv 安装在 D 盘，缓存、Python 管理目录和工具目录都指向 D 盘。
-- [ ] `projects/ai-service` 有清晰目录结构。
-- [ ] FastAPI 服务能启动。
-- [ ] `/health` 返回正常。
+- [x] `projects/ai-service` 有清晰目录结构。
+- [x] FastAPI 服务能启动。
+- [x] `/health` 返回正常。
 - [ ] `/chat` 能完成一次普通模型调用。
 - [ ] `/stream-chat` 能流式返回。
 - [ ] 请求日志包含 trace_id、模型名、耗时、错误信息。
@@ -233,3 +257,4 @@ M0/M1 第一阶段完成时，必须满足：
 - 完成 HTTP/API 基础练习，新增 `projects/python-basics/lesson20_http_api.py`、`projects/python-basics/lesson20_practice_http_api.py`、测试文件和 `notes/python-http-api.md`。
 - 完成 async/await 异步基础练习，新增 `projects/python-basics/lesson21_async_await.py`、`projects/python-basics/lesson21_practice_async_await.py`、测试文件和 `notes/python-async-await.md`。
 - 完成 Python 基础综合项目 Learning Task Assistant，新增 `projects/python-basics/learning_task_assistant/`、`projects/python-basics/lesson22_mini_project_demo.py`、测试文件和 `notes/python-mini-project.md`。
+- 开始阶段 1：FastAPI 服务基础，创建 `projects/ai-service`，完成 FastAPI 项目骨架、`/health` 接口、健康检查测试和 `notes/fastapi-stage1-project-structure.md`。

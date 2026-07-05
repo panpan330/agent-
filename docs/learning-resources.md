@@ -55,6 +55,15 @@
 
 ### 主资料
 
+- [MDN：HTTP messages](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Messages)
+  - 用途：理解 HTTP 请求和响应的基本结构。
+
+- [MDN：HTTP request methods](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods)
+  - 用途：理解 GET、POST、PUT、PATCH、DELETE 等方法的语义。
+
+- [MDN：HTTP response status codes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status)
+  - 用途：理解 200、404、422、500 等状态码。
+
 - [Requests 官方 Quickstart](https://requests.readthedocs.io/en/latest/user/quickstart/)
   - 用途：学习 GET、POST、headers、JSON、timeout 等基础用法。
 
@@ -139,19 +148,23 @@
 
 ## 当前阶段推荐资料组合
 
-现在处于 Python 基础阶段，优先看：
+现在处于阶段 1：FastAPI 服务基础，优先看：
 
-1. Datawhale：聪明办法学 Python 第二版
-2. Python 官方教程
-3. 小甲鱼 Python 视频，只看对应知识点
-4. 本仓库 `notes/` 中我们自己整理的笔记
+1. 本仓库 `notes/fastapi-stage1-01-web-http-api.md`
+2. 本仓库 `notes/fastapi-stage1-project-structure.md`
+3. MDN HTTP messages，理解请求和响应
+4. MDN HTTP request methods，理解 GET、POST 等方法
+5. MDN HTTP response status codes，理解状态码
+6. FastAPI 官方 Tutorial，只看当前需要的路由、请求、响应、自动文档
+7. uv 官方项目指南，重点复习 `uv sync`、`uv add`、`uv run`
+8. HTTP/API 基础笔记 `notes/python-http-api.md`
 
 暂时不要深入：
 
-- FastAPI 最佳实践
+- FastAPI 复杂最佳实践
 - LangChain
 - LangGraph
 - RAGFlow
 - Qdrant
 
-这些后面到对应阶段再看。
+这些后面到对应阶段再看。当前先把“能写、能启动、能测试一个 API 服务”学扎实。
