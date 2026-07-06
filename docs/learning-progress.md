@@ -60,6 +60,9 @@
 - [ ] 加入基础日志、trace_id 和异常处理
 - [ ] 增加结构化输出练习接口
 - [x] 完成阶段 1 第 1 节：Web 服务、HTTP 和 API 是什么
+- [x] 完成阶段 1 第 2 节：FastAPI 是什么
+- [x] 完成阶段 1 第 3 节：创建 `ai-service` 项目骨架
+- [x] 完成阶段 1 第 4 节：FastAPI 最小服务 `/health`
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -69,9 +72,9 @@
 | 节 | 主题 | 学习状态 | 对应产出 |
 | --- | --- | --- | --- |
 | 1 | Web 服务、HTTP 和 API 是什么 | 已完成 | `notes/fastapi-stage1-01-web-http-api.md` |
-| 2 | FastAPI 是什么 | 未开始 | FastAPI 概念笔记 |
-| 3 | 创建 `projects/ai-service` 项目骨架 | 代码已完成，待重讲 | 项目目录说明 |
-| 4 | FastAPI 最小服务 `/health` | 代码已完成，待重讲 | `/health` 逐行解释 |
+| 2 | FastAPI 是什么 | 已完成 | `notes/fastapi-stage1-02-what-is-fastapi.md` |
+| 3 | 创建 `projects/ai-service` 项目骨架 | 已完成 | `notes/fastapi-stage1-03-ai-service-project-skeleton.md` |
+| 4 | FastAPI 最小服务 `/health` | 已完成 | `notes/fastapi-stage1-04-health-endpoint.md` |
 | 5 | router 路由拆分 | 代码已完成，待重讲 | `app/routers/` 说明 |
 | 6 | POST、请求体和 JSON | 未开始 | 请求体基础笔记 |
 | 7 | Pydantic 请求模型 | 未开始 | 请求模型代码和测试 |

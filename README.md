@@ -67,7 +67,9 @@ projects/ 练习项目、Demo 和完整作品
 | 顺序 | 主题 | 笔记路径 | 代码路径 |
 | --- | --- | --- | --- |
 | 1 | Web 服务、HTTP 和 API 是什么 | [notes/fastapi-stage1-01-web-http-api.md](notes/fastapi-stage1-01-web-http-api.md) | [projects/ai-service](projects/ai-service) |
-| 2 | FastAPI 项目结构和最小服务 | [notes/fastapi-stage1-project-structure.md](notes/fastapi-stage1-project-structure.md) | [projects/ai-service](projects/ai-service) |
+| 2 | FastAPI 是什么 | [notes/fastapi-stage1-02-what-is-fastapi.md](notes/fastapi-stage1-02-what-is-fastapi.md) | [projects/ai-service](projects/ai-service) |
+| 3 | 创建 `ai-service` 项目骨架 | [notes/fastapi-stage1-03-ai-service-project-skeleton.md](notes/fastapi-stage1-03-ai-service-project-skeleton.md) | [projects/ai-service](projects/ai-service) |
+| 4 | FastAPI 最小服务 `/health` | [notes/fastapi-stage1-04-health-endpoint.md](notes/fastapi-stage1-04-health-endpoint.md) | [projects/ai-service](projects/ai-service) |
 
 ## 当前目标
 

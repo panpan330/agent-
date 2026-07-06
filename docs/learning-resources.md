@@ -82,6 +82,12 @@
 - [FastAPI 官方 Tutorial](https://fastapi.tiangolo.com/tutorial/)
   - 用途：学习路由、请求参数、响应模型、依赖注入、自动文档。
 
+- [FastAPI First Steps](https://fastapi.tiangolo.com/tutorial/first-steps/)
+  - 用途：理解 `FastAPI()`、path operation、装饰器、`/docs` 和 OpenAPI。
+
+- [FastAPI Run a Server Manually](https://fastapi.tiangolo.com/deployment/manually/)
+  - 用途：理解 FastAPI、ASGI、Uvicorn 和 `main:app` 的关系。
+
 - [FastAPI GitHub 仓库](https://github.com/fastapi/fastapi)
   - 用途：确认框架定位和官方示例。
 
@@ -151,13 +157,17 @@
 现在处于阶段 1：FastAPI 服务基础，优先看：
 
 1. 本仓库 `notes/fastapi-stage1-01-web-http-api.md`
-2. 本仓库 `notes/fastapi-stage1-project-structure.md`
-3. MDN HTTP messages，理解请求和响应
-4. MDN HTTP request methods，理解 GET、POST 等方法
-5. MDN HTTP response status codes，理解状态码
-6. FastAPI 官方 Tutorial，只看当前需要的路由、请求、响应、自动文档
-7. uv 官方项目指南，重点复习 `uv sync`、`uv add`、`uv run`
-8. HTTP/API 基础笔记 `notes/python-http-api.md`
+2. 本仓库 `notes/fastapi-stage1-02-what-is-fastapi.md`
+3. 本仓库 `notes/fastapi-stage1-03-ai-service-project-skeleton.md`
+4. 本仓库 `notes/fastapi-stage1-04-health-endpoint.md`
+5. 本仓库 `notes/fastapi-stage1-project-structure.md`
+6. MDN HTTP messages，理解请求和响应
+7. MDN HTTP request methods，理解 GET、POST 等方法
+8. MDN HTTP response status codes，理解状态码
+9. FastAPI First Steps，理解 `FastAPI()`、path operation 和自动文档
+10. FastAPI 官方 Tutorial，只看当前需要的路由、请求、响应、自动文档
+11. uv 官方项目指南，重点复习 `uv sync`、`uv add`、`uv run`
+12. HTTP/API 基础笔记 `notes/python-http-api.md`
 
 暂时不要深入：
 
