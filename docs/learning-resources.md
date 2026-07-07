@@ -61,6 +61,12 @@
 - [MDN：HTTP request methods](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods)
   - 用途：理解 GET、POST、PUT、PATCH、DELETE 等方法的语义。
 
+- [MDN：POST request method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Methods/POST)
+  - 用途：理解 POST 用于向服务端发送数据，以及请求体类型由 `Content-Type` 指明。
+
+- [MDN：Content-Type header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Type)
+  - 用途：理解 `Content-Type: application/json` 表示请求体或响应体的媒体类型。
+
 - [MDN：HTTP response status codes](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status)
   - 用途：理解 200、404、422、500 等状态码。
 
@@ -82,8 +88,20 @@
 - [FastAPI 官方 Tutorial](https://fastapi.tiangolo.com/tutorial/)
   - 用途：学习路由、请求参数、响应模型、依赖注入、自动文档。
 
+- [FastAPI Request Body](https://fastapi.tiangolo.com/tutorial/body/)
+  - 用途：学习 FastAPI 如何读取 JSON 请求体，并在下一节配合 Pydantic 校验数据。
+
+- [FastAPI Response Model](https://fastapi.tiangolo.com/tutorial/response-model/)
+  - 用途：学习 `response_model`、响应文档、响应校验、输出过滤和响应模型边界。
+
 - [FastAPI First Steps](https://fastapi.tiangolo.com/tutorial/first-steps/)
   - 用途：理解 `FastAPI()`、path operation、装饰器、`/docs` 和 OpenAPI。
+
+- [FastAPI Bigger Applications - Multiple Files](https://fastapi.tiangolo.com/tutorial/bigger-applications/)
+  - 用途：学习 `APIRouter`、多文件路由拆分、`include_router`、`prefix` 和 `tags`。
+
+- [FastAPI APIRouter Reference](https://fastapi.tiangolo.com/reference/apirouter/)
+  - 用途：查 `APIRouter`、`prefix`、`tags`、`dependencies` 等参数含义。
 
 - [FastAPI Run a Server Manually](https://fastapi.tiangolo.com/deployment/manually/)
   - 用途：理解 FastAPI、ASGI、Uvicorn 和 `main:app` 的关系。
@@ -109,6 +127,12 @@
 
 - [Pydantic Models 文档](https://pydantic.dev/docs/validation/latest/concepts/models/)
   - 用途：学习 `BaseModel`、字段类型、嵌套模型、校验错误。
+
+- [Pydantic Fields 文档](https://pydantic.dev/docs/validation/latest/concepts/fields/)
+  - 用途：学习 `Field()`、默认值、字段约束和字段说明。
+
+- [Pydantic Error Handling 文档](https://pydantic.dev/docs/validation/latest/errors/errors/)
+  - 用途：学习 `ValidationError` 和结构化错误信息。
 
 ## 6. LangChain
 
@@ -160,14 +184,25 @@
 2. 本仓库 `notes/fastapi-stage1-02-what-is-fastapi.md`
 3. 本仓库 `notes/fastapi-stage1-03-ai-service-project-skeleton.md`
 4. 本仓库 `notes/fastapi-stage1-04-health-endpoint.md`
-5. 本仓库 `notes/fastapi-stage1-project-structure.md`
-6. MDN HTTP messages，理解请求和响应
-7. MDN HTTP request methods，理解 GET、POST 等方法
-8. MDN HTTP response status codes，理解状态码
-9. FastAPI First Steps，理解 `FastAPI()`、path operation 和自动文档
-10. FastAPI 官方 Tutorial，只看当前需要的路由、请求、响应、自动文档
-11. uv 官方项目指南，重点复习 `uv sync`、`uv add`、`uv run`
-12. HTTP/API 基础笔记 `notes/python-http-api.md`
+5. 本仓库 `notes/fastapi-stage1-05-router-splitting.md`
+6. 本仓库 `notes/fastapi-stage1-06-post-body-json.md`
+7. 本仓库 `notes/fastapi-stage1-07-pydantic-request-model.md`
+8. 本仓库 `notes/fastapi-stage1-08-pydantic-response-model.md`
+9. 本仓库 `notes/fastapi-stage1-project-structure.md`
+10. MDN HTTP messages，理解请求和响应
+11. MDN HTTP request methods，理解 GET、POST 等方法
+12. MDN POST request method，理解 POST 和请求体
+13. MDN Content-Type header，理解 `application/json`
+14. MDN HTTP response status codes，理解状态码
+15. FastAPI First Steps，理解 `FastAPI()`、path operation 和自动文档
+16. FastAPI Bigger Applications，理解 router 路由拆分
+17. FastAPI Request Body，理解请求体和 Pydantic 的关系
+18. FastAPI Response Model，理解响应模型和 `response_model`
+19. Pydantic Models，理解 `BaseModel`
+20. Pydantic Fields，理解 `Field()` 和字段约束
+21. FastAPI 官方 Tutorial，只看当前需要的路由、请求、响应、自动文档
+22. uv 官方项目指南，重点复习 `uv sync`、`uv add`、`uv run`
+23. HTTP/API 基础笔记 `notes/python-http-api.md`
 
 暂时不要深入：
 

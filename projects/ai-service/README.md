@@ -36,3 +36,10 @@ uv run pytest -q
 | 方法 | 路径 | 说明 |
 | --- | --- | --- |
 | GET | `/health` | 服务健康检查 |
+
+## 当前模型
+
+| 模型 | 路径 | 说明 |
+| --- | --- | --- |
+| `ChatRequest` | `app/schemas/chat.py` | 聊天请求体，要求 `message` 是非空字符串 |
+| `ChatResponse` | `app/schemas/chat.py` | 聊天响应体，要求 `reply` 是非空字符串 |

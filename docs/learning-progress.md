@@ -63,6 +63,10 @@
 - [x] 完成阶段 1 第 2 节：FastAPI 是什么
 - [x] 完成阶段 1 第 3 节：创建 `ai-service` 项目骨架
 - [x] 完成阶段 1 第 4 节：FastAPI 最小服务 `/health`
+- [x] 完成阶段 1 第 5 节：router 路由拆分
+- [x] 完成阶段 1 第 6 节：POST、请求体和 JSON
+- [x] 完成阶段 1 第 7 节：Pydantic 请求模型
+- [x] 完成阶段 1 第 8 节：Pydantic 响应模型
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -75,10 +79,10 @@
 | 2 | FastAPI 是什么 | 已完成 | `notes/fastapi-stage1-02-what-is-fastapi.md` |
 | 3 | 创建 `projects/ai-service` 项目骨架 | 已完成 | `notes/fastapi-stage1-03-ai-service-project-skeleton.md` |
 | 4 | FastAPI 最小服务 `/health` | 已完成 | `notes/fastapi-stage1-04-health-endpoint.md` |
-| 5 | router 路由拆分 | 代码已完成，待重讲 | `app/routers/` 说明 |
-| 6 | POST、请求体和 JSON | 未开始 | 请求体基础笔记 |
-| 7 | Pydantic 请求模型 | 未开始 | 请求模型代码和测试 |
-| 8 | Pydantic 响应模型 | 未开始 | 响应模型代码和测试 |
+| 5 | router 路由拆分 | 已完成 | `notes/fastapi-stage1-05-router-splitting.md` |
+| 6 | POST、请求体和 JSON | 已完成 | `notes/fastapi-stage1-06-post-body-json.md` |
+| 7 | Pydantic 请求模型 | 已完成 | `notes/fastapi-stage1-07-pydantic-request-model.md`、`app/schemas/chat.py`、`tests/test_chat_schema.py` |
+| 8 | Pydantic 响应模型 | 已完成 | `notes/fastapi-stage1-08-pydantic-response-model.md`、`app/schemas/chat.py`、`tests/test_chat_schema.py` |
 | 9 | 模拟 `/chat` 接口 | 未开始 | `/chat` mock 接口 |
 | 10 | 测试 FastAPI 接口 | 进行中 | `/health` 已有测试，后续补更多 |
 | 11 | `.env` 配置读取 | 未开始 | `.env.example` 和配置模块 |
@@ -104,7 +108,7 @@ M0/M1 第一阶段完成时，必须满足：
 - [ ] `/stream-chat` 能流式返回。
 - [ ] 请求日志包含 trace_id、模型名、耗时、错误信息。
 - [ ] 密钥只从 `.env` 读取，并提供 `.env.example`。
-- [ ] 至少有 5 个 pytest 用例。
+- [x] 至少有 5 个 pytest 用例。
 
 ## 项目目标
 
