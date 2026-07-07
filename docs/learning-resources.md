@@ -94,6 +94,15 @@
 - [FastAPI Response Model](https://fastapi.tiangolo.com/tutorial/response-model/)
   - 用途：学习 `response_model`、响应文档、响应校验、输出过滤和响应模型边界。
 
+- [FastAPI Testing](https://fastapi.tiangolo.com/tutorial/testing/)
+  - 用途：学习 `TestClient`，用 pytest 测试 GET、POST、JSON body 和响应状态码。
+
+- [FastAPI TestClient Reference](https://fastapi.tiangolo.com/reference/testclient/)
+  - 用途：查 `TestClient` 的请求方法和行为。
+
+- [FastAPI Settings and Environment Variables](https://fastapi.tiangolo.com/advanced/settings/)
+  - 用途：学习 FastAPI 项目中如何集中读取环境变量和 `.env` 配置。
+
 - [FastAPI First Steps](https://fastapi.tiangolo.com/tutorial/first-steps/)
   - 用途：理解 `FastAPI()`、path operation、装饰器、`/docs` 和 OpenAPI。
 
@@ -134,7 +143,41 @@
 - [Pydantic Error Handling 文档](https://pydantic.dev/docs/validation/latest/errors/errors/)
   - 用途：学习 `ValidationError` 和结构化错误信息。
 
-## 6. LangChain
+### 配置相关资料
+
+- [Pydantic Settings Management](https://pydantic.dev/docs/validation/latest/concepts/pydantic_settings/)
+  - 用途：学习 `BaseSettings`、`SettingsConfigDict`、环境变量和 `.env` 文件读取。
+
+- [python-dotenv PyPI](https://pypi.org/project/python-dotenv/)
+  - 用途：了解 `.env` 文件读取能力来自哪里，知道它通常作为配置读取的底层依赖。
+
+## 6. pytest
+
+### 主资料
+
+- [pytest fixtures reference](https://docs.pytest.org/en/stable/reference/fixtures.html)
+  - 用途：理解 `conftest.py`、fixture 共享和测试复用。
+
+- [pytest about fixtures](https://docs.pytest.org/en/stable/explanation/fixtures.html)
+  - 用途：从概念上理解 fixture 是测试上下文和准备数据。
+
+## 7. logging 日志
+
+### 主资料
+
+- [Python 官方文档：logging](https://docs.python.org/3/library/logging.html)
+  - 用途：理解 `getLogger()`、logger、handler、formatter、日志层级和日志传播。
+
+- [Python 官方文档：Logging HOWTO](https://docs.python.org/3/howto/logging.html)
+  - 用途：入门理解日志是什么、什么时候用 `print`、什么时候用 `logging`、各日志级别的含义。
+
+- [Uvicorn Settings - Logging](https://uvicorn.dev/settings/)
+  - 用途：理解 Uvicorn 的 `--log-level` 和 `--log-config`。
+
+- [Uvicorn Logging](https://uvicorn.dev/concepts/logging/)
+  - 用途：理解 Uvicorn 如何使用 Python logging，以及后续如何自定义更完整的日志配置。
+
+## 8. LangChain
 
 ### 主资料
 
@@ -144,7 +187,7 @@
 - [LangChain Python Reference](https://reference.langchain.com/python/langchain)
   - 用途：查 API 细节。
 
-## 7. LangGraph
+## 9. LangGraph
 
 ### 主资料
 
@@ -157,7 +200,7 @@
 - [LangChain Academy: Introduction to LangGraph](https://academy.langchain.com/courses/intro-to-langgraph)
   - 用途：系统课程辅助理解。
 
-## 8. RAG / 向量库
+## 10. RAG / 向量库
 
 ### 主资料
 
@@ -188,21 +231,33 @@
 6. 本仓库 `notes/fastapi-stage1-06-post-body-json.md`
 7. 本仓库 `notes/fastapi-stage1-07-pydantic-request-model.md`
 8. 本仓库 `notes/fastapi-stage1-08-pydantic-response-model.md`
-9. 本仓库 `notes/fastapi-stage1-project-structure.md`
-10. MDN HTTP messages，理解请求和响应
-11. MDN HTTP request methods，理解 GET、POST 等方法
-12. MDN POST request method，理解 POST 和请求体
-13. MDN Content-Type header，理解 `application/json`
-14. MDN HTTP response status codes，理解状态码
-15. FastAPI First Steps，理解 `FastAPI()`、path operation 和自动文档
-16. FastAPI Bigger Applications，理解 router 路由拆分
-17. FastAPI Request Body，理解请求体和 Pydantic 的关系
-18. FastAPI Response Model，理解响应模型和 `response_model`
-19. Pydantic Models，理解 `BaseModel`
-20. Pydantic Fields，理解 `Field()` 和字段约束
-21. FastAPI 官方 Tutorial，只看当前需要的路由、请求、响应、自动文档
-22. uv 官方项目指南，重点复习 `uv sync`、`uv add`、`uv run`
-23. HTTP/API 基础笔记 `notes/python-http-api.md`
+9. 本仓库 `notes/fastapi-stage1-09-mock-chat-endpoint.md`
+10. 本仓库 `notes/fastapi-stage1-10-testing-fastapi-apis.md`
+11. 本仓库 `notes/fastapi-stage1-11-env-config.md`
+12. 本仓库 `notes/fastapi-stage1-12-logging.md`
+13. 本仓库 `notes/fastapi-stage1-project-structure.md`
+14. MDN HTTP messages，理解请求和响应
+15. MDN HTTP request methods，理解 GET、POST 等方法
+16. MDN POST request method，理解 POST 和请求体
+17. MDN Content-Type header，理解 `application/json`
+18. MDN HTTP response status codes，理解状态码
+19. FastAPI First Steps，理解 `FastAPI()`、path operation 和自动文档
+20. FastAPI Bigger Applications，理解 router 路由拆分
+21. FastAPI Request Body，理解请求体和 Pydantic 的关系
+22. FastAPI Response Model，理解响应模型和 `response_model`
+23. FastAPI Testing，理解 `TestClient` 如何测试接口
+24. FastAPI Settings and Environment Variables，理解环境变量和配置读取
+25. Python Logging HOWTO，理解日志级别和 `getLogger(__name__)`
+26. Python logging 文档，理解 logger、handler、formatter
+27. Uvicorn Settings - Logging，理解 `--log-level`
+28. pytest fixtures reference，理解 `conftest.py` 和 fixture
+29. Pydantic Models，理解 `BaseModel`
+30. Pydantic Fields，理解 `Field()` 和字段约束
+31. Pydantic Settings Management，理解 `BaseSettings` 和 `.env`
+32. python-dotenv PyPI，理解 `.env` 文件读取依赖
+33. FastAPI 官方 Tutorial，只看当前需要的路由、请求、响应、自动文档
+34. uv 官方项目指南，重点复习 `uv sync`、`uv add`、`uv run`
+35. HTTP/API 基础笔记 `notes/python-http-api.md`
 
 暂时不要深入：
 

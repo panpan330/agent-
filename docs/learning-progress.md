@@ -54,10 +54,11 @@
 - [x] 创建 `projects/ai-service`
 - [x] 搭建 FastAPI 基础项目
 - [x] 实现 `/health`
-- [ ] 实现 `/chat`
+- [x] 实现模拟 `/chat` 接口
 - [ ] 实现 `/stream-chat`
-- [ ] 加入 `.env` 配置读取
-- [ ] 加入基础日志、trace_id 和异常处理
+- [x] 加入 `.env` 配置读取
+- [ ] 加入 trace_id 和异常处理
+- [x] 加入基础日志
 - [ ] 增加结构化输出练习接口
 - [x] 完成阶段 1 第 1 节：Web 服务、HTTP 和 API 是什么
 - [x] 完成阶段 1 第 2 节：FastAPI 是什么
@@ -67,6 +68,10 @@
 - [x] 完成阶段 1 第 6 节：POST、请求体和 JSON
 - [x] 完成阶段 1 第 7 节：Pydantic 请求模型
 - [x] 完成阶段 1 第 8 节：Pydantic 响应模型
+- [x] 完成阶段 1 第 9 节：模拟 `/chat` 接口
+- [x] 完成阶段 1 第 10 节：测试 FastAPI 接口
+- [x] 完成阶段 1 第 11 节：`.env` 配置读取
+- [x] 完成阶段 1 第 12 节：`logging` 日志
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -83,10 +88,10 @@
 | 6 | POST、请求体和 JSON | 已完成 | `notes/fastapi-stage1-06-post-body-json.md` |
 | 7 | Pydantic 请求模型 | 已完成 | `notes/fastapi-stage1-07-pydantic-request-model.md`、`app/schemas/chat.py`、`tests/test_chat_schema.py` |
 | 8 | Pydantic 响应模型 | 已完成 | `notes/fastapi-stage1-08-pydantic-response-model.md`、`app/schemas/chat.py`、`tests/test_chat_schema.py` |
-| 9 | 模拟 `/chat` 接口 | 未开始 | `/chat` mock 接口 |
-| 10 | 测试 FastAPI 接口 | 进行中 | `/health` 已有测试，后续补更多 |
-| 11 | `.env` 配置读取 | 未开始 | `.env.example` 和配置模块 |
-| 12 | `logging` 日志 | 未开始 | 基础日志配置 |
+| 9 | 模拟 `/chat` 接口 | 已完成 | `notes/fastapi-stage1-09-mock-chat-endpoint.md`、`app/routers/chat.py`、`tests/test_chat_api.py` |
+| 10 | 测试 FastAPI 接口 | 已完成 | `notes/fastapi-stage1-10-testing-fastapi-apis.md`、`tests/conftest.py`、`tests/test_health.py`、`tests/test_chat_api.py` |
+| 11 | `.env` 配置读取 | 已完成 | `notes/fastapi-stage1-11-env-config.md`、`.env.example`、`app/core/config.py`、`tests/test_config.py` |
+| 12 | `logging` 日志 | 已完成 | `notes/fastapi-stage1-12-logging.md`、`app/core/logging.py`、`tests/test_logging.py` |
 | 13 | `trace_id` 请求追踪 | 未开始 | 请求追踪中间件 |
 | 14 | 统一异常处理 | 未开始 | 稳定错误响应格式 |
 | 15 | CORS 基础 | 未开始 | CORS 配置和说明 |
@@ -150,7 +155,7 @@ M0/M1 第一阶段完成时，必须满足：
 - [ ] FastAPI
 - [ ] Pydantic
 - [ ] httpx
-- [ ] logging
+- [x] logging
 - [x] pytest
 - [ ] Dockerfile
 

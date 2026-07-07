@@ -1,11 +1,7 @@
 from fastapi.testclient import TestClient
 
-from app.main import create_app
 
-
-def test_health_check() -> None:
-    client = TestClient(create_app())
-
+def test_health_check(client: TestClient) -> None:
     response = client.get("/health")
     data = response.json()
 
