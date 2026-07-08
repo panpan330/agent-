@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 1 FastAPI 服务基础已完成，下一步 LLM API 基础调用
+当前阶段：阶段 2 LLM API 基础调用
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -78,6 +78,9 @@
 - [x] 完成阶段 1 第 14 节：统一异常处理
 - [x] 完成阶段 1 第 15 节：CORS 基础
 - [x] 完成阶段 1 第 16 节：阶段 1 项目整理
+- [x] 完成阶段 2 第 1 节：什么是 LLM API
+- [x] 完成阶段 2 第 2 节：API key 和 `.env` 安全配置
+- [x] 完成阶段 2 第 3 节：token、上下文窗口、费用基础
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -103,6 +106,31 @@
 | 15 | CORS 基础 | 已完成 | `notes/fastapi-stage1-15-cors.md`、`app/core/cors.py`、`tests/test_cors.py`、`.env.example` |
 | 16 | 阶段 1 项目整理 | 已完成 | `notes/fastapi-stage1-16-project-summary.md`、`projects/ai-service/README.md`、测试检查 |
 
+## 阶段 2 细化学习清单
+
+阶段 2 目标：把当前 mock `/chat` 逐步变成真实大模型调用，并补齐 API key、安全、token、prompt、超时、重试、日志、流式输出、结构化输出和测试基础。
+
+| 节 | 主题 | 学习状态 | 对应产出 |
+| --- | --- | --- | --- |
+| 1 | 什么是 LLM API | 已完成 | `notes/llm-api-stage2-01-what-is-llm-api.md` |
+| 2 | API key 和 `.env` 安全配置 | 已完成 | `notes/llm-api-stage2-02-api-key-env-security.md`、`app/core/config.py`、`tests/test_config.py` |
+| 3 | token、上下文窗口、费用基础 | 已完成 | `notes/llm-api-stage2-03-token-context-cost.md`、`app/core/token_usage.py`、`tests/test_token_usage.py`、`.env.example` |
+| 4 | OpenAI SDK 基础调用方式 | 未开始 | SDK 依赖和最小调用示例 |
+| 5 | messages 是什么：system / user / assistant | 未开始 | messages 笔记和练习 |
+| 6 | prompt 基础：怎么写清楚任务 | 未开始 | prompt 笔记和练习 |
+| 7 | 第一次真实 `/chat` 调用 | 未开始 | `/chat` 调真实模型 |
+| 8 | 多轮对话基础：历史消息怎么传 | 未开始 | 多轮对话请求模型 |
+| 9 | 超时 timeout | 未开始 | 模型调用超时配置 |
+| 10 | 重试 retry 和限流 rate limit 基础 | 未开始 | retry/rate limit 笔记 |
+| 11 | 模型调用错误处理 | 未开始 | LLM 错误映射到统一异常 |
+| 12 | 模型调用日志：模型名、耗时、trace_id、token | 未开始 | LLM 调用日志 |
+| 13 | streaming 流式输出是什么 | 未开始 | streaming 概念笔记 |
+| 14 | FastAPI `StreamingResponse` 实现 `/stream-chat` | 未开始 | `/stream-chat` 接口 |
+| 15 | 结构化输出是什么 | 未开始 | 结构化输出概念笔记 |
+| 16 | Pydantic 约束结构化输出 | 未开始 | 结构化响应模型 |
+| 17 | 测试模型调用：mock/fake LLM client | 未开始 | fake LLM client 和测试 |
+| 18 | 阶段 2 项目整理 | 未开始 | README、测试、复盘 |
+
 ## 当前 Sprint 验收标准
 
 M0/M1 第一阶段完成时，必须满足：
@@ -118,7 +146,7 @@ M0/M1 第一阶段完成时，必须满足：
 - [ ] `/chat` 能完成一次普通模型调用。
 - [ ] `/stream-chat` 能流式返回。
 - [ ] 请求日志包含 trace_id、模型名、耗时、错误信息。
-- [ ] 密钥只从 `.env` 读取，并提供 `.env.example`。
+- [x] 密钥只从 `.env` 或环境变量读取，并提供 `.env.example`。
 - [x] 至少有 5 个 pytest 用例。
 
 ## 项目目标
@@ -171,7 +199,7 @@ M0/M1 第一阶段完成时，必须满足：
 - [ ] streaming
 - [ ] structured output
 - [ ] tool calling
-- [ ] token 成本
+- [x] token 成本
 - [ ] 超时和重试
 - [ ] 模型错误兜底
 

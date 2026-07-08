@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     app_version: str = Field(default="0.1.0")
     model_name: str = Field(default="mock-chat-model")
     request_timeout_seconds: float = Field(default=30.0, gt=0)
+    max_output_tokens: int = Field(default=1024, gt=0)
     log_level: str = Field(default="INFO")
     cors_allowed_origins: str = Field(
         default="http://localhost:5173,http://127.0.0.1:5173"
@@ -36,6 +37,10 @@ class Settings(BaseSettings):
             for origin in self.cors_allowed_origins.split(",")
             if origin.strip()
         ]
+
+    @property
+    def has_openai_api_key(self) -> bool:
+        return bool(self.openai_api_key and self.openai_api_key.strip())
 
 
 @lru_cache

@@ -83,6 +83,14 @@ projects/ 练习项目、Demo 和完整作品
 | 15 | CORS 基础 | [notes/fastapi-stage1-15-cors.md](notes/fastapi-stage1-15-cors.md) | [projects/ai-service](projects/ai-service) |
 | 16 | 阶段 1 项目整理 | [notes/fastapi-stage1-16-project-summary.md](notes/fastapi-stage1-16-project-summary.md) | [projects/ai-service](projects/ai-service) |
 
+## 阶段 2：LLM API 基础调用学习笔记索引
+
+| 顺序 | 主题 | 笔记路径 | 代码路径 |
+| --- | --- | --- | --- |
+| 1 | 什么是 LLM API | [notes/llm-api-stage2-01-what-is-llm-api.md](notes/llm-api-stage2-01-what-is-llm-api.md) | [projects/ai-service](projects/ai-service) |
+| 2 | API key 和 `.env` 安全配置 | [notes/llm-api-stage2-02-api-key-env-security.md](notes/llm-api-stage2-02-api-key-env-security.md) | [projects/ai-service](projects/ai-service) |
+| 3 | token、上下文窗口、费用基础 | [notes/llm-api-stage2-03-token-context-cost.md](notes/llm-api-stage2-03-token-context-cost.md) | [projects/ai-service](projects/ai-service) |
+
 ## 当前目标
 
 12 周内完成两个能展示的项目：

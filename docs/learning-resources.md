@@ -276,9 +276,64 @@
 - [RAGFlow 文档](https://ragflow.io/docs/)
   - 用途：参考 RAG 产品化能力，如数据集、解析、引用、问答流程。
 
+## 14. LLM API 基础调用
+
+### 主资料
+
+- [OpenAI Developer quickstart](https://platform.openai.com/docs/quickstart)
+  - 用途：理解 OpenAI API 的基本入口、API key、SDK 安装和第一次 API 调用。
+
+- [OpenAI API Reference：Authentication](https://developers.openai.com/api/reference/overview#authentication)
+  - 用途：确认 API key 是敏感凭证，应该在服务端通过环境变量或密钥管理服务读取，不要暴露在客户端代码里。
+
+- [OpenAI Python API library](https://developers.openai.com/api/reference/python)
+  - 用途：确认 Python SDK 如何读取 `OPENAI_API_KEY`，以及为什么推荐用 `.env` 避免把 key 存进源码。
+
+- [OpenAI Production best practices](https://platform.openai.com/docs/guides/production-best-practices)
+  - 用途：理解生产环境中 API key 不应写进代码或公开仓库，应该通过环境变量或 secret management service 提供给应用。
+
+- [OpenAI Key concepts：Tokens](https://developers.openai.com/api/docs/concepts#tokens)
+  - 用途：理解 token 是模型处理文本的基本片段，以及 token、上下文长度和 tokenizer 工具的关系。
+
+- [OpenAI Pricing](https://developers.openai.com/api/docs/pricing)
+  - 用途：确认不同模型的 input、cached input、output token 当前价格。价格会变化，需要使用时再查。
+
+- [OpenAI Reasoning models](https://developers.openai.com/api/docs/guides/reasoning)
+  - 用途：理解 reasoning tokens、上下文空间、`max_output_tokens` 和成本控制之间的关系。
+
+- [OpenAI Text generation](https://platform.openai.com/docs/guides/text)
+  - 用途：理解如何用大语言模型根据 prompt 生成文本，以及为什么阶段 2 优先使用 Responses API。
+
+- [OpenAI Models](https://platform.openai.com/docs/models)
+  - 用途：了解模型会随时间更新，模型选择要以官方文档为准，不死记某个固定名字。
+
+- [OpenAI Responses API Reference](https://platform.openai.com/docs/api-reference/responses/create)
+  - 用途：后续实现真实模型调用时查请求参数、响应结构和流式事件。
+
 ## 当前阶段推荐资料组合
 
-阶段 1：FastAPI 服务基础已完成。复盘时优先看：
+阶段 2：LLM API 基础调用。当前优先看：
+
+1. 本仓库 `notes/llm-api-stage2-01-what-is-llm-api.md`
+2. 本仓库 `notes/llm-api-stage2-02-api-key-env-security.md`
+3. 本仓库 `notes/llm-api-stage2-03-token-context-cost.md`
+4. OpenAI Developer quickstart，理解 API key、SDK 和第一次 API 调用
+5. OpenAI API Reference：Authentication，理解 API key 认证和密钥安全
+6. OpenAI Python API library，理解 Python SDK 和 `.env`
+7. OpenAI Production best practices，理解生产环境 key 安全和 token 成本估算
+8. OpenAI Key concepts：Tokens，理解 token 和上下文窗口
+9. OpenAI Pricing，确认当前模型价格
+10. OpenAI Reasoning models，理解 reasoning tokens 和 `max_output_tokens`
+11. OpenAI Text generation，理解大模型文本生成和 Responses API
+12. OpenAI Models，理解模型选择要看当前官方文档
+13. OpenAI Responses API Reference，后续写真实调用时查参数和响应
+14. 本仓库 `notes/fastapi-stage1-16-project-summary.md`，复习当前 FastAPI 服务基础
+15. 本仓库 `notes/fastapi-stage1-11-env-config.md`，复习 `.env` 配置读取
+16. 本仓库 `notes/fastapi-stage1-12-logging.md`，复习日志
+17. 本仓库 `notes/fastapi-stage1-13-trace-id.md`，复习请求追踪
+18. 本仓库 `notes/fastapi-stage1-14-exception-handling.md`，复习统一异常处理
+
+阶段 1：FastAPI 服务基础已完成。复盘时可看：
 
 1. 本仓库 `notes/fastapi-stage1-01-web-http-api.md`
 2. 本仓库 `notes/fastapi-stage1-02-what-is-fastapi.md`

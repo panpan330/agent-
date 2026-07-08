@@ -16,6 +16,7 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成。
 - `trace_id` 请求追踪
 - 统一异常处理
 - CORS 基础配置
+- token 粗略估算和输出 token 上限配置
 - pytest 自动化测试
 
 ## 项目结构
@@ -28,6 +29,7 @@ app/
     exception_handlers.py  统一异常处理器
     exceptions.py          项目业务异常
     logging.py             日志配置
+    token_usage.py         token 粗略估算和预算辅助
     trace.py               trace_id 上下文
   middleware/
     tracing.py             请求追踪 middleware
@@ -47,6 +49,7 @@ tests/
   test_exception_handlers.py 统一异常处理测试
   test_health.py           /health 测试
   test_logging.py          日志测试
+  test_token_usage.py      token 粗略估算测试
   test_trace.py            trace_id 测试
 ```
 
@@ -83,7 +86,7 @@ http://127.0.0.1:8000/docs
 uv run pytest -q
 ```
 
-当前测试使用 FastAPI 的 `TestClient`，覆盖 `/health`、`/chat`、`ChatRequest`、`ChatResponse`、配置读取、日志、`trace_id`、统一异常处理和 CORS。
+当前测试使用 FastAPI 的 `TestClient`，覆盖 `/health`、`/chat`、`ChatRequest`、`ChatResponse`、配置读取、日志、`trace_id`、统一异常处理、CORS 和 token 粗略估算。
 
 也可以运行 Python 编译检查：
 
@@ -104,9 +107,16 @@ uv run python -m compileall -q -x ".venv|__pycache__" .
 | `APP_VERSION` | FastAPI 应用版本 |
 | `MODEL_NAME` | 当前使用的模型名称，现阶段先是 mock 名称 |
 | `REQUEST_TIMEOUT_SECONDS` | 后续调用模型或外部接口时使用的超时时间 |
+| `MAX_OUTPUT_TOKENS` | 后续限制模型最多生成多少输出 token |
 | `LOG_LEVEL` | 日志级别 |
 | `CORS_ALLOWED_ORIGINS` | 允许跨源访问后端的前端来源，多个值用逗号分隔 |
 | `OPENAI_API_KEY` | 后续接真实大模型时使用，不能写死在代码里 |
+
+`OPENAI_API_KEY` 属于敏感信息。真实值只应该放在本机 `.env` 或系统环境变量里，不要写进代码、README、测试用例、截图或聊天记录里。
+
+项目里可以通过 `settings.has_openai_api_key` 判断是否已经配置了非空 key。`OPENAI_API_KEY=""` 或全是空格时，都视为未配置。
+
+`app/core/token_usage.py` 提供的是本地粗略估算工具，用来学习和做预算保护，不等于真实计费结果。真实 token 数以后要以模型 API 响应里的 `usage` 为准。
 
 ## CORS
 
