@@ -103,6 +103,18 @@
 - [FastAPI Settings and Environment Variables](https://fastapi.tiangolo.com/advanced/settings/)
   - 用途：学习 FastAPI 项目中如何集中读取环境变量和 `.env` 配置。
 
+- [FastAPI Middleware](https://fastapi.tiangolo.com/tutorial/middleware/)
+  - 用途：学习如何在请求进入路由前、响应返回客户端前统一处理逻辑，例如 trace_id 和请求耗时。
+
+- [FastAPI Handling Errors](https://fastapi.tiangolo.com/tutorial/handling-errors/)
+  - 用途：学习 `HTTPException`、自定义异常处理器、覆盖默认校验错误响应。
+
+- [FastAPI CORS Middleware](https://fastapi.tiangolo.com/tutorial/cors/)
+  - 用途：学习 `CORSMiddleware`、`allow_origins`、`allow_methods`、`allow_headers` 等基础配置。
+
+- [FastAPI HTTPException Reference](https://fastapi.tiangolo.com/reference/exceptions/)
+  - 用途：理解 `HTTPException` 的定位，它适合表达客户端请求相关错误，不适合直接暴露服务端内部错误。
+
 - [FastAPI First Steps](https://fastapi.tiangolo.com/tutorial/first-steps/)
   - 用途：理解 `FastAPI()`、path operation、装饰器、`/docs` 和 OpenAPI。
 
@@ -177,7 +189,52 @@
 - [Uvicorn Logging](https://uvicorn.dev/concepts/logging/)
   - 用途：理解 Uvicorn 如何使用 Python logging，以及后续如何自定义更完整的日志配置。
 
-## 8. LangChain
+## 8. trace_id 请求追踪
+
+### 主资料
+
+- [FastAPI Middleware](https://fastapi.tiangolo.com/tutorial/middleware/)
+  - 用途：理解 middleware 如何在请求前后执行，适合做 trace_id、耗时统计和通用请求日志。
+
+- [Python 官方文档：contextvars](https://docs.python.org/3/library/contextvars.html)
+  - 用途：理解 `ContextVar`，用于保存当前请求自己的 trace_id，避免并发请求串号。
+
+- [Python 官方文档：Logging Cookbook](https://docs.python.org/3/howto/logging-cookbook.html)
+  - 用途：理解如何给日志补充上下文信息，例如 trace_id。
+
+- [Python 官方文档：uuid](https://docs.python.org/3/library/uuid.html)
+  - 用途：理解 `uuid4()` 如何生成随机唯一编号。
+
+## 9. 统一异常处理
+
+### 主资料
+
+- [FastAPI Handling Errors](https://fastapi.tiangolo.com/tutorial/handling-errors/)
+  - 用途：理解 FastAPI 如何处理 `HTTPException`、自定义异常和 `RequestValidationError`。
+
+- [FastAPI HTTPException Reference](https://fastapi.tiangolo.com/reference/exceptions/)
+  - 用途：确认 `HTTPException` 的参数和适用场景。
+
+- [Starlette Exceptions](https://starlette.dev/exceptions/)
+  - 用途：理解 FastAPI 底层 Starlette 的异常处理机制，以及为什么要处理 Starlette 的 HTTPException。
+
+- [Python 官方文档：Errors and Exceptions](https://docs.python.org/3/tutorial/errors.html)
+  - 用途：复习 Python 异常基础，理解异常是运行时错误以及如何处理。
+
+## 10. CORS 基础
+
+### 主资料
+
+- [FastAPI CORS Middleware](https://fastapi.tiangolo.com/tutorial/cors/)
+  - 用途：理解 FastAPI 中如何使用 `CORSMiddleware` 允许指定前端来源访问后端接口。
+
+- [MDN：Cross-Origin Resource Sharing](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS)
+  - 用途：理解 CORS 的浏览器机制、请求头、响应头和预检请求。
+
+- [MDN：Same-origin policy](https://developer.mozilla.org/en-US/docs/Web/Security/Same-origin_policy)
+  - 用途：理解什么是同源，为什么协议、域名、端口任一不同都算不同源。
+
+## 11. LangChain
 
 ### 主资料
 
@@ -187,7 +244,7 @@
 - [LangChain Python Reference](https://reference.langchain.com/python/langchain)
   - 用途：查 API 细节。
 
-## 9. LangGraph
+## 12. LangGraph
 
 ### 主资料
 
@@ -200,7 +257,7 @@
 - [LangChain Academy: Introduction to LangGraph](https://academy.langchain.com/courses/intro-to-langgraph)
   - 用途：系统课程辅助理解。
 
-## 10. RAG / 向量库
+## 13. RAG / 向量库
 
 ### 主资料
 
@@ -221,7 +278,7 @@
 
 ## 当前阶段推荐资料组合
 
-现在处于阶段 1：FastAPI 服务基础，优先看：
+阶段 1：FastAPI 服务基础已完成。复盘时优先看：
 
 1. 本仓库 `notes/fastapi-stage1-01-web-http-api.md`
 2. 本仓库 `notes/fastapi-stage1-02-what-is-fastapi.md`
@@ -235,29 +292,43 @@
 10. 本仓库 `notes/fastapi-stage1-10-testing-fastapi-apis.md`
 11. 本仓库 `notes/fastapi-stage1-11-env-config.md`
 12. 本仓库 `notes/fastapi-stage1-12-logging.md`
-13. 本仓库 `notes/fastapi-stage1-project-structure.md`
-14. MDN HTTP messages，理解请求和响应
-15. MDN HTTP request methods，理解 GET、POST 等方法
-16. MDN POST request method，理解 POST 和请求体
-17. MDN Content-Type header，理解 `application/json`
-18. MDN HTTP response status codes，理解状态码
-19. FastAPI First Steps，理解 `FastAPI()`、path operation 和自动文档
-20. FastAPI Bigger Applications，理解 router 路由拆分
-21. FastAPI Request Body，理解请求体和 Pydantic 的关系
-22. FastAPI Response Model，理解响应模型和 `response_model`
-23. FastAPI Testing，理解 `TestClient` 如何测试接口
-24. FastAPI Settings and Environment Variables，理解环境变量和配置读取
-25. Python Logging HOWTO，理解日志级别和 `getLogger(__name__)`
-26. Python logging 文档，理解 logger、handler、formatter
-27. Uvicorn Settings - Logging，理解 `--log-level`
-28. pytest fixtures reference，理解 `conftest.py` 和 fixture
-29. Pydantic Models，理解 `BaseModel`
-30. Pydantic Fields，理解 `Field()` 和字段约束
-31. Pydantic Settings Management，理解 `BaseSettings` 和 `.env`
-32. python-dotenv PyPI，理解 `.env` 文件读取依赖
-33. FastAPI 官方 Tutorial，只看当前需要的路由、请求、响应、自动文档
-34. uv 官方项目指南，重点复习 `uv sync`、`uv add`、`uv run`
-35. HTTP/API 基础笔记 `notes/python-http-api.md`
+13. 本仓库 `notes/fastapi-stage1-13-trace-id.md`
+14. 本仓库 `notes/fastapi-stage1-14-exception-handling.md`
+15. 本仓库 `notes/fastapi-stage1-15-cors.md`
+16. 本仓库 `notes/fastapi-stage1-16-project-summary.md`
+17. 本仓库 `notes/fastapi-stage1-project-structure.md`
+18. MDN HTTP messages，理解请求和响应
+19. MDN HTTP request methods，理解 GET、POST 等方法
+20. MDN POST request method，理解 POST 和请求体
+21. MDN Content-Type header，理解 `application/json`
+22. MDN HTTP response status codes，理解状态码
+23. MDN Same-origin policy，理解同源策略和 origin
+24. MDN CORS，理解跨源资源共享和预检请求
+25. FastAPI First Steps，理解 `FastAPI()`、path operation 和自动文档
+26. FastAPI Bigger Applications，理解 router 路由拆分
+27. FastAPI Request Body，理解请求体和 Pydantic 的关系
+28. FastAPI Response Model，理解响应模型和 `response_model`
+29. FastAPI Testing，理解 `TestClient` 如何测试接口
+30. FastAPI Settings and Environment Variables，理解环境变量和配置读取
+31. FastAPI Middleware，理解请求前后统一处理逻辑
+32. FastAPI Handling Errors，理解异常处理器和 `RequestValidationError`
+33. FastAPI CORS Middleware，理解 `CORSMiddleware`
+34. FastAPI HTTPException Reference，理解 `HTTPException`
+35. Starlette Exceptions，理解 FastAPI 底层异常处理机制
+36. Python Logging HOWTO，理解日志级别和 `getLogger(__name__)`
+37. Python logging 文档，理解 logger、handler、formatter、LogRecord
+38. Python contextvars，理解当前请求上下文
+39. Python uuid，理解 `uuid4()` 生成唯一编号
+40. Python Errors and Exceptions，复习 Python 异常基础
+41. Uvicorn Settings - Logging，理解 `--log-level`
+42. pytest fixtures reference，理解 `conftest.py` 和 fixture
+43. Pydantic Models，理解 `BaseModel`
+44. Pydantic Fields，理解 `Field()` 和字段约束
+45. Pydantic Settings Management，理解 `BaseSettings` 和 `.env`
+46. python-dotenv PyPI，理解 `.env` 文件读取依赖
+47. FastAPI 官方 Tutorial，只看当前需要的路由、请求、响应、自动文档
+48. uv 官方项目指南，重点复习 `uv sync`、`uv add`、`uv run`
+49. HTTP/API 基础笔记 `notes/python-http-api.md`
 
 暂时不要深入：
 
@@ -267,4 +338,4 @@
 - RAGFlow
 - Qdrant
 
-这些后面到对应阶段再看。当前先把“能写、能启动、能测试一个 API 服务”学扎实。
+这些后面到对应阶段再看。阶段 1 复盘重点是：能写、能启动、能测试一个基础 API 服务，并能解释项目里每个基础模块的作用。

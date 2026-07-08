@@ -78,6 +78,10 @@ projects/ 练习项目、Demo 和完整作品
 | 10 | 测试 FastAPI 接口 | [notes/fastapi-stage1-10-testing-fastapi-apis.md](notes/fastapi-stage1-10-testing-fastapi-apis.md) | [projects/ai-service](projects/ai-service) |
 | 11 | `.env` 配置读取 | [notes/fastapi-stage1-11-env-config.md](notes/fastapi-stage1-11-env-config.md) | [projects/ai-service](projects/ai-service) |
 | 12 | `logging` 日志 | [notes/fastapi-stage1-12-logging.md](notes/fastapi-stage1-12-logging.md) | [projects/ai-service](projects/ai-service) |
+| 13 | `trace_id` 请求追踪 | [notes/fastapi-stage1-13-trace-id.md](notes/fastapi-stage1-13-trace-id.md) | [projects/ai-service](projects/ai-service) |
+| 14 | 统一异常处理 | [notes/fastapi-stage1-14-exception-handling.md](notes/fastapi-stage1-14-exception-handling.md) | [projects/ai-service](projects/ai-service) |
+| 15 | CORS 基础 | [notes/fastapi-stage1-15-cors.md](notes/fastapi-stage1-15-cors.md) | [projects/ai-service](projects/ai-service) |
+| 16 | 阶段 1 项目整理 | [notes/fastapi-stage1-16-project-summary.md](notes/fastapi-stage1-16-project-summary.md) | [projects/ai-service](projects/ai-service) |
 
 ## 当前目标
 

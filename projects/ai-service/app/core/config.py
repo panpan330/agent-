@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     model_name: str = Field(default="mock-chat-model")
     request_timeout_seconds: float = Field(default=30.0, gt=0)
     log_level: str = Field(default="INFO")
+    cors_allowed_origins: str = Field(
+        default="http://localhost:5173,http://127.0.0.1:5173"
+    )
     openai_api_key: str | None = Field(default=None, repr=False)
 
     model_config = SettingsConfigDict(
@@ -25,6 +28,14 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
     )
+
+    @property
+    def cors_allowed_origin_list(self) -> list[str]:
+        return [
+            origin.strip()
+            for origin in self.cors_allowed_origins.split(",")
+            if origin.strip()
+        ]
 
 
 @lru_cache

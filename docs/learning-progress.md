@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：第 1 周，Python AI 服务基础
+当前阶段：阶段 1 FastAPI 服务基础已完成，下一步 LLM API 基础调用
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -57,7 +57,9 @@
 - [x] 实现模拟 `/chat` 接口
 - [ ] 实现 `/stream-chat`
 - [x] 加入 `.env` 配置读取
-- [ ] 加入 trace_id 和异常处理
+- [x] 加入 trace_id 请求追踪
+- [x] 加入统一异常处理
+- [x] 加入 CORS 基础配置
 - [x] 加入基础日志
 - [ ] 增加结构化输出练习接口
 - [x] 完成阶段 1 第 1 节：Web 服务、HTTP 和 API 是什么
@@ -72,6 +74,10 @@
 - [x] 完成阶段 1 第 10 节：测试 FastAPI 接口
 - [x] 完成阶段 1 第 11 节：`.env` 配置读取
 - [x] 完成阶段 1 第 12 节：`logging` 日志
+- [x] 完成阶段 1 第 13 节：`trace_id` 请求追踪
+- [x] 完成阶段 1 第 14 节：统一异常处理
+- [x] 完成阶段 1 第 15 节：CORS 基础
+- [x] 完成阶段 1 第 16 节：阶段 1 项目整理
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -92,10 +98,10 @@
 | 10 | 测试 FastAPI 接口 | 已完成 | `notes/fastapi-stage1-10-testing-fastapi-apis.md`、`tests/conftest.py`、`tests/test_health.py`、`tests/test_chat_api.py` |
 | 11 | `.env` 配置读取 | 已完成 | `notes/fastapi-stage1-11-env-config.md`、`.env.example`、`app/core/config.py`、`tests/test_config.py` |
 | 12 | `logging` 日志 | 已完成 | `notes/fastapi-stage1-12-logging.md`、`app/core/logging.py`、`tests/test_logging.py` |
-| 13 | `trace_id` 请求追踪 | 未开始 | 请求追踪中间件 |
-| 14 | 统一异常处理 | 未开始 | 稳定错误响应格式 |
-| 15 | CORS 基础 | 未开始 | CORS 配置和说明 |
-| 16 | 阶段 1 项目整理 | 未开始 | README、测试、复盘 |
+| 13 | `trace_id` 请求追踪 | 已完成 | `notes/fastapi-stage1-13-trace-id.md`、`app/core/trace.py`、`app/middleware/tracing.py`、`tests/test_trace.py` |
+| 14 | 统一异常处理 | 已完成 | `notes/fastapi-stage1-14-exception-handling.md`、`app/core/exception_handlers.py`、`app/core/exceptions.py`、`app/schemas/error.py`、`tests/test_exception_handlers.py` |
+| 15 | CORS 基础 | 已完成 | `notes/fastapi-stage1-15-cors.md`、`app/core/cors.py`、`tests/test_cors.py`、`.env.example` |
+| 16 | 阶段 1 项目整理 | 已完成 | `notes/fastapi-stage1-16-project-summary.md`、`projects/ai-service/README.md`、测试检查 |
 
 ## 当前 Sprint 验收标准
 
@@ -217,10 +223,10 @@ M0/M1 第一阶段完成时，必须满足：
 
 ### 工程化
 
-- [ ] 请求日志
+- [x] 请求日志
 - [ ] 模型调用日志
 - [ ] tool 调用日志
-- [ ] trace_id
+- [x] trace_id
 - [ ] token 成本统计
 - [ ] 限流
 - [ ] 重试
