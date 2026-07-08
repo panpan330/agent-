@@ -289,6 +289,9 @@
 - [OpenAI Python API library](https://developers.openai.com/api/reference/python)
   - 用途：确认 Python SDK 如何读取 `OPENAI_API_KEY`，以及为什么推荐用 `.env` 避免把 key 存进源码。
 
+- [OpenAI SDKs and CLI](https://developers.openai.com/api/docs/libraries)
+  - 用途：理解 OpenAI SDK 的安装、环境变量读取和基础使用方式。
+
 - [OpenAI Production best practices](https://platform.openai.com/docs/guides/production-best-practices)
   - 用途：理解生产环境中 API key 不应写进代码或公开仓库，应该通过环境变量或 secret management service 提供给应用。
 
@@ -304,11 +307,26 @@
 - [OpenAI Text generation](https://platform.openai.com/docs/guides/text)
   - 用途：理解如何用大语言模型根据 prompt 生成文本，以及为什么阶段 2 优先使用 Responses API。
 
+- [OpenAI Prompt engineering](https://developers.openai.com/api/docs/guides/prompt-engineering)
+  - 用途：理解不同消息角色的优先级、developer/user/assistant 的职责，以及为什么 prompt 要在代码里可版本化和可测试。
+
+- [OpenAI Migrate to the Responses API](https://developers.openai.com/api/docs/guides/migrate-to-responses)
+  - 用途：理解 Chat Completions 的 `messages` 和 Responses API 的 typed Items 之间的关系，以及多轮对话状态管理方式。
+
 - [OpenAI Models](https://platform.openai.com/docs/models)
   - 用途：了解模型会随时间更新，模型选择要以官方文档为准，不死记某个固定名字。
 
 - [OpenAI Responses API Reference](https://platform.openai.com/docs/api-reference/responses/create)
   - 用途：后续实现真实模型调用时查请求参数、响应结构和流式事件。
+
+- [OpenAI API Reference：Chat Completions](https://developers.openai.com/api/reference/resources/chat)
+  - 用途：确认 Chat Completions 风格接口的 `model`、`messages` 和响应结构。
+
+- [阿里云百炼：OpenAI Chat接口兼容](https://help.aliyun.com/zh/model-studio/compatibility-of-openai-with-dashscope)
+  - 用途：学习如何用 OpenAI SDK 调用千问兼容接口，重点理解 API Key、BASE_URL 和模型名称三项配置。
+
+- [阿里云百炼：文本生成模型API参考](https://help.aliyun.com/zh/model-studio/qwen-api-reference/)
+  - 用途：理解百炼提供的 OpenAI 兼容 Chat Completions、OpenAI 兼容 Responses、Anthropic 兼容 Messages 和 DashScope 原生接口之间的区别。
 
 ## 当前阶段推荐资料组合
 
@@ -317,21 +335,31 @@
 1. 本仓库 `notes/llm-api-stage2-01-what-is-llm-api.md`
 2. 本仓库 `notes/llm-api-stage2-02-api-key-env-security.md`
 3. 本仓库 `notes/llm-api-stage2-03-token-context-cost.md`
-4. OpenAI Developer quickstart，理解 API key、SDK 和第一次 API 调用
-5. OpenAI API Reference：Authentication，理解 API key 认证和密钥安全
-6. OpenAI Python API library，理解 Python SDK 和 `.env`
-7. OpenAI Production best practices，理解生产环境 key 安全和 token 成本估算
-8. OpenAI Key concepts：Tokens，理解 token 和上下文窗口
-9. OpenAI Pricing，确认当前模型价格
-10. OpenAI Reasoning models，理解 reasoning tokens 和 `max_output_tokens`
-11. OpenAI Text generation，理解大模型文本生成和 Responses API
-12. OpenAI Models，理解模型选择要看当前官方文档
-13. OpenAI Responses API Reference，后续写真实调用时查参数和响应
-14. 本仓库 `notes/fastapi-stage1-16-project-summary.md`，复习当前 FastAPI 服务基础
-15. 本仓库 `notes/fastapi-stage1-11-env-config.md`，复习 `.env` 配置读取
-16. 本仓库 `notes/fastapi-stage1-12-logging.md`，复习日志
-17. 本仓库 `notes/fastapi-stage1-13-trace-id.md`，复习请求追踪
-18. 本仓库 `notes/fastapi-stage1-14-exception-handling.md`，复习统一异常处理
+4. 本仓库 `notes/llm-api-stage2-04-openai-compatible-sdk.md`
+5. 本仓库 `notes/llm-api-stage2-05-messages-roles.md`
+6. 本仓库 `notes/llm-api-stage2-06-prompt-basics.md`
+7. 本仓库 `notes/llm-api-stage2-07-real-chat-call.md`
+8. OpenAI Developer quickstart，理解 API key、SDK 和第一次 API 调用
+9. OpenAI API Reference：Authentication，理解 API key 认证和密钥安全
+10. OpenAI Python API library，理解 Python SDK 和 `.env`
+11. OpenAI SDKs and CLI，理解 SDK 安装和基础使用
+12. OpenAI API Reference：Chat Completions，确认 `model`、`messages` 和 `choices[0].message.content`
+13. 阿里云百炼：OpenAI Chat接口兼容，理解千问兼容接口的 `api_key`、`base_url`、`model` 和 `messages`
+14. 阿里云百炼：文本生成模型API参考，理解兼容 Chat Completions 和 Responses 的区别
+15. OpenAI Production best practices，理解生产环境 key 安全和 token 成本估算
+16. OpenAI Key concepts：Tokens，理解 token 和上下文窗口
+17. OpenAI Pricing，确认当前模型价格
+18. OpenAI Reasoning models，理解 reasoning tokens 和 `max_output_tokens`
+19. OpenAI Text generation，理解大模型文本生成和 Responses API
+20. OpenAI Prompt engineering，理解消息角色、prompt 版本化和测试
+21. OpenAI Migrate to the Responses API，理解 `messages` 和 typed Items 的映射
+22. OpenAI Models，理解模型选择要看当前官方文档
+23. OpenAI Responses API Reference，后续写真实调用时查参数和响应
+24. 本仓库 `notes/fastapi-stage1-16-project-summary.md`，复习当前 FastAPI 服务基础
+25. 本仓库 `notes/fastapi-stage1-11-env-config.md`，复习 `.env` 配置读取
+26. 本仓库 `notes/fastapi-stage1-12-logging.md`，复习日志
+27. 本仓库 `notes/fastapi-stage1-13-trace-id.md`，复习请求追踪
+28. 本仓库 `notes/fastapi-stage1-14-exception-handling.md`，复习统一异常处理
 
 阶段 1：FastAPI 服务基础已完成。复盘时可看：
 

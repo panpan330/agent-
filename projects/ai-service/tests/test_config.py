@@ -12,6 +12,13 @@ def test_settings_use_default_values() -> None:
     assert settings.app_name == "AI Service"
     assert settings.app_version == "0.1.0"
     assert settings.model_name == "mock-chat-model"
+    assert settings.llm_provider == "openai-compatible"
+    assert settings.llm_model == "qwen3.7-plus"
+    assert settings.llm_base_url is None
+    assert settings.llm_api_key is None
+    assert settings.resolved_llm_api_key is None
+    assert settings.has_llm_api_key is False
+    assert settings.resolved_llm_base_url is None
     assert settings.request_timeout_seconds == 30.0
     assert settings.max_output_tokens == 1024
     assert settings.log_level == "INFO"
@@ -27,6 +34,13 @@ def test_settings_use_default_values() -> None:
 def test_settings_read_environment_variables(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("APP_NAME", "Local AI Service")
     monkeypatch.setenv("MODEL_NAME", "demo-model")
+    monkeypatch.setenv("LLM_PROVIDER", "aliyun-compatible")
+    monkeypatch.setenv("LLM_MODEL", "qwen3.7-plus")
+    monkeypatch.setenv(
+        "LLM_BASE_URL",
+        " https://example.cn-beijing.maas.aliyuncs.com/compatible-mode/v1 ",
+    )
+    monkeypatch.setenv("LLM_API_KEY", "llm-test-key")
     monkeypatch.setenv("REQUEST_TIMEOUT_SECONDS", "12.5")
     monkeypatch.setenv("MAX_OUTPUT_TOKENS", "256")
     monkeypatch.setenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000")
@@ -35,6 +49,14 @@ def test_settings_read_environment_variables(monkeypatch: pytest.MonkeyPatch) ->
 
     assert settings.app_name == "Local AI Service"
     assert settings.model_name == "demo-model"
+    assert settings.llm_provider == "aliyun-compatible"
+    assert settings.llm_model == "qwen3.7-plus"
+    assert (
+        settings.resolved_llm_base_url
+        == "https://example.cn-beijing.maas.aliyuncs.com/compatible-mode/v1"
+    )
+    assert settings.resolved_llm_api_key == "llm-test-key"
+    assert settings.has_llm_api_key is True
     assert settings.request_timeout_seconds == 12.5
     assert settings.max_output_tokens == 256
     assert settings.cors_allowed_origin_list == ["http://localhost:3000"]
@@ -47,12 +69,44 @@ def test_settings_detect_openai_api_key(monkeypatch: pytest.MonkeyPatch) -> None
 
     assert settings.openai_api_key == "sk-test-for-local-config"
     assert settings.has_openai_api_key is True
+    assert settings.resolved_llm_api_key == "sk-test-for-local-config"
+    assert settings.has_llm_api_key is True
+
+
+def test_settings_prefer_llm_api_key_over_legacy_openai_api_key(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("LLM_API_KEY", "llm-test-key")
+    monkeypatch.setenv("OPENAI_API_KEY", "legacy-openai-test-key")
+
+    settings = Settings(_env_file=None)
+
+    assert settings.resolved_llm_api_key == "llm-test-key"
+
+
+def test_settings_fall_back_to_legacy_openai_api_key_when_llm_key_is_blank(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("LLM_API_KEY", "   ")
+    monkeypatch.setenv("OPENAI_API_KEY", "legacy-openai-test-key")
+
+    settings = Settings(_env_file=None)
+
+    assert settings.resolved_llm_api_key == "legacy-openai-test-key"
 
 
 def test_settings_treat_blank_openai_api_key_as_missing() -> None:
     settings = Settings(openai_api_key="   ", _env_file=None)
 
     assert settings.has_openai_api_key is False
+    assert settings.has_llm_api_key is False
+
+
+def test_settings_treat_blank_llm_api_key_as_missing() -> None:
+    settings = Settings(llm_api_key="   ", _env_file=None)
+
+    assert settings.resolved_llm_api_key is None
+    assert settings.has_llm_api_key is False
 
 
 def test_settings_read_env_file(tmp_path: Path) -> None:
@@ -63,6 +117,10 @@ def test_settings_read_env_file(tmp_path: Path) -> None:
                 'APP_NAME="File AI Service"',
                 'APP_VERSION="9.9.9"',
                 'LOG_LEVEL="DEBUG"',
+                'LLM_PROVIDER="aliyun-compatible"',
+                'LLM_MODEL="qwen3.7-plus"',
+                'LLM_BASE_URL="https://example.cn-beijing.maas.aliyuncs.com/compatible-mode/v1"',
+                'LLM_API_KEY=""',
                 "MAX_OUTPUT_TOKENS=512",
                 'CORS_ALLOWED_ORIGINS="http://localhost:5173, http://localhost:3000"',
                 'OPENAI_API_KEY=""',
@@ -76,6 +134,13 @@ def test_settings_read_env_file(tmp_path: Path) -> None:
     assert settings.app_name == "File AI Service"
     assert settings.app_version == "9.9.9"
     assert settings.log_level == "DEBUG"
+    assert settings.llm_provider == "aliyun-compatible"
+    assert settings.llm_model == "qwen3.7-plus"
+    assert (
+        settings.resolved_llm_base_url
+        == "https://example.cn-beijing.maas.aliyuncs.com/compatible-mode/v1"
+    )
+    assert settings.has_llm_api_key is False
     assert settings.max_output_tokens == 512
     assert settings.cors_allowed_origin_list == [
         "http://localhost:5173",

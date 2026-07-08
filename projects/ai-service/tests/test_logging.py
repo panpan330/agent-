@@ -1,9 +1,16 @@
 import logging
 
 import pytest
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from app.core.logging import configure_logging, get_log_level
+from app.routers.chat import get_llm_chat_service
+
+
+class FakeLLMChatService:
+    def generate_reply(self, user_message: str) -> str:
+        return f"测试回复：{user_message}"
 
 
 def test_get_log_level_accepts_known_level() -> None:
@@ -27,10 +34,15 @@ def test_configure_logging_sets_app_logger_level() -> None:
     assert logging.getLogger("app").level == logging.ERROR
 
 
-def test_chat_writes_business_log(client: TestClient, caplog: pytest.LogCaptureFixture) -> None:
+def test_chat_writes_business_log(
+    app: FastAPI,
+    client: TestClient,
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    app.dependency_overrides[get_llm_chat_service] = lambda: FakeLLMChatService()
     caplog.set_level(logging.INFO, logger="app.routers.chat")
 
     response = client.post("/chat", json={"message": "测试日志"})
 
     assert response.status_code == 200
-    assert "mock_chat_requested message_length=4" in caplog.text
+    assert "chat_requested message_length=4" in caplog.text

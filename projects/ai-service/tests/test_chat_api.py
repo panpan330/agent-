@@ -1,9 +1,24 @@
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from app.core.trace import TRACE_ID_HEADER
+from app.routers.chat import get_llm_chat_service
 
 
-def test_chat_replies_with_mock_message(client: TestClient) -> None:
+class FakeLLMChatService:
+    def __init__(self, reply: str) -> None:
+        self.reply = reply
+        self.messages: list[str] = []
+
+    def generate_reply(self, user_message: str) -> str:
+        self.messages.append(user_message)
+        return self.reply
+
+
+def test_chat_returns_llm_reply(app: FastAPI, client: TestClient) -> None:
+    fake_service = FakeLLMChatService("FastAPI 是一个 Python Web 框架。")
+    app.dependency_overrides[get_llm_chat_service] = lambda: fake_service
+
     response = client.post(
         "/chat",
         json={"message": "请解释 FastAPI 是什么"},
@@ -11,7 +26,26 @@ def test_chat_replies_with_mock_message(client: TestClient) -> None:
     data = response.json()
 
     assert response.status_code == 200
-    assert data == {"reply": "你刚才说的是：请解释 FastAPI 是什么"}
+    assert data == {"reply": "FastAPI 是一个 Python Web 框架。"}
+    assert fake_service.messages == ["请解释 FastAPI 是什么"]
+
+
+def test_chat_returns_config_error_when_llm_key_is_missing(
+    client: TestClient,
+) -> None:
+    response = client.post(
+        "/chat",
+        headers={TRACE_ID_HEADER: "trace-no-key"},
+        json={"message": "请解释 FastAPI 是什么"},
+    )
+    data = response.json()
+
+    assert response.status_code == 500
+    assert data == {
+        "code": "LLM_API_KEY_MISSING",
+        "message": "LLM API key 未配置，请先在本机 .env 中配置 LLM_API_KEY。",
+        "trace_id": "trace-no-key",
+    }
 
 
 def test_chat_rejects_missing_message(client: TestClient) -> None:

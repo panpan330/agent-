@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from app.core.config import get_settings
+from app.core.config import Settings, get_settings
 from app.core.cors import register_cors_middleware
 from app.core.exception_handlers import register_exception_handlers
 from app.core.logging import configure_logging
@@ -8,8 +8,8 @@ from app.middleware.tracing import register_trace_middleware
 from app.routers import chat, health
 
 
-def create_app() -> FastAPI:
-    settings = get_settings()
+def create_app(settings: Settings | None = None) -> FastAPI:
+    settings = settings or get_settings()
     configure_logging(settings.log_level)
     app = FastAPI(
         title=settings.app_name,

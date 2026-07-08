@@ -2,6 +2,7 @@ import logging
 import re
 
 import pytest
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from app.core.trace import (
@@ -13,6 +14,12 @@ from app.core.trace import (
     reset_trace_id,
     set_trace_id,
 )
+from app.routers.chat import get_llm_chat_service
+
+
+class FakeLLMChatService:
+    def generate_reply(self, user_message: str) -> str:
+        return f"测试回复：{user_message}"
 
 
 def test_generate_trace_id_returns_hex_string() -> None:
@@ -69,10 +76,12 @@ def test_trace_id_header_is_different_for_different_requests(
 
 
 def test_chat_logs_share_request_trace_id(
+    app: FastAPI,
     client: TestClient,
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     trace_id = "client-trace-lesson-13"
+    app.dependency_overrides[get_llm_chat_service] = lambda: FakeLLMChatService()
     caplog.set_level(logging.INFO)
 
     response = client.post(
@@ -91,7 +100,7 @@ def test_chat_logs_share_request_trace_id(
     assert response.status_code == 200
     assert response.headers[TRACE_ID_HEADER] == trace_id
     assert "request_started method=POST path=/chat" in messages
-    assert "mock_chat_requested message_length=4" in messages
+    assert "chat_requested message_length=4" in messages
     assert any(message.startswith("request_finished method=POST path=/chat") for message in messages)
     assert trace_ids
     assert all(value == trace_id for value in trace_ids)

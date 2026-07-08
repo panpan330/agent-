@@ -1,8 +1,8 @@
 # AI Service
 
-Python AI 服务项目。阶段 1：FastAPI 服务基础已完成。
+Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2 正在学习 LLM API 基础调用。
 
-当前项目还没有接真实大模型，`/chat` 是 mock 接口。这个阶段的重点是先把 AI 服务的 Web API 工程基础搭稳。
+当前 `/chat` 已经从 mock 回复改成 OpenAI-compatible 真实模型调用。没有配置本机 `LLM_API_KEY` 时，接口会返回统一配置错误。
 
 ## 当前能力
 
@@ -12,6 +12,12 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成。
 - router 路由拆分
 - Pydantic 请求模型和响应模型
 - `.env` 配置读取
+- OpenAI SDK 依赖
+- OpenAI-compatible LLM client 初始化
+- `system` / `user` / `assistant` 消息结构
+- prompt 分段构建工具
+- `/chat` 真实模型调用
+- fake LLM service/client 测试隔离
 - logging 基础日志
 - `trace_id` 请求追踪
 - 统一异常处理
@@ -39,7 +45,14 @@ app/
   schemas/
     chat.py                聊天请求/响应模型
     error.py               统一错误响应模型
+  services/
+    llm_client.py          OpenAI-compatible SDK client 初始化
+    llm_service.py         LLM 聊天调用服务
+    message_builder.py     聊天 messages 构建工具
+    prompt_builder.py      prompt 分段构建工具
   main.py                  FastAPI 应用入口
+scripts/
+  llm_compatible_smoke_test.py 手动检查或调用兼容模型
 tests/
   conftest.py              pytest 共享夹具
   test_chat_api.py         /chat 接口测试
@@ -48,7 +61,11 @@ tests/
   test_cors.py             CORS 测试
   test_exception_handlers.py 统一异常处理测试
   test_health.py           /health 测试
+  test_llm_client.py       LLM client 初始化测试
+  test_llm_service.py      LLM 聊天服务测试
   test_logging.py          日志测试
+  test_message_builder.py  聊天 messages 构建测试
+  test_prompt_builder.py   prompt 分段构建测试
   test_token_usage.py      token 粗略估算测试
   test_trace.py            trace_id 测试
 ```
@@ -86,7 +103,7 @@ http://127.0.0.1:8000/docs
 uv run pytest -q
 ```
 
-当前测试使用 FastAPI 的 `TestClient`，覆盖 `/health`、`/chat`、`ChatRequest`、`ChatResponse`、配置读取、日志、`trace_id`、统一异常处理、CORS 和 token 粗略估算。
+当前测试使用 FastAPI 的 `TestClient`，覆盖 `/health`、`/chat`、`ChatRequest`、`ChatResponse`、`ChatMessage`、配置读取、日志、`trace_id`、统一异常处理、CORS、token 粗略估算、LLM client 初始化、LLM service、messages 构建和 prompt 构建。
 
 也可以运行 Python 编译检查：
 
@@ -106,17 +123,93 @@ uv run python -m compileall -q -x ".venv|__pycache__" .
 | `APP_DESCRIPTION` | FastAPI 应用描述 |
 | `APP_VERSION` | FastAPI 应用版本 |
 | `MODEL_NAME` | 当前使用的模型名称，现阶段先是 mock 名称 |
+| `LLM_PROVIDER` | LLM 服务商标识，例如 `aliyun-compatible` |
+| `LLM_MODEL` | 真实模型名，例如 `qwen3.7-plus` |
+| `LLM_BASE_URL` | OpenAI-compatible 接口地址，真实值只放本机 `.env` |
+| `LLM_API_KEY` | LLM API key，真实值只放本机 `.env` 或系统环境变量 |
 | `REQUEST_TIMEOUT_SECONDS` | 后续调用模型或外部接口时使用的超时时间 |
 | `MAX_OUTPUT_TOKENS` | 后续限制模型最多生成多少输出 token |
 | `LOG_LEVEL` | 日志级别 |
 | `CORS_ALLOWED_ORIGINS` | 允许跨源访问后端的前端来源，多个值用逗号分隔 |
-| `OPENAI_API_KEY` | 后续接真实大模型时使用，不能写死在代码里 |
+| `OPENAI_API_KEY` | 旧版兼容字段，后续优先使用 `LLM_API_KEY` |
 
-`OPENAI_API_KEY` 属于敏感信息。真实值只应该放在本机 `.env` 或系统环境变量里，不要写进代码、README、测试用例、截图或聊天记录里。
+`LLM_API_KEY` 和 `OPENAI_API_KEY` 都属于敏感信息。真实值只应该放在本机 `.env` 或系统环境变量里，不要写进代码、README、测试用例、截图或聊天记录里。
 
-项目里可以通过 `settings.has_openai_api_key` 判断是否已经配置了非空 key。`OPENAI_API_KEY=""` 或全是空格时，都视为未配置。
+项目里可以通过 `settings.has_llm_api_key` 判断是否已经配置了非空 key。`LLM_API_KEY=""` 或全是空格时，都视为未配置。
 
 `app/core/token_usage.py` 提供的是本地粗略估算工具，用来学习和做预算保护，不等于真实计费结果。真实 token 数以后要以模型 API 响应里的 `usage` 为准。
+
+## OpenAI-compatible SDK 检查
+
+当前项目使用官方 `openai` Python SDK 初始化 OpenAI-compatible client。
+
+配置入口：
+
+```text
+app/services/llm_client.py
+```
+
+手动检查配置：
+
+```powershell
+uv run python scripts/llm_compatible_smoke_test.py
+```
+
+这条命令默认不会调用模型，只检查本机 `.env` 是否已经配置 `LLM_API_KEY`。
+
+脚本真实调用时会先用 `app/services/prompt_builder.py` 把用户输入整理成包含任务、要求、输出格式和失败策略的清晰 prompt。
+
+确认要真实调用模型时，再显式加：
+
+```powershell
+uv run python scripts/llm_compatible_smoke_test.py --call
+```
+
+注意：`--call` 会请求真实模型，可能产生费用。真实 key 不要发给任何人，只放本机 `.env`。
+
+## 真实 `/chat`
+
+`/chat` 当前通过 `app/services/llm_service.py` 调用 OpenAI-compatible 模型。
+
+调用链路：
+
+```text
+POST /chat
+-> app/routers/chat.py
+-> LLMChatService.generate_reply()
+-> prompt_builder.py
+-> message_builder.py
+-> llm_client.py
+-> client.chat.completions.create(...)
+```
+
+请求示例：
+
+```json
+{
+  "message": "请解释 FastAPI 是什么"
+}
+```
+
+成功响应示例：
+
+```json
+{
+  "reply": "模型生成的回答"
+}
+```
+
+如果没有配置本机 `LLM_API_KEY`，会返回：
+
+```json
+{
+  "code": "LLM_API_KEY_MISSING",
+  "message": "LLM API key 未配置，请先在本机 .env 中配置 LLM_API_KEY。",
+  "trace_id": "..."
+}
+```
+
+自动化测试不会真实调用模型。测试通过 FastAPI `dependency_overrides` 注入 fake service，通过 fake client 测试 `LLMChatService`。
 
 ## CORS
 
@@ -162,7 +255,7 @@ LOG_LEVEL
 当前 `/chat` 接口会记录一条业务日志：
 
 ```text
-mock_chat_requested message_length=...
+chat_requested message_length=...
 ```
 
 日志格式会自动带上当前请求的 `trace_id`：
@@ -243,7 +336,7 @@ app/core/exception_handlers.py
 | 方法 | 路径 | 说明 |
 | --- | --- | --- |
 | GET | `/health` | 服务健康检查 |
-| POST | `/chat` | 模拟聊天接口，返回 mock 回复 |
+| POST | `/chat` | 聊天接口，调用 OpenAI-compatible 模型 |
 
 ## 当前模型
 
@@ -251,6 +344,8 @@ app/core/exception_handlers.py
 | --- | --- | --- |
 | `ChatRequest` | `app/schemas/chat.py` | 聊天请求体，要求 `message` 是非空字符串 |
 | `ChatResponse` | `app/schemas/chat.py` | 聊天响应体，要求 `reply` 是非空字符串 |
+| `ChatMessageRole` | `app/schemas/chat.py` | 聊天消息角色，只允许 `system`、`user`、`assistant` |
+| `ChatMessage` | `app/schemas/chat.py` | 聊天消息模型，包含 `role` 和 `content` |
 | `ErrorResponse` | `app/schemas/error.py` | 统一错误响应体，包含 `code`、`message`、`trace_id` 和可选 `details` |
 
 ## 阶段 1 验收
@@ -268,4 +363,4 @@ app/core/exception_handlers.py
 
 ## 下一阶段
 
-下一阶段进入 LLM API 基础调用，把当前 mock `/chat` 逐步替换成真实大模型调用。
+下一步继续阶段 2，学习多轮对话、超时、重试、模型调用日志、流式输出和结构化输出。

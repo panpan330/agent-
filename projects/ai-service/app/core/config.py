@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     )
     app_version: str = Field(default="0.1.0")
     model_name: str = Field(default="mock-chat-model")
+    llm_provider: str = Field(default="openai-compatible")
+    llm_model: str = Field(default="qwen3.7-plus")
+    llm_base_url: str | None = Field(default=None)
+    llm_api_key: str | None = Field(default=None, repr=False)
     request_timeout_seconds: float = Field(default=30.0, gt=0)
     max_output_tokens: int = Field(default=1024, gt=0)
     log_level: str = Field(default="INFO")
@@ -41,6 +45,23 @@ class Settings(BaseSettings):
     @property
     def has_openai_api_key(self) -> bool:
         return bool(self.openai_api_key and self.openai_api_key.strip())
+
+    @property
+    def resolved_llm_api_key(self) -> str | None:
+        for api_key in (self.llm_api_key, self.openai_api_key):
+            if api_key and api_key.strip():
+                return api_key.strip()
+        return None
+
+    @property
+    def has_llm_api_key(self) -> bool:
+        return self.resolved_llm_api_key is not None
+
+    @property
+    def resolved_llm_base_url(self) -> str | None:
+        if not self.llm_base_url or not self.llm_base_url.strip():
+            return None
+        return self.llm_base_url.strip()
 
 
 @lru_cache

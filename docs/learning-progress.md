@@ -81,6 +81,10 @@
 - [x] 完成阶段 2 第 1 节：什么是 LLM API
 - [x] 完成阶段 2 第 2 节：API key 和 `.env` 安全配置
 - [x] 完成阶段 2 第 3 节：token、上下文窗口、费用基础
+- [x] 完成阶段 2 第 4 节：OpenAI-compatible SDK 基础调用方式
+- [x] 完成阶段 2 第 5 节：messages 是什么：system / user / assistant
+- [x] 完成阶段 2 第 6 节：prompt 基础：怎么写清楚任务
+- [x] 完成阶段 2 第 7 节：第一次真实 `/chat` 调用
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -115,10 +119,10 @@
 | 1 | 什么是 LLM API | 已完成 | `notes/llm-api-stage2-01-what-is-llm-api.md` |
 | 2 | API key 和 `.env` 安全配置 | 已完成 | `notes/llm-api-stage2-02-api-key-env-security.md`、`app/core/config.py`、`tests/test_config.py` |
 | 3 | token、上下文窗口、费用基础 | 已完成 | `notes/llm-api-stage2-03-token-context-cost.md`、`app/core/token_usage.py`、`tests/test_token_usage.py`、`.env.example` |
-| 4 | OpenAI SDK 基础调用方式 | 未开始 | SDK 依赖和最小调用示例 |
-| 5 | messages 是什么：system / user / assistant | 未开始 | messages 笔记和练习 |
-| 6 | prompt 基础：怎么写清楚任务 | 未开始 | prompt 笔记和练习 |
-| 7 | 第一次真实 `/chat` 调用 | 未开始 | `/chat` 调真实模型 |
+| 4 | OpenAI-compatible SDK 基础调用方式 | 已完成 | `notes/llm-api-stage2-04-openai-compatible-sdk.md`、`app/services/llm_client.py`、`tests/test_llm_client.py`、`scripts/llm_compatible_smoke_test.py` |
+| 5 | messages 是什么：system / user / assistant | 已完成 | `notes/llm-api-stage2-05-messages-roles.md`、`app/schemas/chat.py`、`app/services/message_builder.py`、`tests/test_message_builder.py` |
+| 6 | prompt 基础：怎么写清楚任务 | 已完成 | `notes/llm-api-stage2-06-prompt-basics.md`、`app/services/prompt_builder.py`、`tests/test_prompt_builder.py` |
+| 7 | 第一次真实 `/chat` 调用 | 已完成 | `notes/llm-api-stage2-07-real-chat-call.md`、`app/services/llm_service.py`、`app/routers/chat.py`、`tests/test_llm_service.py`、`tests/test_chat_api.py` |
 | 8 | 多轮对话基础：历史消息怎么传 | 未开始 | 多轮对话请求模型 |
 | 9 | 超时 timeout | 未开始 | 模型调用超时配置 |
 | 10 | 重试 retry 和限流 rate limit 基础 | 未开始 | retry/rate limit 笔记 |
@@ -143,7 +147,7 @@ M0/M1 第一阶段完成时，必须满足：
 - [x] `projects/ai-service` 有清晰目录结构。
 - [x] FastAPI 服务能启动。
 - [x] `/health` 返回正常。
-- [ ] `/chat` 能完成一次普通模型调用。
+- [x] `/chat` 能完成一次普通模型调用。
 - [ ] `/stream-chat` 能流式返回。
 - [ ] 请求日志包含 trace_id、模型名、耗时、错误信息。
 - [x] 密钥只从 `.env` 或环境变量读取，并提供 `.env.example`。
@@ -195,7 +199,8 @@ M0/M1 第一阶段完成时，必须满足：
 
 ### LLM API
 
-- [ ] system prompt / user prompt
+- [x] OpenAI-compatible SDK 基础调用
+- [x] system prompt / user prompt
 - [ ] streaming
 - [ ] structured output
 - [ ] tool calling
