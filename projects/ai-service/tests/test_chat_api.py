@@ -8,9 +8,15 @@ from app.schemas.chat import ChatMessage
 
 
 class FakeLLMChatService:
-    def __init__(self, reply: str) -> None:
+    def __init__(
+        self,
+        reply: str,
+        stream_chunks: list[str] | None = None,
+    ) -> None:
         self.reply = reply
+        self.stream_chunks = stream_chunks or []
         self.calls: list[tuple[str, list[ChatMessage]]] = []
+        self.stream_calls: list[tuple[str, list[ChatMessage]]] = []
 
     def generate_reply(
         self,
@@ -20,6 +26,15 @@ class FakeLLMChatService:
     ) -> str:
         self.calls.append((user_message, list(history or [])))
         return self.reply
+
+    def stream_reply(
+        self,
+        user_message: str,
+        *,
+        history: list[ChatMessage] | None = None,
+    ) -> object:
+        self.stream_calls.append((user_message, list(history or [])))
+        return iter(self.stream_chunks)
 
 
 class FakeTimeoutLLMChatService:
@@ -50,6 +65,38 @@ class FakeRateLimitedLLMChatService:
         )
 
 
+class FakeStreamConfigErrorLLMChatService:
+    def stream_reply(
+        self,
+        user_message: str,
+        *,
+        history: list[ChatMessage] | None = None,
+    ) -> object:
+        raise AppException(
+            code="LLM_API_KEY_MISSING",
+            message="LLM API key 未配置，请先在本机 .env 中配置 LLM_API_KEY。",
+            status_code=500,
+        )
+
+
+class FakeBrokenStreamLLMChatService:
+    def stream_reply(
+        self,
+        user_message: str,
+        *,
+        history: list[ChatMessage] | None = None,
+    ) -> object:
+        def chunks() -> object:
+            yield "先返回一段"
+            raise AppException(
+                code="LLM_CALL_FAILED",
+                message="模型调用失败，请稍后重试。",
+                status_code=502,
+            )
+
+        return chunks()
+
+
 def test_chat_returns_llm_reply(app: FastAPI, client: TestClient) -> None:
     fake_service = FakeLLMChatService("FastAPI 是一个 Python Web 框架。")
     app.dependency_overrides[get_llm_chat_service] = lambda: fake_service
@@ -63,6 +110,30 @@ def test_chat_returns_llm_reply(app: FastAPI, client: TestClient) -> None:
     assert response.status_code == 200
     assert data == {"reply": "FastAPI 是一个 Python Web 框架。"}
     assert fake_service.calls == [("请解释 FastAPI 是什么", [])]
+
+
+def test_stream_chat_returns_sse_chunks(app: FastAPI, client: TestClient) -> None:
+    fake_service = FakeLLMChatService(
+        "unused",
+        stream_chunks=["FastAPI", " 是", " Python Web 框架。"],
+    )
+    app.dependency_overrides[get_llm_chat_service] = lambda: fake_service
+
+    response = client.post(
+        "/stream-chat",
+        headers={TRACE_ID_HEADER: "trace-stream"},
+        json={"message": "请解释 FastAPI 是什么"},
+    )
+
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/event-stream")
+    assert response.text == (
+        'event: message\ndata: {"content":"FastAPI"}\n\n'
+        'event: message\ndata: {"content":" 是"}\n\n'
+        'event: message\ndata: {"content":" Python Web 框架。"}\n\n'
+        'event: done\ndata: {"trace_id":"trace-stream"}\n\n'
+    )
+    assert fake_service.stream_calls == [("请解释 FastAPI 是什么", [])]
 
 
 def test_chat_passes_history_to_llm_service(
@@ -87,6 +158,34 @@ def test_chat_passes_history_to_llm_service(
     assert response.status_code == 200
     assert data == {"reply": "FastAPI 是一个 Python Web 框架。"}
     user_message, history = fake_service.calls[0]
+    assert user_message == "那 FastAPI 呢？"
+    assert [message.role for message in history] == ["user", "assistant"]
+    assert [message.content for message in history] == [
+        "什么是 API？",
+        "API 是程序之间的接口。",
+    ]
+
+
+def test_stream_chat_passes_history_to_llm_service(
+    app: FastAPI,
+    client: TestClient,
+) -> None:
+    fake_service = FakeLLMChatService("unused", stream_chunks=["回答"])
+    app.dependency_overrides[get_llm_chat_service] = lambda: fake_service
+
+    response = client.post(
+        "/stream-chat",
+        json={
+            "message": "那 FastAPI 呢？",
+            "history": [
+                {"role": "user", "content": "什么是 API？"},
+                {"role": "assistant", "content": "API 是程序之间的接口。"},
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    user_message, history = fake_service.stream_calls[0]
     assert user_message == "那 FastAPI 呢？"
     assert [message.role for message in history] == ["user", "assistant"]
     assert [message.content for message in history] == [
@@ -139,6 +238,52 @@ def test_chat_returns_rate_limit_error_when_llm_is_rate_limited(
     }
 
 
+def test_stream_chat_returns_json_error_before_stream_starts(
+    app: FastAPI,
+    client: TestClient,
+) -> None:
+    app.dependency_overrides[get_llm_chat_service] = (
+        lambda: FakeStreamConfigErrorLLMChatService()
+    )
+
+    response = client.post(
+        "/stream-chat",
+        headers={TRACE_ID_HEADER: "trace-stream-no-key"},
+        json={"message": "请解释 FastAPI 是什么"},
+    )
+    data = response.json()
+
+    assert response.status_code == 500
+    assert data == {
+        "code": "LLM_API_KEY_MISSING",
+        "message": "LLM API key 未配置，请先在本机 .env 中配置 LLM_API_KEY。",
+        "trace_id": "trace-stream-no-key",
+    }
+
+
+def test_stream_chat_returns_error_event_after_stream_starts(
+    app: FastAPI,
+    client: TestClient,
+) -> None:
+    app.dependency_overrides[get_llm_chat_service] = (
+        lambda: FakeBrokenStreamLLMChatService()
+    )
+
+    response = client.post(
+        "/stream-chat",
+        headers={TRACE_ID_HEADER: "trace-stream-broken"},
+        json={"message": "请解释 FastAPI 是什么"},
+    )
+
+    assert response.status_code == 200
+    assert response.text == (
+        'event: message\ndata: {"content":"先返回一段"}\n\n'
+        'event: error\ndata: {"code":"LLM_CALL_FAILED",'
+        '"message":"模型调用失败，请稍后重试。",'
+        '"trace_id":"trace-stream-broken"}\n\n'
+    )
+
+
 def test_chat_returns_config_error_when_llm_key_is_missing(
     client: TestClient,
 ) -> None:
@@ -165,6 +310,22 @@ def test_chat_rejects_missing_message(client: TestClient) -> None:
     assert data["code"] == "VALIDATION_ERROR"
     assert data["message"] == "请求参数校验失败"
     assert data["trace_id"] == "trace-missing"
+    assert data["details"][0]["loc"] == ["body", "message"]
+    assert data["details"][0]["type"] == "missing"
+
+
+def test_stream_chat_rejects_missing_message(client: TestClient) -> None:
+    response = client.post(
+        "/stream-chat",
+        headers={TRACE_ID_HEADER: "trace-stream-missing"},
+        json={},
+    )
+    data = response.json()
+
+    assert response.status_code == 422
+    assert data["code"] == "VALIDATION_ERROR"
+    assert data["message"] == "请求参数校验失败"
+    assert data["trace_id"] == "trace-stream-missing"
     assert data["details"][0]["loc"] == ["body", "message"]
     assert data["details"][0]["type"] == "missing"
 
@@ -230,4 +391,19 @@ def test_chat_does_not_allow_get(client: TestClient) -> None:
         "code": "METHOD_NOT_ALLOWED",
         "message": "请求方法不允许",
         "trace_id": "trace-method",
+    }
+
+
+def test_stream_chat_does_not_allow_get(client: TestClient) -> None:
+    response = client.get(
+        "/stream-chat",
+        headers={TRACE_ID_HEADER: "trace-stream-method"},
+    )
+    data = response.json()
+
+    assert response.status_code == 405
+    assert data == {
+        "code": "METHOD_NOT_ALLOWED",
+        "message": "请求方法不允许",
+        "trace_id": "trace-stream-method",
     }

@@ -319,8 +319,17 @@
 - [OpenAI Responses API Reference](https://platform.openai.com/docs/api-reference/responses/create)
   - 用途：后续实现真实模型调用时查请求参数、响应结构和流式事件。
 
+- [OpenAI Streaming API responses](https://developers.openai.com/api/docs/guides/streaming-responses)
+  - 用途：理解 Chat Completions 和 Completions 通过 `stream=True` 返回流式数据，以及为什么要逐块读取响应。
+
+- [OpenAI Structured model outputs](https://developers.openai.com/api/docs/guides/structured-outputs)
+  - 用途：理解 Structured Outputs、JSON Schema、JSON Mode 的区别，以及为什么 schema adherence 比只返回 JSON 更稳定。
+
 - [OpenAI API Reference：Chat Completions](https://developers.openai.com/api/reference/resources/chat)
   - 用途：确认 Chat Completions 风格接口的 `model`、`messages` 和响应结构。
+
+- [OpenAI API Reference：Chat Completions create](https://developers.openai.com/api/reference/python/resources/chat/subresources/completions/methods/create/)
+  - 用途：确认 `client.chat.completions.create(...)` 的返回结构，以及 `usage` 里的 token 用量信息。
 
 - [OpenAI Conversation state](https://developers.openai.com/api/docs/guides/conversation-state)
   - 用途：理解多轮对话中如何管理上下文状态，以及为什么要主动保存或传递对话状态。
@@ -334,14 +343,44 @@
 - [OpenAI Rate limits guide](https://platform.openai.com/docs/guides/rate-limits)
   - 用途：理解模型服务的请求频率、token 用量、限流和 429 错误。
 
+- [FastAPI：StreamingResponse](https://fastapi.tiangolo.com/advanced/custom-response/)
+  - 用途：理解 FastAPI 如何通过生成器或迭代器逐块返回响应内容。
+
+- [FastAPI：Stream Data](https://fastapi.tiangolo.com/advanced/stream-data/)
+  - 用途：理解 FastAPI 在流式返回时会原样发送每个 chunk，不会自动转换为 JSON。
+
+- [MDN：Using server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events)
+  - 用途：理解 SSE 事件流格式、`text/event-stream` 和浏览器如何接收服务端持续推送。
+
+- [MDN：EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource)
+  - 用途：理解浏览器 `EventSource` 如何打开 SSE 连接并接收服务端事件。
+
 - [MDN：429 Too Many Requests](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/429)
   - 用途：理解 HTTP 429 的通用语义。
+
+- [Python logging 官方文档](https://docs.python.org/3/library/logging.html)
+  - 用途：理解 logger、日志级别、`exc_info` 和日志格式化。
+
+- [Python time.perf_counter 官方文档](https://docs.python.org/3/library/time.html#time.perf_counter)
+  - 用途：理解为什么统计调用耗时要用适合测量时间间隔的计时器。
 
 - [阿里云百炼：OpenAI Chat接口兼容](https://help.aliyun.com/zh/model-studio/compatibility-of-openai-with-dashscope)
   - 用途：学习如何用 OpenAI SDK 调用千问兼容接口，重点理解 API Key、BASE_URL 和模型名称三项配置。
 
+- [阿里云百炼：流式输出](https://help.aliyun.com/zh/model-studio/stream)
+  - 用途：理解百炼模型流式输出、`stream=True`、`stream_options={"include_usage": true}` 和流式计费说明。
+
+- [阿里云百炼：结构化输出](https://help.aliyun.com/zh/model-studio/qwen-structured-output)
+  - 用途：理解千问 OpenAI 兼容接口的 JSON Mode、`response_format={"type": "json_object"}` 和提示词 JSON 关键词要求。
+
 - [阿里云百炼：文本生成模型API参考](https://help.aliyun.com/zh/model-studio/qwen-api-reference/)
   - 用途：理解百炼提供的 OpenAI 兼容 Chat Completions、OpenAI 兼容 Responses、Anthropic 兼容 Messages 和 DashScope 原生接口之间的区别。
+
+- [Pydantic：JSON Schema](https://docs.pydantic.dev/latest/concepts/json_schema/)
+  - 用途：理解 Pydantic 如何从 `BaseModel` 生成 JSON Schema，以及为什么下一节可以用 Pydantic 约束模型输出。
+
+- [JSON Schema：Creating your first schema](https://json-schema.org/learn/getting-started-step-by-step)
+  - 用途：理解 JSON Schema 如何描述对象、字段、类型、必填项和枚举值。
 
 ## 当前阶段推荐资料组合
 
@@ -357,31 +396,49 @@
 8. 本仓库 `notes/llm-api-stage2-08-multi-turn-history.md`
 9. 本仓库 `notes/llm-api-stage2-09-timeout.md`
 10. 本仓库 `notes/llm-api-stage2-10-retry-rate-limit.md`
-11. OpenAI Developer quickstart，理解 API key、SDK 和第一次 API 调用
-12. OpenAI API Reference：Authentication，理解 API key 认证和密钥安全
-13. OpenAI Python API library，理解 Python SDK、`.env`、timeouts、retries 和 `RateLimitError`
-14. OpenAI SDKs and CLI，理解 SDK 安装和基础使用
-15. OpenAI API Reference：Chat Completions，确认 `model`、`messages` 和 `choices[0].message.content`
-16. OpenAI Conversation state，理解多轮对话状态管理
-17. OpenAI Error codes，理解 SDK 错误类型和错误处理
-18. OpenAI Rate limits guide，理解请求频率、token 限额和 429
-19. MDN 429 Too Many Requests，理解 HTTP 429 通用语义
-20. 阿里云百炼：OpenAI Chat接口兼容，理解千问兼容接口的 `api_key`、`base_url`、`model` 和 `messages`
-21. 阿里云百炼：文本生成模型API参考，理解兼容 Chat Completions 和 Responses 的区别
-22. OpenAI Production best practices，理解生产环境 key 安全和 token 成本估算
-23. OpenAI Key concepts：Tokens，理解 token 和上下文窗口
-24. OpenAI Pricing，确认当前模型价格
-25. OpenAI Reasoning models，理解 reasoning tokens 和 `max_output_tokens`
-26. OpenAI Text generation，理解大模型文本生成和 Responses API
-27. OpenAI Prompt engineering，理解消息角色、prompt 版本化和测试
-28. OpenAI Migrate to the Responses API，理解 `messages` 和 typed Items 的映射
-29. OpenAI Models，理解模型选择要看当前官方文档
-30. OpenAI Responses API Reference，后续写真实调用时查参数和响应
-31. 本仓库 `notes/fastapi-stage1-16-project-summary.md`，复习当前 FastAPI 服务基础
-32. 本仓库 `notes/fastapi-stage1-11-env-config.md`，复习 `.env` 配置读取
-33. 本仓库 `notes/fastapi-stage1-12-logging.md`，复习日志
-34. 本仓库 `notes/fastapi-stage1-13-trace-id.md`，复习请求追踪
-35. 本仓库 `notes/fastapi-stage1-14-exception-handling.md`，复习统一异常处理
+11. 本仓库 `notes/llm-api-stage2-11-model-error-handling.md`
+12. 本仓库 `notes/llm-api-stage2-12-llm-call-logging.md`
+13. 本仓库 `notes/llm-api-stage2-13-streaming-concept.md`
+14. 本仓库 `notes/llm-api-stage2-14-stream-chat-endpoint.md`
+15. 本仓库 `notes/llm-api-stage2-15-structured-output-concept.md`
+16. OpenAI Developer quickstart，理解 API key、SDK 和第一次 API 调用
+17. OpenAI API Reference：Authentication，理解 API key 认证和密钥安全
+18. OpenAI Python API library，理解 Python SDK、`.env`、timeouts、retries、错误层级和 `APIStatusError`
+19. OpenAI SDKs and CLI，理解 SDK 安装和基础使用
+20. OpenAI API Reference：Chat Completions，确认 `model`、`messages` 和 `choices[0].message.content`
+21. OpenAI API Reference：Chat Completions create，确认 `usage.prompt_tokens`、`usage.completion_tokens` 和 `usage.total_tokens`
+22. OpenAI Streaming API responses，理解 `stream=True` 和逐块读取响应
+23. OpenAI Structured model outputs，理解 Structured Outputs、JSON Mode 和 JSON Schema
+24. OpenAI Conversation state，理解多轮对话状态管理
+25. OpenAI Error codes，理解 SDK 错误类型和错误处理
+26. OpenAI Rate limits guide，理解请求频率、token 限额和 429
+27. FastAPI StreamingResponse，理解服务端如何逐块返回数据
+28. FastAPI Stream Data，理解 FastAPI 不会自动把 chunk 转换成 JSON
+29. MDN Using server-sent events，理解 SSE 和 `text/event-stream`
+30. MDN EventSource，理解浏览器 SSE 接收方式
+31. Python logging 官方文档，理解日志级别、日志格式和 `exc_info`
+32. Python time.perf_counter 官方文档，理解模型调用耗时统计
+33. MDN 429 Too Many Requests，理解 HTTP 429 通用语义
+34. 阿里云百炼：OpenAI Chat接口兼容，理解千问兼容接口的 `api_key`、`base_url`、`model`、`messages` 和 `usage`
+35. 阿里云百炼：流式输出，理解 `stream=True`、`stream_options={"include_usage": true}` 和流式计费
+36. 阿里云百炼：结构化输出，理解 JSON Mode 和 `response_format={"type": "json_object"}`
+37. 阿里云百炼：文本生成模型API参考，理解兼容 Chat Completions 和 Responses 的区别
+38. Pydantic JSON Schema，理解 `BaseModel.model_json_schema()`
+39. JSON Schema Creating your first schema，理解对象、字段、类型和必填项
+40. OpenAI Production best practices，理解生产环境 key 安全和 token 成本估算
+41. OpenAI Key concepts：Tokens，理解 token 和上下文窗口
+42. OpenAI Pricing，确认当前模型价格
+43. OpenAI Reasoning models，理解 reasoning tokens 和 `max_output_tokens`
+44. OpenAI Text generation，理解大模型文本生成和 Responses API
+45. OpenAI Prompt engineering，理解消息角色、prompt 版本化和测试
+46. OpenAI Migrate to the Responses API，理解 `messages` 和 typed Items 的映射
+47. OpenAI Models，理解模型选择要看当前官方文档
+48. OpenAI Responses API Reference，后续写真实调用时查参数和响应
+49. 本仓库 `notes/fastapi-stage1-16-project-summary.md`，复习当前 FastAPI 服务基础
+50. 本仓库 `notes/fastapi-stage1-11-env-config.md`，复习 `.env` 配置读取
+51. 本仓库 `notes/fastapi-stage1-12-logging.md`，复习日志
+52. 本仓库 `notes/fastapi-stage1-13-trace-id.md`，复习请求追踪
+53. 本仓库 `notes/fastapi-stage1-14-exception-handling.md`，复习统一异常处理
 
 阶段 1：FastAPI 服务基础已完成。复盘时可看：
 

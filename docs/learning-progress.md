@@ -55,7 +55,7 @@
 - [x] 搭建 FastAPI 基础项目
 - [x] 实现 `/health`
 - [x] 实现模拟 `/chat` 接口
-- [ ] 实现 `/stream-chat`
+- [x] 实现 `/stream-chat`
 - [x] 加入 `.env` 配置读取
 - [x] 加入 trace_id 请求追踪
 - [x] 加入统一异常处理
@@ -88,6 +88,11 @@
 - [x] 完成阶段 2 第 8 节：多轮对话基础：历史消息怎么传
 - [x] 完成阶段 2 第 9 节：timeout 超时
 - [x] 完成阶段 2 第 10 节：retry 重试和 rate limit 限流基础
+- [x] 完成阶段 2 第 11 节：模型调用错误处理
+- [x] 完成阶段 2 第 12 节：模型调用日志：模型名、耗时、trace_id、token
+- [x] 完成阶段 2 第 13 节：streaming 流式输出是什么
+- [x] 完成阶段 2 第 14 节：FastAPI `StreamingResponse` 实现 `/stream-chat`
+- [x] 完成阶段 2 第 15 节：结构化输出是什么
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -129,11 +134,11 @@
 | 8 | 多轮对话基础：历史消息怎么传 | 已完成 | `notes/llm-api-stage2-08-multi-turn-history.md`、`ChatRequest.history`、`LLMChatService.generate_reply(..., history=...)`、多轮对话测试 |
 | 9 | 超时 timeout | 已完成 | `notes/llm-api-stage2-09-timeout.md`、`APITimeoutError` -> `LLM_TIMEOUT`、504 接口测试 |
 | 10 | 重试 retry 和限流 rate limit 基础 | 已完成 | `notes/llm-api-stage2-10-retry-rate-limit.md`、`LLM_MAX_RETRIES`、`RateLimitError` -> `LLM_RATE_LIMITED` |
-| 11 | 模型调用错误处理 | 未开始 | LLM 错误映射到统一异常 |
-| 12 | 模型调用日志：模型名、耗时、trace_id、token | 未开始 | LLM 调用日志 |
-| 13 | streaming 流式输出是什么 | 未开始 | streaming 概念笔记 |
-| 14 | FastAPI `StreamingResponse` 实现 `/stream-chat` | 未开始 | `/stream-chat` 接口 |
-| 15 | 结构化输出是什么 | 未开始 | 结构化输出概念笔记 |
+| 11 | 模型调用错误处理 | 已完成 | `notes/llm-api-stage2-11-model-error-handling.md`、`map_openai_error_to_app_exception`、常见 SDK 错误映射测试 |
+| 12 | 模型调用日志：模型名、耗时、trace_id、token | 已完成 | `notes/llm-api-stage2-12-llm-call-logging.md`、`LLMTokenUsage`、`extract_token_usage`、成功/失败调用日志测试 |
+| 13 | streaming 流式输出是什么 | 已完成 | `notes/llm-api-stage2-13-streaming-concept.md`、普通响应/流式响应、chunk、SSE、`StreamingResponse` 概念 |
+| 14 | FastAPI `StreamingResponse` 实现 `/stream-chat` | 已完成 | `notes/llm-api-stage2-14-stream-chat-endpoint.md`、`/stream-chat`、SSE `message/done/error`、流式 service/router 测试 |
+| 15 | 结构化输出是什么 | 已完成 | `notes/llm-api-stage2-15-structured-output-concept.md`、JSON Mode、Structured Outputs、JSON Schema、Pydantic 校验概念 |
 | 16 | Pydantic 约束结构化输出 | 未开始 | 结构化响应模型 |
 | 17 | 测试模型调用：mock/fake LLM client | 未开始 | fake LLM client 和测试 |
 | 18 | 阶段 2 项目整理 | 未开始 | README、测试、复盘 |
@@ -151,8 +156,8 @@ M0/M1 第一阶段完成时，必须满足：
 - [x] FastAPI 服务能启动。
 - [x] `/health` 返回正常。
 - [x] `/chat` 能完成一次普通模型调用。
-- [ ] `/stream-chat` 能流式返回。
-- [ ] 请求日志包含 trace_id、模型名、耗时、错误信息。
+- [x] `/stream-chat` 能流式返回。
+- [x] 请求日志包含 trace_id、模型名、耗时、错误信息。
 - [x] 密钥只从 `.env` 或环境变量读取，并提供 `.env.example`。
 - [x] 至少有 5 个 pytest 用例。
 
@@ -260,12 +265,12 @@ M0/M1 第一阶段完成时，必须满足：
 ### 工程化
 
 - [x] 请求日志
-- [ ] 模型调用日志
+- [x] 模型调用日志
 - [ ] tool 调用日志
 - [x] trace_id
 - [ ] token 成本统计
 - [ ] 限流
-- [ ] 重试
+- [x] 重试
 - [ ] 缓存
 - [ ] Docker Compose
 - [ ] eval.py

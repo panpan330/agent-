@@ -97,6 +97,11 @@ projects/ 练习项目、Demo 和完整作品
 | 8 | 多轮对话基础：历史消息怎么传 | [notes/llm-api-stage2-08-multi-turn-history.md](notes/llm-api-stage2-08-multi-turn-history.md) | [projects/ai-service](projects/ai-service) |
 | 9 | timeout 超时 | [notes/llm-api-stage2-09-timeout.md](notes/llm-api-stage2-09-timeout.md) | [projects/ai-service](projects/ai-service) |
 | 10 | retry 重试和 rate limit 限流基础 | [notes/llm-api-stage2-10-retry-rate-limit.md](notes/llm-api-stage2-10-retry-rate-limit.md) | [projects/ai-service](projects/ai-service) |
+| 11 | 模型调用错误处理 | [notes/llm-api-stage2-11-model-error-handling.md](notes/llm-api-stage2-11-model-error-handling.md) | [projects/ai-service](projects/ai-service) |
+| 12 | 模型调用日志：模型名、耗时、trace_id、token | [notes/llm-api-stage2-12-llm-call-logging.md](notes/llm-api-stage2-12-llm-call-logging.md) | [projects/ai-service](projects/ai-service) |
+| 13 | streaming 流式输出是什么 | [notes/llm-api-stage2-13-streaming-concept.md](notes/llm-api-stage2-13-streaming-concept.md) | [projects/ai-service](projects/ai-service) |
+| 14 | FastAPI `StreamingResponse` 实现 `/stream-chat` | [notes/llm-api-stage2-14-stream-chat-endpoint.md](notes/llm-api-stage2-14-stream-chat-endpoint.md) | [projects/ai-service](projects/ai-service) |
+| 15 | 结构化输出是什么 | [notes/llm-api-stage2-15-structured-output-concept.md](notes/llm-api-stage2-15-structured-output-concept.md) | [projects/ai-service](projects/ai-service) |
 
 ## 当前目标
 

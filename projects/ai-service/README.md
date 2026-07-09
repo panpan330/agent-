@@ -4,6 +4,8 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2 正
 
 当前 `/chat` 已经从 mock 回复改成 OpenAI-compatible 真实模型调用。没有配置本机 `LLM_API_KEY` 时，接口会返回统一配置错误。
 
+当前 `/stream-chat` 已经支持 OpenAI-compatible 流式输出，并通过 SSE 逐块返回模型生成内容。
+
 ## 当前能力
 
 - FastAPI 应用创建和启动
@@ -18,8 +20,13 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2 正
 - prompt 分段构建工具
 - `/chat` 真实模型调用
 - `/chat` 可选多轮对话 `history`
+- `/stream-chat` 流式聊天接口
+- SSE `message` / `done` / `error` 事件格式
 - 模型调用 timeout 统一错误处理
 - SDK retry 次数配置和 rate limit 统一错误处理
+- OpenAI-compatible SDK 常见错误映射
+- 模型调用成功/失败日志和流式调用日志
+- 模型响应 `usage` token 用量提取
 - fake LLM service/client 测试隔离
 - logging 基础日志
 - `trace_id` 请求追踪
@@ -106,7 +113,7 @@ http://127.0.0.1:8000/docs
 uv run pytest -q
 ```
 
-当前测试使用 FastAPI 的 `TestClient`，覆盖 `/health`、`/chat`、`ChatRequest`、`ChatResponse`、`ChatMessage`、多轮 `history`、配置读取、日志、`trace_id`、统一异常处理、CORS、token 粗略估算、LLM client 初始化、LLM service、timeout/rate limit 错误映射、messages 构建和 prompt 构建。
+当前测试使用 FastAPI 的 `TestClient`，覆盖 `/health`、`/chat`、`/stream-chat`、`ChatRequest`、`ChatResponse`、`ChatMessage`、多轮 `history`、配置读取、日志、`trace_id`、统一异常处理、CORS、token 粗略估算、LLM client 初始化、LLM service、OpenAI-compatible SDK 错误映射、模型调用日志、流式调用日志、模型响应 token usage 提取、messages 构建和 prompt 构建。
 
 也可以运行 Python 编译检查：
 
@@ -249,6 +256,82 @@ POST /chat
 
 自动化测试不会真实调用模型。测试通过 FastAPI `dependency_overrides` 注入 fake service，通过 fake client 测试 `LLMChatService`。
 
+当前模型调用错误会先映射成项目统一错误码，再由统一异常处理器返回 JSON：
+
+| 错误码 | HTTP 状态码 | 含义 |
+| --- | --- | --- |
+| `LLM_API_KEY_MISSING` | 500 | 本机没有配置模型 API key |
+| `LLM_TIMEOUT` | 504 | 模型调用超时 |
+| `LLM_RATE_LIMITED` | 429 | 模型服务限流或请求过于频繁 |
+| `LLM_AUTHENTICATION_FAILED` | 502 | 模型服务认证失败 |
+| `LLM_PERMISSION_DENIED` | 502 | 模型服务拒绝访问 |
+| `LLM_RESOURCE_NOT_FOUND` | 502 | 模型、接口或资源不存在 |
+| `LLM_BAD_REQUEST` | 502 | 发给模型服务的请求参数错误 |
+| `LLM_PROVIDER_ERROR` | 502 | 模型服务内部错误 |
+| `LLM_CONNECTION_ERROR` | 502 | 无法连接模型服务 |
+| `LLM_PROVIDER_STATUS_ERROR` | 502 | 模型服务返回其他异常状态 |
+| `LLM_BAD_RESPONSE` | 502 | 模型返回格式异常 |
+| `LLM_EMPTY_RESPONSE` | 502 | 模型返回空内容 |
+| `LLM_CALL_FAILED` | 502 | 其他模型调用失败 |
+
+## 流式 `/stream-chat`
+
+`/stream-chat` 当前通过 `app/services/llm_service.py` 调用 OpenAI-compatible 模型，并开启：
+
+```python
+stream=True
+stream_options={"include_usage": True}
+```
+
+调用链路：
+
+```text
+POST /stream-chat
+-> app/routers/chat.py
+-> LLMChatService.stream_reply()
+-> prompt_builder.py
+-> message_builder.py
+-> llm_client.py
+-> client.chat.completions.create(..., stream=True)
+-> StreamingResponse
+```
+
+请求体和 `/chat` 相同：
+
+```json
+{
+  "message": "请解释 FastAPI 是什么"
+}
+```
+
+响应类型是：
+
+```text
+text/event-stream
+```
+
+成功时会逐块返回 SSE：
+
+```text
+event: message
+data: {"content":"FastAPI"}
+
+event: message
+data: {"content":" 是 Python Web 框架。"}
+
+event: done
+data: {"trace_id":"..."}
+```
+
+流开始前发生的错误，例如缺少 `LLM_API_KEY`，仍然返回统一 JSON 错误。
+
+流开始后发生的错误，会返回 SSE `error` 事件：
+
+```text
+event: error
+data: {"code":"LLM_CALL_FAILED","message":"模型调用失败，请稍后重试。","trace_id":"..."}
+```
+
 ## CORS
 
 本项目使用 FastAPI 的 `CORSMiddleware` 处理浏览器跨源访问。
@@ -296,13 +379,37 @@ LOG_LEVEL
 chat_requested message_length=...
 ```
 
+模型调用成功时会记录：
+
+```text
+llm_chat_succeeded provider=... model=... elapsed_ms=... prompt_tokens=... completion_tokens=... total_tokens=...
+```
+
+模型调用失败时会记录：
+
+```text
+llm_chat_failed code=... provider=... model=... status_code=... elapsed_ms=...
+```
+
+流式模型调用成功时会记录：
+
+```text
+llm_stream_chat_succeeded provider=... model=... elapsed_ms=... chunks=... content_chunks=... prompt_tokens=... completion_tokens=... total_tokens=...
+```
+
+流式模型调用失败时会记录：
+
+```text
+llm_stream_chat_failed code=... provider=... model=... status_code=... elapsed_ms=... chunks=... content_chunks=...
+```
+
 日志格式会自动带上当前请求的 `trace_id`：
 
 ```text
 trace_id=...
 ```
 
-注意：日志只记录消息长度，不记录完整用户输入，避免把敏感内容写入日志。
+注意：日志只记录消息长度、模型名、服务商、耗时、token 用量和错误码等元信息，不记录完整用户输入、完整 `history`、完整 prompt、完整模型回复或 API key，避免把敏感内容写入日志。
 
 ## 请求追踪
 
@@ -375,6 +482,7 @@ app/core/exception_handlers.py
 | --- | --- | --- |
 | GET | `/health` | 服务健康检查 |
 | POST | `/chat` | 聊天接口，调用 OpenAI-compatible 模型 |
+| POST | `/stream-chat` | 流式聊天接口，调用 OpenAI-compatible 模型并返回 SSE |
 
 ## 当前模型
 
@@ -401,4 +509,4 @@ app/core/exception_handlers.py
 
 ## 下一阶段
 
-下一步继续阶段 2，学习多轮对话、超时、重试、模型调用日志、流式输出和结构化输出。
+下一步继续阶段 2，用 Pydantic 约束结构化输出。
