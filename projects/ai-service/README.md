@@ -17,6 +17,9 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2 正
 - `system` / `user` / `assistant` 消息结构
 - prompt 分段构建工具
 - `/chat` 真实模型调用
+- `/chat` 可选多轮对话 `history`
+- 模型调用 timeout 统一错误处理
+- SDK retry 次数配置和 rate limit 统一错误处理
 - fake LLM service/client 测试隔离
 - logging 基础日志
 - `trace_id` 请求追踪
@@ -103,7 +106,7 @@ http://127.0.0.1:8000/docs
 uv run pytest -q
 ```
 
-当前测试使用 FastAPI 的 `TestClient`，覆盖 `/health`、`/chat`、`ChatRequest`、`ChatResponse`、`ChatMessage`、配置读取、日志、`trace_id`、统一异常处理、CORS、token 粗略估算、LLM client 初始化、LLM service、messages 构建和 prompt 构建。
+当前测试使用 FastAPI 的 `TestClient`，覆盖 `/health`、`/chat`、`ChatRequest`、`ChatResponse`、`ChatMessage`、多轮 `history`、配置读取、日志、`trace_id`、统一异常处理、CORS、token 粗略估算、LLM client 初始化、LLM service、timeout/rate limit 错误映射、messages 构建和 prompt 构建。
 
 也可以运行 Python 编译检查：
 
@@ -128,6 +131,7 @@ uv run python -m compileall -q -x ".venv|__pycache__" .
 | `LLM_BASE_URL` | OpenAI-compatible 接口地址，真实值只放本机 `.env` |
 | `LLM_API_KEY` | LLM API key，真实值只放本机 `.env` 或系统环境变量 |
 | `REQUEST_TIMEOUT_SECONDS` | 后续调用模型或外部接口时使用的超时时间 |
+| `LLM_MAX_RETRIES` | OpenAI-compatible SDK 自动重试次数，默认 `2`，当前允许 `0-5` |
 | `MAX_OUTPUT_TOKENS` | 后续限制模型最多生成多少输出 token |
 | `LOG_LEVEL` | 日志级别 |
 | `CORS_ALLOWED_ORIGINS` | 允许跨源访问后端的前端来源，多个值用逗号分隔 |
@@ -169,7 +173,7 @@ uv run python scripts/llm_compatible_smoke_test.py --call
 
 ## 真实 `/chat`
 
-`/chat` 当前通过 `app/services/llm_service.py` 调用 OpenAI-compatible 模型。
+`/chat` 当前通过 `app/services/llm_service.py` 调用 OpenAI-compatible 模型，并支持可选 `history` 做多轮对话。
 
 调用链路：
 
@@ -191,6 +195,20 @@ POST /chat
 }
 ```
 
+多轮请求示例：
+
+```json
+{
+  "message": "那 FastAPI 呢？",
+  "history": [
+    {"role": "user", "content": "什么是 API？"},
+    {"role": "assistant", "content": "API 是程序之间约定好的调用方式。"}
+  ]
+}
+```
+
+`history` 只允许 `user` 和 `assistant`，不允许客户端传 `system`。当前最多允许 20 条历史消息。
+
 成功响应示例：
 
 ```json
@@ -205,6 +223,26 @@ POST /chat
 {
   "code": "LLM_API_KEY_MISSING",
   "message": "LLM API key 未配置，请先在本机 .env 中配置 LLM_API_KEY。",
+  "trace_id": "..."
+}
+```
+
+如果模型调用超过 `REQUEST_TIMEOUT_SECONDS`，会返回：
+
+```json
+{
+  "code": "LLM_TIMEOUT",
+  "message": "模型调用超时，请稍后重试。",
+  "trace_id": "..."
+}
+```
+
+如果模型服务返回限流，或请求过于频繁，会返回：
+
+```json
+{
+  "code": "LLM_RATE_LIMITED",
+  "message": "模型服务请求过于频繁，请稍后重试。",
   "trace_id": "..."
 }
 ```
@@ -342,7 +380,7 @@ app/core/exception_handlers.py
 
 | 模型 | 路径 | 说明 |
 | --- | --- | --- |
-| `ChatRequest` | `app/schemas/chat.py` | 聊天请求体，要求 `message` 是非空字符串 |
+| `ChatRequest` | `app/schemas/chat.py` | 聊天请求体，要求 `message` 是非空字符串，可选 `history` 做多轮上下文 |
 | `ChatResponse` | `app/schemas/chat.py` | 聊天响应体，要求 `reply` 是非空字符串 |
 | `ChatMessageRole` | `app/schemas/chat.py` | 聊天消息角色，只允许 `system`、`user`、`assistant` |
 | `ChatMessage` | `app/schemas/chat.py` | 聊天消息模型，包含 `role` 和 `content` |

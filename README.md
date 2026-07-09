@@ -94,6 +94,9 @@ projects/ 练习项目、Demo 和完整作品
 | 5 | messages 是什么：system / user / assistant | [notes/llm-api-stage2-05-messages-roles.md](notes/llm-api-stage2-05-messages-roles.md) | [projects/ai-service](projects/ai-service) |
 | 6 | prompt 基础：怎么写清楚任务 | [notes/llm-api-stage2-06-prompt-basics.md](notes/llm-api-stage2-06-prompt-basics.md) | [projects/ai-service](projects/ai-service) |
 | 7 | 第一次真实 `/chat` 调用 | [notes/llm-api-stage2-07-real-chat-call.md](notes/llm-api-stage2-07-real-chat-call.md) | [projects/ai-service](projects/ai-service) |
+| 8 | 多轮对话基础：历史消息怎么传 | [notes/llm-api-stage2-08-multi-turn-history.md](notes/llm-api-stage2-08-multi-turn-history.md) | [projects/ai-service](projects/ai-service) |
+| 9 | timeout 超时 | [notes/llm-api-stage2-09-timeout.md](notes/llm-api-stage2-09-timeout.md) | [projects/ai-service](projects/ai-service) |
+| 10 | retry 重试和 rate limit 限流基础 | [notes/llm-api-stage2-10-retry-rate-limit.md](notes/llm-api-stage2-10-retry-rate-limit.md) | [projects/ai-service](projects/ai-service) |
 
 ## 当前目标
 

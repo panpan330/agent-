@@ -85,6 +85,9 @@
 - [x] 完成阶段 2 第 5 节：messages 是什么：system / user / assistant
 - [x] 完成阶段 2 第 6 节：prompt 基础：怎么写清楚任务
 - [x] 完成阶段 2 第 7 节：第一次真实 `/chat` 调用
+- [x] 完成阶段 2 第 8 节：多轮对话基础：历史消息怎么传
+- [x] 完成阶段 2 第 9 节：timeout 超时
+- [x] 完成阶段 2 第 10 节：retry 重试和 rate limit 限流基础
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -123,9 +126,9 @@
 | 5 | messages 是什么：system / user / assistant | 已完成 | `notes/llm-api-stage2-05-messages-roles.md`、`app/schemas/chat.py`、`app/services/message_builder.py`、`tests/test_message_builder.py` |
 | 6 | prompt 基础：怎么写清楚任务 | 已完成 | `notes/llm-api-stage2-06-prompt-basics.md`、`app/services/prompt_builder.py`、`tests/test_prompt_builder.py` |
 | 7 | 第一次真实 `/chat` 调用 | 已完成 | `notes/llm-api-stage2-07-real-chat-call.md`、`app/services/llm_service.py`、`app/routers/chat.py`、`tests/test_llm_service.py`、`tests/test_chat_api.py` |
-| 8 | 多轮对话基础：历史消息怎么传 | 未开始 | 多轮对话请求模型 |
-| 9 | 超时 timeout | 未开始 | 模型调用超时配置 |
-| 10 | 重试 retry 和限流 rate limit 基础 | 未开始 | retry/rate limit 笔记 |
+| 8 | 多轮对话基础：历史消息怎么传 | 已完成 | `notes/llm-api-stage2-08-multi-turn-history.md`、`ChatRequest.history`、`LLMChatService.generate_reply(..., history=...)`、多轮对话测试 |
+| 9 | 超时 timeout | 已完成 | `notes/llm-api-stage2-09-timeout.md`、`APITimeoutError` -> `LLM_TIMEOUT`、504 接口测试 |
+| 10 | 重试 retry 和限流 rate limit 基础 | 已完成 | `notes/llm-api-stage2-10-retry-rate-limit.md`、`LLM_MAX_RETRIES`、`RateLimitError` -> `LLM_RATE_LIMITED` |
 | 11 | 模型调用错误处理 | 未开始 | LLM 错误映射到统一异常 |
 | 12 | 模型调用日志：模型名、耗时、trace_id、token | 未开始 | LLM 调用日志 |
 | 13 | streaming 流式输出是什么 | 未开始 | streaming 概念笔记 |

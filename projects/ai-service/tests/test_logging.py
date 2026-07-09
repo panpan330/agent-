@@ -6,10 +6,16 @@ from fastapi.testclient import TestClient
 
 from app.core.logging import configure_logging, get_log_level
 from app.routers.chat import get_llm_chat_service
+from app.schemas.chat import ChatMessage
 
 
 class FakeLLMChatService:
-    def generate_reply(self, user_message: str) -> str:
+    def generate_reply(
+        self,
+        user_message: str,
+        *,
+        history: list[ChatMessage] | None = None,
+    ) -> str:
         return f"测试回复：{user_message}"
 
 
@@ -45,4 +51,4 @@ def test_chat_writes_business_log(
     response = client.post("/chat", json={"message": "测试日志"})
 
     assert response.status_code == 200
-    assert "chat_requested message_length=4" in caplog.text
+    assert "chat_requested message_length=4 history_size=0" in caplog.text

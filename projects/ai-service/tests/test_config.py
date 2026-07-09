@@ -20,6 +20,7 @@ def test_settings_use_default_values() -> None:
     assert settings.has_llm_api_key is False
     assert settings.resolved_llm_base_url is None
     assert settings.request_timeout_seconds == 30.0
+    assert settings.llm_max_retries == 2
     assert settings.max_output_tokens == 1024
     assert settings.log_level == "INFO"
     assert settings.cors_allowed_origins == "http://localhost:5173,http://127.0.0.1:5173"
@@ -42,6 +43,7 @@ def test_settings_read_environment_variables(monkeypatch: pytest.MonkeyPatch) ->
     )
     monkeypatch.setenv("LLM_API_KEY", "llm-test-key")
     monkeypatch.setenv("REQUEST_TIMEOUT_SECONDS", "12.5")
+    monkeypatch.setenv("LLM_MAX_RETRIES", "3")
     monkeypatch.setenv("MAX_OUTPUT_TOKENS", "256")
     monkeypatch.setenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000")
 
@@ -58,6 +60,7 @@ def test_settings_read_environment_variables(monkeypatch: pytest.MonkeyPatch) ->
     assert settings.resolved_llm_api_key == "llm-test-key"
     assert settings.has_llm_api_key is True
     assert settings.request_timeout_seconds == 12.5
+    assert settings.llm_max_retries == 3
     assert settings.max_output_tokens == 256
     assert settings.cors_allowed_origin_list == ["http://localhost:3000"]
 
@@ -121,6 +124,7 @@ def test_settings_read_env_file(tmp_path: Path) -> None:
                 'LLM_MODEL="qwen3.7-plus"',
                 'LLM_BASE_URL="https://example.cn-beijing.maas.aliyuncs.com/compatible-mode/v1"',
                 'LLM_API_KEY=""',
+                "LLM_MAX_RETRIES=4",
                 "MAX_OUTPUT_TOKENS=512",
                 'CORS_ALLOWED_ORIGINS="http://localhost:5173, http://localhost:3000"',
                 'OPENAI_API_KEY=""',
@@ -141,6 +145,7 @@ def test_settings_read_env_file(tmp_path: Path) -> None:
         == "https://example.cn-beijing.maas.aliyuncs.com/compatible-mode/v1"
     )
     assert settings.has_llm_api_key is False
+    assert settings.llm_max_retries == 4
     assert settings.max_output_tokens == 512
     assert settings.cors_allowed_origin_list == [
         "http://localhost:5173",
@@ -177,6 +182,24 @@ def test_settings_reject_invalid_max_output_tokens() -> None:
     error = exc_info.value.errors()[0]
     assert error["loc"] == ("max_output_tokens",)
     assert error["type"] == "greater_than"
+
+
+def test_settings_reject_negative_llm_max_retries() -> None:
+    with pytest.raises(ValidationError) as exc_info:
+        Settings(llm_max_retries=-1, _env_file=None)
+
+    error = exc_info.value.errors()[0]
+    assert error["loc"] == ("llm_max_retries",)
+    assert error["type"] == "greater_than_equal"
+
+
+def test_settings_reject_too_many_llm_max_retries() -> None:
+    with pytest.raises(ValidationError) as exc_info:
+        Settings(llm_max_retries=6, _env_file=None)
+
+    error = exc_info.value.errors()[0]
+    assert error["loc"] == ("llm_max_retries",)
+    assert error["type"] == "less_than_equal"
 
 
 def test_get_settings_is_cached(monkeypatch: pytest.MonkeyPatch) -> None:

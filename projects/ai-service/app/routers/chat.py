@@ -22,6 +22,13 @@ def chat(
     request: ChatRequest,
     llm_chat_service: LLMChatService = Depends(get_llm_chat_service),
 ) -> ChatResponse:
-    logger.info("chat_requested message_length=%s", len(request.message))
-    reply = llm_chat_service.generate_reply(request.message)
+    logger.info(
+        "chat_requested message_length=%s history_size=%s",
+        len(request.message),
+        len(request.history),
+    )
+    reply = llm_chat_service.generate_reply(
+        request.message,
+        history=request.history,
+    )
     return ChatResponse(reply=reply)

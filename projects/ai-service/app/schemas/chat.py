@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class ChatMessageRole(StrEnum):
@@ -29,8 +29,25 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     message: str = Field(
         min_length=1,
+        max_length=4000,
         description="User message sent to the AI service.",
     )
+    history: list[ChatMessage] = Field(
+        default_factory=list,
+        max_length=20,
+        description="Previous user and assistant messages in this conversation.",
+    )
+
+    @field_validator("history")
+    @classmethod
+    def reject_system_messages_in_history(
+        cls,
+        history: list[ChatMessage],
+    ) -> list[ChatMessage]:
+        for message in history:
+            if message.role == ChatMessageRole.SYSTEM:
+                raise ValueError("history must not contain system messages")
+        return history
 
 
 class ChatResponse(BaseModel):

@@ -15,10 +15,16 @@ from app.core.trace import (
     set_trace_id,
 )
 from app.routers.chat import get_llm_chat_service
+from app.schemas.chat import ChatMessage
 
 
 class FakeLLMChatService:
-    def generate_reply(self, user_message: str) -> str:
+    def generate_reply(
+        self,
+        user_message: str,
+        *,
+        history: list[ChatMessage] | None = None,
+    ) -> str:
         return f"测试回复：{user_message}"
 
 
@@ -100,7 +106,7 @@ def test_chat_logs_share_request_trace_id(
     assert response.status_code == 200
     assert response.headers[TRACE_ID_HEADER] == trace_id
     assert "request_started method=POST path=/chat" in messages
-    assert "chat_requested message_length=4" in messages
+    assert "chat_requested message_length=4 history_size=0" in messages
     assert any(message.startswith("request_finished method=POST path=/chat") for message in messages)
     assert trace_ids
     assert all(value == trace_id for value in trace_ids)

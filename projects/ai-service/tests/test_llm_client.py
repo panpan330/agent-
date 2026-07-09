@@ -16,6 +16,7 @@ def test_create_openai_compatible_client_uses_llm_settings(
     settings = Settings(
         llm_api_key="llm-test-key",
         llm_base_url=" https://example.cn-beijing.maas.aliyuncs.com/compatible-mode/v1 ",
+        llm_max_retries=3,
         request_timeout_seconds=12.5,
         _env_file=None,
     )
@@ -26,6 +27,7 @@ def test_create_openai_compatible_client_uses_llm_settings(
     assert client.kwargs == {
         "api_key": "llm-test-key",
         "base_url": "https://example.cn-beijing.maas.aliyuncs.com/compatible-mode/v1",
+        "max_retries": 3,
         "timeout": 12.5,
     }
 
@@ -41,6 +43,7 @@ def test_create_openai_compatible_client_works_without_custom_base_url(
     assert isinstance(client, FakeOpenAI)
     assert client.kwargs == {
         "api_key": "llm-test-key",
+        "max_retries": 2,
         "timeout": 30.0,
     }
 

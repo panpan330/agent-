@@ -322,6 +322,21 @@
 - [OpenAI API Reference：Chat Completions](https://developers.openai.com/api/reference/resources/chat)
   - 用途：确认 Chat Completions 风格接口的 `model`、`messages` 和响应结构。
 
+- [OpenAI Conversation state](https://developers.openai.com/api/docs/guides/conversation-state)
+  - 用途：理解多轮对话中如何管理上下文状态，以及为什么要主动保存或传递对话状态。
+
+- [OpenAI Python API library：Timeouts](https://developers.openai.com/api/reference/python#timeouts)
+  - 用途：确认 OpenAI Python SDK 的 `timeout` 配置方式、默认超时和 `APITimeoutError`。
+
+- [OpenAI Error codes](https://developers.openai.com/api/docs/guides/error-codes)
+  - 用途：理解 OpenAI Python SDK 常见异常类型，例如 `APITimeoutError`、`APIConnectionError`、`RateLimitError`。
+
+- [OpenAI Rate limits guide](https://platform.openai.com/docs/guides/rate-limits)
+  - 用途：理解模型服务的请求频率、token 用量、限流和 429 错误。
+
+- [MDN：429 Too Many Requests](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/429)
+  - 用途：理解 HTTP 429 的通用语义。
+
 - [阿里云百炼：OpenAI Chat接口兼容](https://help.aliyun.com/zh/model-studio/compatibility-of-openai-with-dashscope)
   - 用途：学习如何用 OpenAI SDK 调用千问兼容接口，重点理解 API Key、BASE_URL 和模型名称三项配置。
 
@@ -339,27 +354,34 @@
 5. 本仓库 `notes/llm-api-stage2-05-messages-roles.md`
 6. 本仓库 `notes/llm-api-stage2-06-prompt-basics.md`
 7. 本仓库 `notes/llm-api-stage2-07-real-chat-call.md`
-8. OpenAI Developer quickstart，理解 API key、SDK 和第一次 API 调用
-9. OpenAI API Reference：Authentication，理解 API key 认证和密钥安全
-10. OpenAI Python API library，理解 Python SDK 和 `.env`
-11. OpenAI SDKs and CLI，理解 SDK 安装和基础使用
-12. OpenAI API Reference：Chat Completions，确认 `model`、`messages` 和 `choices[0].message.content`
-13. 阿里云百炼：OpenAI Chat接口兼容，理解千问兼容接口的 `api_key`、`base_url`、`model` 和 `messages`
-14. 阿里云百炼：文本生成模型API参考，理解兼容 Chat Completions 和 Responses 的区别
-15. OpenAI Production best practices，理解生产环境 key 安全和 token 成本估算
-16. OpenAI Key concepts：Tokens，理解 token 和上下文窗口
-17. OpenAI Pricing，确认当前模型价格
-18. OpenAI Reasoning models，理解 reasoning tokens 和 `max_output_tokens`
-19. OpenAI Text generation，理解大模型文本生成和 Responses API
-20. OpenAI Prompt engineering，理解消息角色、prompt 版本化和测试
-21. OpenAI Migrate to the Responses API，理解 `messages` 和 typed Items 的映射
-22. OpenAI Models，理解模型选择要看当前官方文档
-23. OpenAI Responses API Reference，后续写真实调用时查参数和响应
-24. 本仓库 `notes/fastapi-stage1-16-project-summary.md`，复习当前 FastAPI 服务基础
-25. 本仓库 `notes/fastapi-stage1-11-env-config.md`，复习 `.env` 配置读取
-26. 本仓库 `notes/fastapi-stage1-12-logging.md`，复习日志
-27. 本仓库 `notes/fastapi-stage1-13-trace-id.md`，复习请求追踪
-28. 本仓库 `notes/fastapi-stage1-14-exception-handling.md`，复习统一异常处理
+8. 本仓库 `notes/llm-api-stage2-08-multi-turn-history.md`
+9. 本仓库 `notes/llm-api-stage2-09-timeout.md`
+10. 本仓库 `notes/llm-api-stage2-10-retry-rate-limit.md`
+11. OpenAI Developer quickstart，理解 API key、SDK 和第一次 API 调用
+12. OpenAI API Reference：Authentication，理解 API key 认证和密钥安全
+13. OpenAI Python API library，理解 Python SDK、`.env`、timeouts、retries 和 `RateLimitError`
+14. OpenAI SDKs and CLI，理解 SDK 安装和基础使用
+15. OpenAI API Reference：Chat Completions，确认 `model`、`messages` 和 `choices[0].message.content`
+16. OpenAI Conversation state，理解多轮对话状态管理
+17. OpenAI Error codes，理解 SDK 错误类型和错误处理
+18. OpenAI Rate limits guide，理解请求频率、token 限额和 429
+19. MDN 429 Too Many Requests，理解 HTTP 429 通用语义
+20. 阿里云百炼：OpenAI Chat接口兼容，理解千问兼容接口的 `api_key`、`base_url`、`model` 和 `messages`
+21. 阿里云百炼：文本生成模型API参考，理解兼容 Chat Completions 和 Responses 的区别
+22. OpenAI Production best practices，理解生产环境 key 安全和 token 成本估算
+23. OpenAI Key concepts：Tokens，理解 token 和上下文窗口
+24. OpenAI Pricing，确认当前模型价格
+25. OpenAI Reasoning models，理解 reasoning tokens 和 `max_output_tokens`
+26. OpenAI Text generation，理解大模型文本生成和 Responses API
+27. OpenAI Prompt engineering，理解消息角色、prompt 版本化和测试
+28. OpenAI Migrate to the Responses API，理解 `messages` 和 typed Items 的映射
+29. OpenAI Models，理解模型选择要看当前官方文档
+30. OpenAI Responses API Reference，后续写真实调用时查参数和响应
+31. 本仓库 `notes/fastapi-stage1-16-project-summary.md`，复习当前 FastAPI 服务基础
+32. 本仓库 `notes/fastapi-stage1-11-env-config.md`，复习 `.env` 配置读取
+33. 本仓库 `notes/fastapi-stage1-12-logging.md`，复习日志
+34. 本仓库 `notes/fastapi-stage1-13-trace-id.md`，复习请求追踪
+35. 本仓库 `notes/fastapi-stage1-14-exception-handling.md`，复习统一异常处理
 
 阶段 1：FastAPI 服务基础已完成。复盘时可看：
 

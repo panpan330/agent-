@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     llm_base_url: str | None = Field(default=None)
     llm_api_key: str | None = Field(default=None, repr=False)
     request_timeout_seconds: float = Field(default=30.0, gt=0)
+    llm_max_retries: int = Field(default=2, ge=0, le=5)
     max_output_tokens: int = Field(default=1024, gt=0)
     log_level: str = Field(default="INFO")
     cors_allowed_origins: str = Field(

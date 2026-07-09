@@ -1,12 +1,15 @@
 import logging
+from collections.abc import Sequence
 from typing import Any
+
+from openai import APITimeoutError, RateLimitError
 
 from app.core.config import Settings
 from app.core.exceptions import AppException
 from app.schemas.chat import ChatMessage
 from app.services.llm_client import create_openai_compatible_client
 from app.services.message_builder import (
-    build_single_turn_messages,
+    build_multi_turn_messages,
     serialize_chat_messages,
 )
 from app.services.prompt_builder import PromptParts, build_clear_user_prompt
@@ -35,8 +38,15 @@ def build_chat_prompt(user_message: str) -> str:
     )
 
 
-def build_chat_messages(user_message: str) -> list[ChatMessage]:
-    return build_single_turn_messages(build_chat_prompt(user_message))
+def build_chat_messages(
+    user_message: str,
+    *,
+    history: Sequence[ChatMessage] | None = None,
+) -> list[ChatMessage]:
+    return build_multi_turn_messages(
+        build_chat_prompt(user_message),
+        history=history,
+    )
 
 
 def extract_first_reply(completion: Any) -> str:
@@ -77,7 +87,12 @@ class LLMChatService:
             ) from exc
         return self._client
 
-    def generate_reply(self, user_message: str) -> str:
+    def generate_reply(
+        self,
+        user_message: str,
+        *,
+        history: Sequence[ChatMessage] | None = None,
+    ) -> str:
         if not self.settings.has_llm_api_key:
             raise AppException(
                 code="LLM_API_KEY_MISSING",
@@ -85,7 +100,7 @@ class LLMChatService:
                 status_code=500,
             )
 
-        messages = build_chat_messages(user_message)
+        messages = build_chat_messages(user_message, history=history)
         try:
             completion = self._get_client().chat.completions.create(
                 model=self.settings.llm_model,
@@ -93,6 +108,30 @@ class LLMChatService:
             )
         except AppException:
             raise
+        except RateLimitError as exc:
+            logger.warning(
+                "llm_rate_limited provider=%s model=%s max_retries=%s",
+                self.settings.llm_provider,
+                self.settings.llm_model,
+                self.settings.llm_max_retries,
+            )
+            raise AppException(
+                code="LLM_RATE_LIMITED",
+                message="模型服务请求过于频繁，请稍后重试。",
+                status_code=429,
+            ) from exc
+        except APITimeoutError as exc:
+            logger.warning(
+                "llm_timeout provider=%s model=%s timeout_seconds=%s",
+                self.settings.llm_provider,
+                self.settings.llm_model,
+                self.settings.request_timeout_seconds,
+            )
+            raise AppException(
+                code="LLM_TIMEOUT",
+                message="模型调用超时，请稍后重试。",
+                status_code=504,
+            ) from exc
         except Exception as exc:
             logger.exception(
                 "llm_chat_failed provider=%s model=%s",

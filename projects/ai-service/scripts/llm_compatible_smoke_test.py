@@ -34,6 +34,7 @@ def main() -> int:
     print(f"provider={settings.llm_provider}")
     print(f"model={settings.llm_model}")
     print(f"base_url_configured={settings.resolved_llm_base_url is not None}")
+    print(f"max_retries={settings.llm_max_retries}")
 
     if not args.call:
         print("SDK configuration looks ready. No API call was made.")
