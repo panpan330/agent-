@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 2 LLM API 基础调用
+当前阶段：阶段 2 LLM API 基础调用已完成，下一步进入 LangChain + Java 工具调用基础
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -61,7 +61,7 @@
 - [x] 加入统一异常处理
 - [x] 加入 CORS 基础配置
 - [x] 加入基础日志
-- [ ] 增加结构化输出练习接口
+- [x] 增加结构化输出练习接口
 - [x] 完成阶段 1 第 1 节：Web 服务、HTTP 和 API 是什么
 - [x] 完成阶段 1 第 2 节：FastAPI 是什么
 - [x] 完成阶段 1 第 3 节：创建 `ai-service` 项目骨架
@@ -93,6 +93,9 @@
 - [x] 完成阶段 2 第 13 节：streaming 流式输出是什么
 - [x] 完成阶段 2 第 14 节：FastAPI `StreamingResponse` 实现 `/stream-chat`
 - [x] 完成阶段 2 第 15 节：结构化输出是什么
+- [x] 完成阶段 2 第 16 节：Pydantic 约束结构化输出
+- [x] 完成阶段 2 第 17 节：测试模型调用：mock/fake LLM client
+- [x] 完成阶段 2 第 18 节：阶段 2 项目整理
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -139,9 +142,9 @@
 | 13 | streaming 流式输出是什么 | 已完成 | `notes/llm-api-stage2-13-streaming-concept.md`、普通响应/流式响应、chunk、SSE、`StreamingResponse` 概念 |
 | 14 | FastAPI `StreamingResponse` 实现 `/stream-chat` | 已完成 | `notes/llm-api-stage2-14-stream-chat-endpoint.md`、`/stream-chat`、SSE `message/done/error`、流式 service/router 测试 |
 | 15 | 结构化输出是什么 | 已完成 | `notes/llm-api-stage2-15-structured-output-concept.md`、JSON Mode、Structured Outputs、JSON Schema、Pydantic 校验概念 |
-| 16 | Pydantic 约束结构化输出 | 未开始 | 结构化响应模型 |
-| 17 | 测试模型调用：mock/fake LLM client | 未开始 | fake LLM client 和测试 |
-| 18 | 阶段 2 项目整理 | 未开始 | README、测试、复盘 |
+| 16 | Pydantic 约束结构化输出 | 已完成 | `notes/llm-api-stage2-16-pydantic-structured-output.md`、`/extract-ticket`、`TicketExtraction`、JSON Mode、Pydantic 输出校验 |
+| 17 | 测试模型调用：mock/fake LLM client | 已完成 | `notes/llm-api-stage2-17-testing-model-calls.md`、`tests/fakes.py`、`tests/test_fake_llm_client.py`、fake client 复用 |
+| 18 | 阶段 2 项目整理 | 已完成 | `notes/llm-api-stage2-18-project-summary.md`、模型参数基础、OpenAI-compatible 差异、调用链路复盘、阶段验收 |
 
 ## 当前 Sprint 验收标准
 
@@ -209,12 +212,12 @@ M0/M1 第一阶段完成时，必须满足：
 
 - [x] OpenAI-compatible SDK 基础调用
 - [x] system prompt / user prompt
-- [ ] streaming
-- [ ] structured output
+- [x] streaming
+- [x] structured output
 - [ ] tool calling
 - [x] token 成本
-- [ ] 超时和重试
-- [ ] 模型错误兜底
+- [x] 超时和重试
+- [x] 模型错误兜底
 
 ### LangChain
 

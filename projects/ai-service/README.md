@@ -1,10 +1,12 @@
 # AI Service
 
-Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2 正在学习 LLM API 基础调用。
+Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：LLM API 基础调用已完成。
 
 当前 `/chat` 已经从 mock 回复改成 OpenAI-compatible 真实模型调用。没有配置本机 `LLM_API_KEY` 时，接口会返回统一配置错误。
 
 当前 `/stream-chat` 已经支持 OpenAI-compatible 流式输出，并通过 SSE 逐块返回模型生成内容。
+
+当前 `/extract-ticket` 已经支持 OpenAI-compatible JSON Mode，并用 Pydantic 校验模型返回的结构化工单字段。
 
 ## 当前能力
 
@@ -22,6 +24,10 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2 正
 - `/chat` 可选多轮对话 `history`
 - `/stream-chat` 流式聊天接口
 - SSE `message` / `done` / `error` 事件格式
+- `/extract-ticket` 工单字段结构化抽取接口
+- Pydantic 结构化输出模型和 JSON Schema 生成
+- 模型返回 JSON 的 Pydantic 校验
+- 共享 fake OpenAI-compatible client 测试工具
 - 模型调用 timeout 统一错误处理
 - SDK retry 次数配置和 rate limit 统一错误处理
 - OpenAI-compatible SDK 常见错误映射
@@ -55,27 +61,33 @@ app/
   schemas/
     chat.py                聊天请求/响应模型
     error.py               统一错误响应模型
+    structured.py          结构化输出请求/响应和工单字段模型
   services/
     llm_client.py          OpenAI-compatible SDK client 初始化
     llm_service.py         LLM 聊天调用服务
     message_builder.py     聊天 messages 构建工具
     prompt_builder.py      prompt 分段构建工具
+    structured_output_service.py 结构化输出调用服务
   main.py                  FastAPI 应用入口
 scripts/
   llm_compatible_smoke_test.py 手动检查或调用兼容模型
 tests/
   conftest.py              pytest 共享夹具
+  fakes.py                 OpenAI-compatible fake client 测试工具
   test_chat_api.py         /chat 接口测试
   test_chat_schema.py      聊天模型测试
   test_config.py           配置测试
   test_cors.py             CORS 测试
   test_exception_handlers.py 统一异常处理测试
+  test_fake_llm_client.py  fake LLM client 工具测试
   test_health.py           /health 测试
   test_llm_client.py       LLM client 初始化测试
   test_llm_service.py      LLM 聊天服务测试
   test_logging.py          日志测试
   test_message_builder.py  聊天 messages 构建测试
   test_prompt_builder.py   prompt 分段构建测试
+  test_structured_output_service.py 结构化输出服务测试
+  test_structured_schema.py 结构化输出模型测试
   test_token_usage.py      token 粗略估算测试
   test_trace.py            trace_id 测试
 ```
@@ -113,7 +125,7 @@ http://127.0.0.1:8000/docs
 uv run pytest -q
 ```
 
-当前测试使用 FastAPI 的 `TestClient`，覆盖 `/health`、`/chat`、`/stream-chat`、`ChatRequest`、`ChatResponse`、`ChatMessage`、多轮 `history`、配置读取、日志、`trace_id`、统一异常处理、CORS、token 粗略估算、LLM client 初始化、LLM service、OpenAI-compatible SDK 错误映射、模型调用日志、流式调用日志、模型响应 token usage 提取、messages 构建和 prompt 构建。
+当前测试使用 FastAPI 的 `TestClient`，覆盖 `/health`、`/chat`、`/stream-chat`、`/extract-ticket`、`ChatRequest`、`ChatResponse`、`ChatMessage`、`TicketExtraction`、多轮 `history`、配置读取、日志、`trace_id`、统一异常处理、CORS、token 粗略估算、LLM client 初始化、LLM service、结构化输出 service、fake OpenAI-compatible client、OpenAI-compatible SDK 错误映射、模型调用日志、流式调用日志、结构化输出日志、模型响应 token usage 提取、messages 构建和 prompt 构建。
 
 也可以运行 Python 编译检查：
 
@@ -273,6 +285,8 @@ POST /chat
 | `LLM_BAD_RESPONSE` | 502 | 模型返回格式异常 |
 | `LLM_EMPTY_RESPONSE` | 502 | 模型返回空内容 |
 | `LLM_CALL_FAILED` | 502 | 其他模型调用失败 |
+| `STRUCTURED_OUTPUT_EMPTY` | 502 | 模型没有返回可解析的结构化内容 |
+| `STRUCTURED_OUTPUT_VALIDATION_FAILED` | 502 | 模型返回的结构化内容不符合 Pydantic 模型 |
 
 ## 流式 `/stream-chat`
 
@@ -331,6 +345,114 @@ data: {"trace_id":"..."}
 event: error
 data: {"code":"LLM_CALL_FAILED","message":"模型调用失败，请稍后重试。","trace_id":"..."}
 ```
+
+## 结构化 `/extract-ticket`
+
+`/extract-ticket` 当前通过 `app/services/structured_output_service.py` 调用 OpenAI-compatible 模型，并开启 JSON Mode：
+
+```python
+response_format={"type": "json_object"}
+```
+
+调用链路：
+
+```text
+POST /extract-ticket
+-> app/routers/chat.py
+-> StructuredOutputService.extract_ticket()
+-> build_ticket_extraction_messages()
+-> llm_client.py
+-> client.chat.completions.create(..., response_format={"type":"json_object"})
+-> TicketExtraction.model_validate_json()
+```
+
+请求示例：
+
+```json
+{
+  "message": "订单 A1001 一直没有发货，我要投诉。"
+}
+```
+
+成功响应示例：
+
+```json
+{
+  "extraction": {
+    "intent": "complaint",
+    "order_id": "A1001",
+    "summary": "用户投诉订单未发货",
+    "urgency": "high",
+    "need_human_review": true
+  }
+}
+```
+
+当前支持的 `intent`：
+
+```text
+refund
+order_query
+logistics
+complaint
+unknown
+```
+
+当前支持的 `urgency`：
+
+```text
+low
+normal
+high
+```
+
+如果模型返回的 JSON 不符合 `TicketExtraction`，会返回：
+
+```json
+{
+  "code": "STRUCTURED_OUTPUT_VALIDATION_FAILED",
+  "message": "模型结构化输出校验失败，请稍后重试。",
+  "trace_id": "...",
+  "details": []
+}
+```
+
+自动化测试不会真实调用模型。接口测试通过 `dependency_overrides` 注入 fake service，服务测试通过 fake client 验证 JSON Mode 参数、Pydantic 解析和错误处理。
+
+## 模型调用测试工具
+
+测试代码里的共享 fake 工具放在：
+
+```text
+tests/fakes.py
+```
+
+当前提供：
+
+| 工具 | 作用 |
+| --- | --- |
+| `FakeOpenAICompatibleClient` | 模拟 `client.chat.completions.create(...)` 结构 |
+| `FakeChatCompletions` | 模拟普通响应、流式响应、错误和调用参数记录 |
+| `make_stream_chunk()` | 构造流式响应 chunk |
+| `make_usage()` | 构造 token usage |
+| `make_status_error()` | 构造 OpenAI SDK 风格的状态码错误 |
+
+service 测试通过 fake client 验证模型调用参数，例如 `model`、`messages`、`stream`、`stream_options` 和 `response_format`。
+
+router/API 测试通过 FastAPI `dependency_overrides` 注入 fake service，避免测试接口时真实调用模型。
+
+## 阶段 2 验收
+
+- [x] `/chat` 能调用 OpenAI-compatible 模型
+- [x] `/chat` 支持多轮 `history`
+- [x] `/stream-chat` 支持 SSE 流式输出
+- [x] `/extract-ticket` 支持 JSON Mode 和 Pydantic 结构化校验
+- [x] API key 只从本机 `.env` 或环境变量读取
+- [x] timeout、rate limit、认证失败、连接失败等模型错误会映射成统一错误码
+- [x] 模型调用日志记录 provider、model、耗时、token 和错误码
+- [x] 日志不记录完整用户输入、完整 prompt、完整模型回复或 API key
+- [x] 自动化测试使用 fake service / fake client，不真实调用模型
+- [x] `uv run pytest -q` 全量通过
 
 ## CORS
 
@@ -483,6 +605,7 @@ app/core/exception_handlers.py
 | GET | `/health` | 服务健康检查 |
 | POST | `/chat` | 聊天接口，调用 OpenAI-compatible 模型 |
 | POST | `/stream-chat` | 流式聊天接口，调用 OpenAI-compatible 模型并返回 SSE |
+| POST | `/extract-ticket` | 结构化工单字段抽取接口，调用 OpenAI-compatible 模型并用 Pydantic 校验 |
 
 ## 当前模型
 
@@ -492,6 +615,9 @@ app/core/exception_handlers.py
 | `ChatResponse` | `app/schemas/chat.py` | 聊天响应体，要求 `reply` 是非空字符串 |
 | `ChatMessageRole` | `app/schemas/chat.py` | 聊天消息角色，只允许 `system`、`user`、`assistant` |
 | `ChatMessage` | `app/schemas/chat.py` | 聊天消息模型，包含 `role` 和 `content` |
+| `StructuredOutputRequest` | `app/schemas/structured.py` | 结构化输出请求体，要求 `message` 是非空字符串 |
+| `TicketExtraction` | `app/schemas/structured.py` | 工单字段抽取结果，包含 `intent`、`order_id`、`summary`、`urgency`、`need_human_review` |
+| `StructuredOutputResponse` | `app/schemas/structured.py` | 结构化输出响应体，包裹 `TicketExtraction` |
 | `ErrorResponse` | `app/schemas/error.py` | 统一错误响应体，包含 `code`、`message`、`trace_id` 和可选 `details` |
 
 ## 阶段 1 验收
@@ -509,4 +635,4 @@ app/core/exception_handlers.py
 
 ## 下一阶段
 
-下一步继续阶段 2，用 Pydantic 约束结构化输出。
+下一步进入 LangChain + Java 工具调用基础，为智能工单 Agent 调用 Java 业务服务做准备。

@@ -102,6 +102,9 @@ projects/ 练习项目、Demo 和完整作品
 | 13 | streaming 流式输出是什么 | [notes/llm-api-stage2-13-streaming-concept.md](notes/llm-api-stage2-13-streaming-concept.md) | [projects/ai-service](projects/ai-service) |
 | 14 | FastAPI `StreamingResponse` 实现 `/stream-chat` | [notes/llm-api-stage2-14-stream-chat-endpoint.md](notes/llm-api-stage2-14-stream-chat-endpoint.md) | [projects/ai-service](projects/ai-service) |
 | 15 | 结构化输出是什么 | [notes/llm-api-stage2-15-structured-output-concept.md](notes/llm-api-stage2-15-structured-output-concept.md) | [projects/ai-service](projects/ai-service) |
+| 16 | Pydantic 约束结构化输出 | [notes/llm-api-stage2-16-pydantic-structured-output.md](notes/llm-api-stage2-16-pydantic-structured-output.md) | [projects/ai-service](projects/ai-service) |
+| 17 | 测试模型调用：mock/fake LLM client | [notes/llm-api-stage2-17-testing-model-calls.md](notes/llm-api-stage2-17-testing-model-calls.md) | [projects/ai-service](projects/ai-service) |
+| 18 | 阶段 2 项目整理 | [notes/llm-api-stage2-18-project-summary.md](notes/llm-api-stage2-18-project-summary.md) | [projects/ai-service](projects/ai-service) |
 
 ## 当前目标
 

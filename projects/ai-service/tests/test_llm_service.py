@@ -27,73 +27,12 @@ from app.services.llm_service import (
     extract_token_usage,
     map_openai_error_to_app_exception,
 )
-
-
-class FakeCompletions:
-    def __init__(
-        self,
-        content: str | None = "模型回复",
-        error: Exception | None = None,
-        usage: object | None = None,
-        stream_chunks: object | None = None,
-    ) -> None:
-        self.content = content
-        self.error = error
-        self.usage = usage
-        self.stream_chunks = stream_chunks
-        self.calls: list[dict[str, object]] = []
-
-    def create(self, **kwargs: object) -> object:
-        self.calls.append(kwargs)
-        if self.error is not None:
-            raise self.error
-        if kwargs.get("stream") is True:
-            return iter(self.stream_chunks or [])
-        return SimpleNamespace(
-            choices=[
-                SimpleNamespace(
-                    message=SimpleNamespace(content=self.content),
-                )
-            ],
-            usage=self.usage,
-        )
-
-
-class FakeClient:
-    def __init__(self, completions: FakeCompletions) -> None:
-        self.completions = completions
-        self.chat = SimpleNamespace(completions=completions)
-
-
-def make_status_error(
-    error_class: type[APIStatusError],
-    status_code: int,
-) -> APIStatusError:
-    request = httpx.Request("POST", "https://example.com/chat/completions")
-    response = httpx.Response(
-        status_code=status_code,
-        request=request,
-        json={"error": {"message": "provider error"}},
-    )
-    return error_class(
-        "provider error",
-        response=response,
-        body={"error": {"message": "provider error"}},
-    )
-
-
-def make_stream_chunk(
-    content: str | None = None,
-    usage: object | None = None,
-) -> object:
-    return SimpleNamespace(
-        choices=[
-            SimpleNamespace(
-                delta=SimpleNamespace(content=content),
-            )
-        ],
-        usage=usage,
-    )
+from tests.fakes import (
+    FakeChatCompletions as FakeCompletions,
+    FakeOpenAICompatibleClient as FakeClient,
+    make_status_error,
+    make_stream_chunk,
+)
 
 
 def test_build_chat_messages_wraps_user_message_in_clear_prompt() -> None:

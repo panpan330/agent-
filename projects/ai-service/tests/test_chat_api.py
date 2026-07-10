@@ -3,8 +3,9 @@ from fastapi.testclient import TestClient
 
 from app.core.exceptions import AppException
 from app.core.trace import TRACE_ID_HEADER
-from app.routers.chat import get_llm_chat_service
+from app.routers.chat import get_llm_chat_service, get_structured_output_service
 from app.schemas.chat import ChatMessage
+from app.schemas.structured import TicketExtraction
 
 
 class FakeLLMChatService:
@@ -95,6 +96,25 @@ class FakeBrokenStreamLLMChatService:
             )
 
         return chunks()
+
+
+class FakeStructuredOutputService:
+    def __init__(self, extraction: TicketExtraction) -> None:
+        self.extraction = extraction
+        self.calls: list[str] = []
+
+    def extract_ticket(self, user_message: str) -> TicketExtraction:
+        self.calls.append(user_message)
+        return self.extraction
+
+
+class FakeConfigErrorStructuredOutputService:
+    def extract_ticket(self, user_message: str) -> TicketExtraction:
+        raise AppException(
+            code="LLM_API_KEY_MISSING",
+            message="LLM API key 未配置，请先在本机 .env 中配置 LLM_API_KEY。",
+            status_code=500,
+        )
 
 
 def test_chat_returns_llm_reply(app: FastAPI, client: TestClient) -> None:
@@ -284,6 +304,63 @@ def test_stream_chat_returns_error_event_after_stream_starts(
     )
 
 
+def test_extract_ticket_returns_structured_response(
+    app: FastAPI,
+    client: TestClient,
+) -> None:
+    fake_service = FakeStructuredOutputService(
+        TicketExtraction(
+            intent="refund",
+            order_id="A1001",
+            summary="用户申请退款",
+            urgency="normal",
+            need_human_review=False,
+        )
+    )
+    app.dependency_overrides[get_structured_output_service] = lambda: fake_service
+
+    response = client.post(
+        "/extract-ticket",
+        json={"message": "订单 A1001 我想退款"},
+    )
+    data = response.json()
+
+    assert response.status_code == 200
+    assert data == {
+        "extraction": {
+            "intent": "refund",
+            "order_id": "A1001",
+            "summary": "用户申请退款",
+            "urgency": "normal",
+            "need_human_review": False,
+        }
+    }
+    assert fake_service.calls == ["订单 A1001 我想退款"]
+
+
+def test_extract_ticket_returns_config_error_when_llm_key_is_missing(
+    app: FastAPI,
+    client: TestClient,
+) -> None:
+    app.dependency_overrides[get_structured_output_service] = (
+        lambda: FakeConfigErrorStructuredOutputService()
+    )
+
+    response = client.post(
+        "/extract-ticket",
+        headers={TRACE_ID_HEADER: "trace-extract-no-key"},
+        json={"message": "订单 A1001 我想退款"},
+    )
+    data = response.json()
+
+    assert response.status_code == 500
+    assert data == {
+        "code": "LLM_API_KEY_MISSING",
+        "message": "LLM API key 未配置，请先在本机 .env 中配置 LLM_API_KEY。",
+        "trace_id": "trace-extract-no-key",
+    }
+
+
 def test_chat_returns_config_error_when_llm_key_is_missing(
     client: TestClient,
 ) -> None:
@@ -326,6 +403,22 @@ def test_stream_chat_rejects_missing_message(client: TestClient) -> None:
     assert data["code"] == "VALIDATION_ERROR"
     assert data["message"] == "请求参数校验失败"
     assert data["trace_id"] == "trace-stream-missing"
+    assert data["details"][0]["loc"] == ["body", "message"]
+    assert data["details"][0]["type"] == "missing"
+
+
+def test_extract_ticket_rejects_missing_message(client: TestClient) -> None:
+    response = client.post(
+        "/extract-ticket",
+        headers={TRACE_ID_HEADER: "trace-extract-missing"},
+        json={},
+    )
+    data = response.json()
+
+    assert response.status_code == 422
+    assert data["code"] == "VALIDATION_ERROR"
+    assert data["message"] == "请求参数校验失败"
+    assert data["trace_id"] == "trace-extract-missing"
     assert data["details"][0]["loc"] == ["body", "message"]
     assert data["details"][0]["type"] == "missing"
 
@@ -406,4 +499,19 @@ def test_stream_chat_does_not_allow_get(client: TestClient) -> None:
         "code": "METHOD_NOT_ALLOWED",
         "message": "请求方法不允许",
         "trace_id": "trace-stream-method",
+    }
+
+
+def test_extract_ticket_does_not_allow_get(client: TestClient) -> None:
+    response = client.get(
+        "/extract-ticket",
+        headers={TRACE_ID_HEADER: "trace-extract-method"},
+    )
+    data = response.json()
+
+    assert response.status_code == 405
+    assert data == {
+        "code": "METHOD_NOT_ALLOWED",
+        "message": "请求方法不允许",
+        "trace_id": "trace-extract-method",
     }

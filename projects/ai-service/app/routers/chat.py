@@ -9,7 +9,12 @@ from app.core.config import Settings, get_settings
 from app.core.exceptions import AppException
 from app.core.trace import get_trace_id
 from app.schemas.chat import ChatRequest, ChatResponse
+from app.schemas.structured import StructuredOutputRequest, StructuredOutputResponse
 from app.services.llm_service import LLMChatService, create_llm_chat_service
+from app.services.structured_output_service import (
+    StructuredOutputService,
+    create_structured_output_service,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -21,6 +26,12 @@ def get_llm_chat_service(
     settings: Settings = Depends(get_settings),
 ) -> LLMChatService:
     return create_llm_chat_service(settings)
+
+
+def get_structured_output_service(
+    settings: Settings = Depends(get_settings),
+) -> StructuredOutputService:
+    return create_structured_output_service(settings)
 
 
 def format_sse_event(event: str, data: dict[str, object]) -> str:
@@ -100,3 +111,18 @@ def stream_chat(
         build_stream_events(chunks, trace_id=get_trace_id()),
         media_type=SSE_MEDIA_TYPE,
     )
+
+
+@router.post("/extract-ticket", response_model=StructuredOutputResponse)
+def extract_ticket(
+    request: StructuredOutputRequest,
+    structured_output_service: StructuredOutputService = Depends(
+        get_structured_output_service
+    ),
+) -> StructuredOutputResponse:
+    logger.info(
+        "extract_ticket_requested message_length=%s",
+        len(request.message),
+    )
+    extraction = structured_output_service.extract_ticket(request.message)
+    return StructuredOutputResponse(extraction=extraction)
