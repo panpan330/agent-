@@ -1,12 +1,14 @@
 # AI Service
 
-Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：LLM API 基础调用已完成。
+Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：LLM API 基础调用已完成；阶段 3：LangChain + Java 工具调用基础已开始。
 
 当前 `/chat` 已经从 mock 回复改成 OpenAI-compatible 真实模型调用。没有配置本机 `LLM_API_KEY` 时，接口会返回统一配置错误。
 
 当前 `/stream-chat` 已经支持 OpenAI-compatible 流式输出，并通过 SSE 逐块返回模型生成内容。
 
 当前 `/extract-ticket` 已经支持 OpenAI-compatible JSON Mode，并用 Pydantic 校验模型返回的结构化工单字段。
+
+当前阶段 3 第 1-2 节先完成 Tool Calling 概念和业务系统安全边界学习，不新增业务接口。后续会逐步加入 fake tool、Java mock 业务服务、工具调用参数校验、工具调用日志和 trace_id 串联。
 
 ## 当前能力
 
@@ -633,6 +635,15 @@ app/core/exception_handlers.py
 - [x] CORS 允许配置的前端来源
 - [x] 自动化测试通过
 
-## 下一阶段
+## 阶段 3 学习方向
 
-下一步进入 LangChain + Java 工具调用基础，为智能工单 Agent 调用 Java 业务服务做准备。
+下一步继续学习 LangChain + Java 工具调用基础，为智能工单 Agent 调用 Java 业务服务做准备。
+
+当前阶段 3 的核心目标：
+
+- 理解 Tool Calling 不是模型直接执行代码，而是模型返回工具名和参数，由后端决定是否执行。
+- 理解 AI 不能绕过 Java 后端直接操作业务系统，模型输出必须当成不可信输入处理。
+- 用 fake tool 先模拟订单查询，避免一开始就引入复杂业务服务。
+- 用 FastAPI 写一个 Java mock 业务服务，模拟后续 Spring Boot 接口。
+- 让 Python AI 服务调用 Java mock API，并处理超时、404、500、权限、确认和幂等。
+- 后续再引入 LangChain 的 Tool 抽象，把已经理解的底层流程封装起来。

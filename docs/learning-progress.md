@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 2 LLM API 基础调用已完成，下一步进入 LangChain + Java 工具调用基础
+当前阶段：阶段 3 LangChain + Java 工具调用基础已开始，第 2 节 为什么 AI 不能直接操作业务系统已完成，下一步进入第 3 节
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -15,7 +15,7 @@
 | --- | --- | --- | --- | --- |
 | M0 | 第 0 周 | 环境与仓库 | 进行中 | README、上下文、路线图、进度表 |
 | M1 | 第 1-2 周 | Python AI 服务基础 | 进行中 | `projects/ai-service`、聊天接口、流式输出、结构化输出 |
-| M2 | 第 3-4 周 | LangChain + Java 工具调用 | 未开始 | 客服助手 v1、Java mock 业务服务 |
+| M2 | 第 3-4 周 | LangChain + Java 工具调用 | 进行中 | 客服助手 v1、Java mock 业务服务 |
 | M3 | 第 5-7 周 | 企业知识库 RAG | 未开始 | 文档入库、检索问答、引用来源、权限过滤、初版评测 |
 | M4 | 第 8-9 周 | LangGraph 智能工单 | 未开始 | 工单 Agent v1 |
 | M5 | 第 10-11 周 | 生产化与评测 | 未开始 | trace、日志、限流、重试、eval、Docker Compose |
@@ -96,6 +96,8 @@
 - [x] 完成阶段 2 第 16 节：Pydantic 约束结构化输出
 - [x] 完成阶段 2 第 17 节：测试模型调用：mock/fake LLM client
 - [x] 完成阶段 2 第 18 节：阶段 2 项目整理
+- [x] 完成阶段 3 第 1 节：Tool Calling 是什么
+- [x] 完成阶段 3 第 2 节：为什么 AI 不能直接操作业务系统
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -145,6 +147,35 @@
 | 16 | Pydantic 约束结构化输出 | 已完成 | `notes/llm-api-stage2-16-pydantic-structured-output.md`、`/extract-ticket`、`TicketExtraction`、JSON Mode、Pydantic 输出校验 |
 | 17 | 测试模型调用：mock/fake LLM client | 已完成 | `notes/llm-api-stage2-17-testing-model-calls.md`、`tests/fakes.py`、`tests/test_fake_llm_client.py`、fake client 复用 |
 | 18 | 阶段 2 项目整理 | 已完成 | `notes/llm-api-stage2-18-project-summary.md`、模型参数基础、OpenAI-compatible 差异、调用链路复盘、阶段验收 |
+
+## 阶段 3 细化学习清单
+
+阶段 3 目标：让 Python AI 服务具备工具调用能力，并逐步接入 Java 业务服务。先讲清楚 Tool Calling 的底层流程，再引入 LangChain 的封装。
+
+| 节 | 主题 | 学习状态 | 对应产出 |
+| --- | --- | --- | --- |
+| 1 | Tool Calling 是什么 | 已完成 | `notes/tool-calling-stage3-01-what-is-tool-calling.md` |
+| 2 | 为什么 AI 不能直接操作业务系统 | 已完成 | `notes/tool-calling-stage3-02-why-ai-cannot-operate-business-system-directly.md` |
+| 3 | 工具参数和 JSON Schema | 未开始 | 待新增 |
+| 4 | 结构化输出 vs Tool Calling | 未开始 | 待新增 |
+| 5 | 用 fake tool 模拟查订单 | 未开始 | 待新增 |
+| 6 | 工具调用结果也要 Pydantic 校验 | 未开始 | 待新增 |
+| 7 | 工具调用错误处理：超时、404、500 | 未开始 | 待新增 |
+| 8 | 工具调用权限边界 | 未开始 | 待新增 |
+| 9 | 工具调用幂等性 | 未开始 | 待新增 |
+| 10 | 用 FastAPI 写一个最小 Java mock 业务服务 | 未开始 | 待新增 |
+| 11 | Python AI 服务调用 Java mock API | 未开始 | 待新增 |
+| 12 | 让模型决定是否调用工具 | 未开始 | 待新增 |
+| 13 | 工具调用结果再交给模型总结 | 未开始 | 待新增 |
+| 14 | 用户确认机制：敏感操作不能直接执行 | 未开始 | 待新增 |
+| 15 | 创建工单流程：提取字段、确认、调用 Java API | 未开始 | 待新增 |
+| 16 | 工具调用日志和 trace_id 串联 | 未开始 | 待新增 |
+| 17 | 工具调用测试：fake Java API / fake tool | 未开始 | 待新增 |
+| 18 | LangChain 是什么，为什么现在才引入 | 未开始 | 待新增 |
+| 19 | LangChain ChatModel 基础 | 未开始 | 待新增 |
+| 20 | LangChain Tool 基础 | 未开始 | 待新增 |
+| 21 | LangChain 结构化输出 | 未开始 | 待新增 |
+| 22 | 阶段 3 项目整理 | 未开始 | 待新增 |
 
 ## 当前 Sprint 验收标准
 

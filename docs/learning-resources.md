@@ -382,9 +382,68 @@
 - [JSON Schema：Creating your first schema](https://json-schema.org/learn/getting-started-step-by-step)
   - 用途：理解 JSON Schema 如何描述对象、字段、类型、必填项和枚举值。
 
+## 15. Tool Calling / 工具调用
+
+### 主资料
+
+- [OpenAI Function Calling Guide](https://developers.openai.com/api/docs/guides/function-calling)
+  - 用途：理解模型如何根据工具定义返回工具调用，以及工具调用为什么需要开发者在后端执行。
+
+- [OpenAI Tools Guide](https://platform.openai.com/docs/guides/tools)
+  - 用途：理解 OpenAI API 中 tools 的整体定位，后续区分函数工具、内置工具和 agent 工作流。
+
+- [OpenAI Responses API Reference](https://platform.openai.com/docs/api-reference/responses/create)
+  - 用途：后续实现真实工具调用时查 `tools`、工具调用输出和响应结构。
+
+- [OpenAI Safety Best Practices](https://developers.openai.com/api/docs/guides/safety-best-practices)
+  - 用途：理解上线 AI 应用时为什么需要对抗测试、人类审核和安全边界。
+
+- [OpenAI API Key Safety](https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety)
+  - 用途：复习 API key 为什么不能放到客户端、仓库或模型上下文里。
+
+- [阿里云百炼：Function Calling](https://help.aliyun.com/zh/model-studio/qwen-function-calling)
+  - 用途：理解千问兼容模型里的工具调用流程、工具定义和多轮调用方式。
+
+- [JSON Schema：Creating your first schema](https://json-schema.org/learn/getting-started-step-by-step)
+  - 用途：理解工具参数为什么要用 schema 描述，以及 `type`、`properties`、`required` 的含义。
+
+- [OWASP Top 10 for Large Language Model Applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
+  - 用途：理解 LLM 应用里的 Prompt Injection、Insecure Output Handling、Excessive Agency 等风险分类。
+
+- [OWASP LLM01:2025 Prompt Injection](https://genai.owasp.org/llmrisk/llm01-prompt-injection/)
+  - 用途：理解用户输入、外部文档或网页内容如何诱导模型偏离原始规则。
+
+- [OWASP LLM Top 10 2025 Risks and Mitigations](https://genai.owasp.org/llm-top-10/)
+  - 用途：理解生成式 AI 应用的 2025 风险框架，后续设计工具权限和人工确认时参考。
+
+### 本仓库笔记
+
+- [阶段 3 第 1 节：Tool Calling 是什么](../notes/tool-calling-stage3-01-what-is-tool-calling.md)
+  - 用途：用智能工单 Agent 场景理解 Tool Calling 的边界、流程、安全要求和 Java 集成关系。
+
+- [阶段 3 第 2 节：为什么 AI 不能直接操作业务系统](../notes/tool-calling-stage3-02-why-ai-cannot-operate-business-system-directly.md)
+  - 用途：理解模型输出为什么是“不可信输入”，以及权限、确认、幂等、审计为什么必须由后端控制。
+
 ## 当前阶段推荐资料组合
 
-阶段 2：LLM API 基础调用。当前优先看：
+阶段 3：LangChain + Java 工具调用基础。当前优先看：
+
+1. 本仓库 `notes/tool-calling-stage3-01-what-is-tool-calling.md`
+2. 本仓库 `notes/tool-calling-stage3-02-why-ai-cannot-operate-business-system-directly.md`
+3. OpenAI Function Calling Guide，理解工具定义、工具调用和后端执行的边界
+4. OpenAI Tools Guide，理解 tools 在模型调用里的定位
+5. OpenAI Safety Best Practices，理解对抗测试和人类审核
+6. OWASP Top 10 for LLM Applications，理解 Prompt Injection、Insecure Output Handling、Excessive Agency
+7. OWASP LLM01:2025 Prompt Injection，理解为什么不能只靠 prompt 做安全控制
+8. OpenAI Responses API Reference，后续查真实工具调用参数和响应结构
+9. 阿里云百炼：Function Calling，理解千问兼容模型里的工具调用流程
+10. JSON Schema Creating your first schema，理解工具参数 schema 的基础
+11. 本仓库 `notes/llm-api-stage2-15-structured-output-concept.md`，复习结构化输出
+12. 本仓库 `notes/llm-api-stage2-16-pydantic-structured-output.md`，复习 Pydantic 校验
+13. 本仓库 `notes/fastapi-stage1-13-trace-id.md`，复习请求追踪
+14. 本仓库 `notes/fastapi-stage1-14-exception-handling.md`，复习统一异常处理
+
+阶段 2：LLM API 基础调用已完成。复盘时可看：
 
 1. 本仓库 `notes/llm-api-stage2-01-what-is-llm-api.md`
 2. 本仓库 `notes/llm-api-stage2-02-api-key-env-security.md`

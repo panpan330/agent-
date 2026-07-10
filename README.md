@@ -106,6 +106,13 @@ projects/ 练习项目、Demo 和完整作品
 | 17 | 测试模型调用：mock/fake LLM client | [notes/llm-api-stage2-17-testing-model-calls.md](notes/llm-api-stage2-17-testing-model-calls.md) | [projects/ai-service](projects/ai-service) |
 | 18 | 阶段 2 项目整理 | [notes/llm-api-stage2-18-project-summary.md](notes/llm-api-stage2-18-project-summary.md) | [projects/ai-service](projects/ai-service) |
 
+## 阶段 3：LangChain + Java 工具调用学习笔记索引
+
+| 顺序 | 主题 | 笔记路径 | 代码路径 |
+| --- | --- | --- | --- |
+| 1 | Tool Calling 是什么 | [notes/tool-calling-stage3-01-what-is-tool-calling.md](notes/tool-calling-stage3-01-what-is-tool-calling.md) | [projects/ai-service](projects/ai-service) |
+| 2 | 为什么 AI 不能直接操作业务系统 | [notes/tool-calling-stage3-02-why-ai-cannot-operate-business-system-directly.md](notes/tool-calling-stage3-02-why-ai-cannot-operate-business-system-directly.md) | [projects/ai-service](projects/ai-service) |
+
 ## 当前目标
 
 12 周内完成两个能展示的项目：
