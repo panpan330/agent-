@@ -389,6 +389,9 @@
 - [OpenAI Function Calling Guide](https://developers.openai.com/api/docs/guides/function-calling)
   - 用途：理解模型如何根据工具定义返回工具调用，以及工具调用为什么需要开发者在后端执行。
 
+- [OpenAI Structured model outputs](https://developers.openai.com/api/docs/guides/structured-outputs)
+  - 用途：和 Function Calling 对比，理解什么时候只是约束模型输出格式，什么时候需要连接工具、函数或外部数据。
+
 - [OpenAI Tools Guide](https://platform.openai.com/docs/guides/tools)
   - 用途：理解 OpenAI API 中 tools 的整体定位，后续区分函数工具、内置工具和 agent 工作流。
 
@@ -404,8 +407,20 @@
 - [阿里云百炼：Function Calling](https://help.aliyun.com/zh/model-studio/qwen-function-calling)
   - 用途：理解千问兼容模型里的工具调用流程、工具定义和多轮调用方式。
 
+- [阿里云百炼：结构化输出](https://help.aliyun.com/zh/model-studio/qwen-structured-output)
+  - 用途：理解千问兼容模型里的 JSON 输出能力，并和 Function Calling 的外部工具调用能力区分开。
+
 - [JSON Schema：Creating your first schema](https://json-schema.org/learn/getting-started-step-by-step)
   - 用途：理解工具参数为什么要用 schema 描述，以及 `type`、`properties`、`required` 的含义。
+
+- [JSON Schema：Object](https://json-schema.org/understanding-json-schema/reference/object)
+  - 用途：理解 `properties`、`required` 和 `additionalProperties` 如何约束对象字段。
+
+- [JSON Schema：Enumerated values](https://json-schema.org/understanding-json-schema/reference/enum)
+  - 用途：理解 `enum` 如何限制字段只能取固定值。
+
+- [Pydantic：JSON Schema](https://pydantic.dev/docs/validation/latest/concepts/json_schema/)
+  - 用途：理解 Pydantic 如何从 `BaseModel` 生成 JSON Schema，后续用于工具参数说明。
 
 - [OWASP Top 10 for Large Language Model Applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
   - 用途：理解 LLM 应用里的 Prompt Injection、Insecure Output Handling、Excessive Agency 等风险分类。
@@ -424,24 +439,47 @@
 - [阶段 3 第 2 节：为什么 AI 不能直接操作业务系统](../notes/tool-calling-stage3-02-why-ai-cannot-operate-business-system-directly.md)
   - 用途：理解模型输出为什么是“不可信输入”，以及权限、确认、幂等、审计为什么必须由后端控制。
 
+- [阶段 3 第 3 节：工具参数和 JSON Schema](../notes/tool-calling-stage3-03-tool-parameters-json-schema.md)
+  - 用途：理解工具参数 schema 的基本写法，以及 `type`、`properties`、`required`、`enum`、`additionalProperties` 的含义。
+
+- [阶段 3 第 4 节：结构化输出 vs Tool Calling](../notes/tool-calling-stage3-04-structured-output-vs-tool-calling.md)
+  - 用途：区分“按固定格式返回数据”和“请求调用外部工具”，理解二者在智能工单 Agent 中如何组合使用。
+
+- [阶段 3 第 5 节：用 fake tool 模拟查订单](../notes/tool-calling-stage3-05-fake-query-order-tool.md)
+  - 用途：用本地 Python 函数模拟未来 Java 订单服务，理解工具输入、工具输出、fake 数据和统一错误响应。
+
+- [阶段 3 第 6 节：工具调用结果也要 Pydantic 校验](../notes/tool-calling-stage3-06-tool-result-pydantic-validation.md)
+  - 用途：理解工具返回结果、Java API 响应和第三方接口返回都属于外部输入，进入业务逻辑前也要校验成 Pydantic 对象。
+
 ## 当前阶段推荐资料组合
 
 阶段 3：LangChain + Java 工具调用基础。当前优先看：
 
 1. 本仓库 `notes/tool-calling-stage3-01-what-is-tool-calling.md`
 2. 本仓库 `notes/tool-calling-stage3-02-why-ai-cannot-operate-business-system-directly.md`
-3. OpenAI Function Calling Guide，理解工具定义、工具调用和后端执行的边界
-4. OpenAI Tools Guide，理解 tools 在模型调用里的定位
-5. OpenAI Safety Best Practices，理解对抗测试和人类审核
-6. OWASP Top 10 for LLM Applications，理解 Prompt Injection、Insecure Output Handling、Excessive Agency
-7. OWASP LLM01:2025 Prompt Injection，理解为什么不能只靠 prompt 做安全控制
-8. OpenAI Responses API Reference，后续查真实工具调用参数和响应结构
-9. 阿里云百炼：Function Calling，理解千问兼容模型里的工具调用流程
-10. JSON Schema Creating your first schema，理解工具参数 schema 的基础
-11. 本仓库 `notes/llm-api-stage2-15-structured-output-concept.md`，复习结构化输出
-12. 本仓库 `notes/llm-api-stage2-16-pydantic-structured-output.md`，复习 Pydantic 校验
-13. 本仓库 `notes/fastapi-stage1-13-trace-id.md`，复习请求追踪
-14. 本仓库 `notes/fastapi-stage1-14-exception-handling.md`，复习统一异常处理
+3. 本仓库 `notes/tool-calling-stage3-03-tool-parameters-json-schema.md`
+4. 本仓库 `notes/tool-calling-stage3-04-structured-output-vs-tool-calling.md`
+5. 本仓库 `notes/tool-calling-stage3-05-fake-query-order-tool.md`
+6. 本仓库 `notes/tool-calling-stage3-06-tool-result-pydantic-validation.md`
+7. OpenAI Function Calling Guide，理解工具定义、工具调用和后端执行的边界
+8. OpenAI Structured model outputs，理解结构化输出和 Tool Calling 的边界
+9. OpenAI Tools Guide，理解 tools 在模型调用里的定位
+10. OpenAI Safety Best Practices，理解对抗测试和人类审核
+11. OWASP Top 10 for LLM Applications，理解 Prompt Injection、Insecure Output Handling、Excessive Agency
+12. OWASP LLM01:2025 Prompt Injection，理解为什么不能只靠 prompt 做安全控制
+13. OpenAI Responses API Reference，后续查真实工具调用参数和响应结构
+14. 阿里云百炼：Function Calling，理解千问兼容模型里的工具调用流程
+15. 阿里云百炼：结构化输出，理解千问兼容模型里的 JSON 输出能力
+16. JSON Schema Creating your first schema，理解工具参数 schema 的基础
+17. JSON Schema Object，理解 `properties`、`required`、`additionalProperties`
+18. JSON Schema Enumerated values，理解 `enum`
+19. Pydantic JSON Schema，理解 `BaseModel.model_json_schema()`
+20. Pydantic Models，理解 `model_validate` 和 `ValidationError`
+21. Pydantic Configuration，理解 `ConfigDict(extra="forbid")`
+22. 本仓库 `notes/llm-api-stage2-15-structured-output-concept.md`，复习结构化输出
+23. 本仓库 `notes/llm-api-stage2-16-pydantic-structured-output.md`，复习 Pydantic 校验
+24. 本仓库 `notes/fastapi-stage1-13-trace-id.md`，复习请求追踪
+25. 本仓库 `notes/fastapi-stage1-14-exception-handling.md`，复习统一异常处理
 
 阶段 2：LLM API 基础调用已完成。复盘时可看：
 

@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 3 LangChain + Java 工具调用基础已开始，第 2 节 为什么 AI 不能直接操作业务系统已完成，下一步进入第 3 节
+当前阶段：阶段 3 LangChain + Java 工具调用基础已开始，第 6 节 工具调用结果也要 Pydantic 校验已完成，下一步进入第 7 节
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -98,6 +98,10 @@
 - [x] 完成阶段 2 第 18 节：阶段 2 项目整理
 - [x] 完成阶段 3 第 1 节：Tool Calling 是什么
 - [x] 完成阶段 3 第 2 节：为什么 AI 不能直接操作业务系统
+- [x] 完成阶段 3 第 3 节：工具参数和 JSON Schema
+- [x] 完成阶段 3 第 4 节：结构化输出 vs Tool Calling
+- [x] 完成阶段 3 第 5 节：用 fake tool 模拟查订单
+- [x] 完成阶段 3 第 6 节：工具调用结果也要 Pydantic 校验
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -156,10 +160,10 @@
 | --- | --- | --- | --- |
 | 1 | Tool Calling 是什么 | 已完成 | `notes/tool-calling-stage3-01-what-is-tool-calling.md` |
 | 2 | 为什么 AI 不能直接操作业务系统 | 已完成 | `notes/tool-calling-stage3-02-why-ai-cannot-operate-business-system-directly.md` |
-| 3 | 工具参数和 JSON Schema | 未开始 | 待新增 |
-| 4 | 结构化输出 vs Tool Calling | 未开始 | 待新增 |
-| 5 | 用 fake tool 模拟查订单 | 未开始 | 待新增 |
-| 6 | 工具调用结果也要 Pydantic 校验 | 未开始 | 待新增 |
+| 3 | 工具参数和 JSON Schema | 已完成 | `notes/tool-calling-stage3-03-tool-parameters-json-schema.md` |
+| 4 | 结构化输出 vs Tool Calling | 已完成 | `notes/tool-calling-stage3-04-structured-output-vs-tool-calling.md` |
+| 5 | 用 fake tool 模拟查订单 | 已完成 | `notes/tool-calling-stage3-05-fake-query-order-tool.md`、`app/tools/fake_order_tool.py`、`app/schemas/tool.py`、`app/routers/tools.py`、`tests/test_fake_order_tool.py`、`tests/test_tools_api.py`、`tests/test_tool_schema.py` |
+| 6 | 工具调用结果也要 Pydantic 校验 | 已完成 | `notes/tool-calling-stage3-06-tool-result-pydantic-validation.md`、`validate_query_order_result()`、`QueryOrderResult.model_validate(...)`、`TOOL_RESULT_VALIDATION_FAILED` |
 | 7 | 工具调用错误处理：超时、404、500 | 未开始 | 待新增 |
 | 8 | 工具调用权限边界 | 未开始 | 待新增 |
 | 9 | 工具调用幂等性 | 未开始 | 待新增 |

@@ -8,7 +8,7 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：L
 
 当前 `/extract-ticket` 已经支持 OpenAI-compatible JSON Mode，并用 Pydantic 校验模型返回的结构化工单字段。
 
-当前阶段 3 第 1-2 节先完成 Tool Calling 概念和业务系统安全边界学习，不新增业务接口。后续会逐步加入 fake tool、Java mock 业务服务、工具调用参数校验、工具调用日志和 trace_id 串联。
+当前阶段 3 第 1-6 节已完成 Tool Calling 概念、业务系统安全边界、工具参数和 JSON Schema、结构化输出与 Tool Calling 的边界、fake tool 模拟订单查询、工具调用结果 Pydantic 校验。后续会逐步加入工具调用错误处理、Java mock 业务服务、工具调用日志和 trace_id 串联。
 
 ## 当前能力
 
@@ -27,8 +27,14 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：L
 - `/stream-chat` 流式聊天接口
 - SSE `message` / `done` / `error` 事件格式
 - `/extract-ticket` 工单字段结构化抽取接口
+- `/tools/query-order` fake 订单查询工具接口
 - Pydantic 结构化输出模型和 JSON Schema 生成
 - 模型返回 JSON 的 Pydantic 校验
+- `QueryOrderArgs` 工具参数模型
+- `QueryOrderResult` fake 工具返回模型
+- `query_order` fake tool 函数
+- `validate_query_order_result` 工具结果校验函数
+- `TOOL_RESULT_VALIDATION_FAILED` 工具结果校验失败错误
 - 共享 fake OpenAI-compatible client 测试工具
 - 模型调用 timeout 统一错误处理
 - SDK retry 次数配置和 rate limit 统一错误处理
@@ -60,16 +66,20 @@ app/
   routers/
     chat.py                /chat 路由
     health.py              /health 路由
+    tools.py               fake tool 学习接口
   schemas/
     chat.py                聊天请求/响应模型
     error.py               统一错误响应模型
     structured.py          结构化输出请求/响应和工单字段模型
+    tool.py                工具参数和工具结果模型
   services/
     llm_client.py          OpenAI-compatible SDK client 初始化
     llm_service.py         LLM 聊天调用服务
     message_builder.py     聊天 messages 构建工具
     prompt_builder.py      prompt 分段构建工具
     structured_output_service.py 结构化输出调用服务
+  tools/
+    fake_order_tool.py     fake 订单查询工具
   main.py                  FastAPI 应用入口
 scripts/
   llm_compatible_smoke_test.py 手动检查或调用兼容模型
@@ -81,6 +91,7 @@ tests/
   test_config.py           配置测试
   test_cors.py             CORS 测试
   test_exception_handlers.py 统一异常处理测试
+  test_fake_order_tool.py  fake 订单查询工具测试
   test_fake_llm_client.py  fake LLM client 工具测试
   test_health.py           /health 测试
   test_llm_client.py       LLM client 初始化测试
@@ -90,6 +101,8 @@ tests/
   test_prompt_builder.py   prompt 分段构建测试
   test_structured_output_service.py 结构化输出服务测试
   test_structured_schema.py 结构化输出模型测试
+  test_tool_schema.py      工具参数和工具结果模型测试
+  test_tools_api.py        /tools/query-order 接口测试
   test_token_usage.py      token 粗略估算测试
   test_trace.py            trace_id 测试
 ```
@@ -127,7 +140,7 @@ http://127.0.0.1:8000/docs
 uv run pytest -q
 ```
 
-当前测试使用 FastAPI 的 `TestClient`，覆盖 `/health`、`/chat`、`/stream-chat`、`/extract-ticket`、`ChatRequest`、`ChatResponse`、`ChatMessage`、`TicketExtraction`、多轮 `history`、配置读取、日志、`trace_id`、统一异常处理、CORS、token 粗略估算、LLM client 初始化、LLM service、结构化输出 service、fake OpenAI-compatible client、OpenAI-compatible SDK 错误映射、模型调用日志、流式调用日志、结构化输出日志、模型响应 token usage 提取、messages 构建和 prompt 构建。
+当前测试使用 FastAPI 的 `TestClient`，覆盖 `/health`、`/chat`、`/stream-chat`、`/extract-ticket`、`/tools/query-order`、`ChatRequest`、`ChatResponse`、`ChatMessage`、`TicketExtraction`、`QueryOrderArgs`、`QueryOrderResult`、多轮 `history`、配置读取、日志、`trace_id`、统一异常处理、CORS、token 粗略估算、LLM client 初始化、LLM service、结构化输出 service、fake order tool、工具结果 Pydantic 校验、fake OpenAI-compatible client、OpenAI-compatible SDK 错误映射、模型调用日志、流式调用日志、结构化输出日志、模型响应 token usage 提取、messages 构建和 prompt 构建。
 
 也可以运行 Python 编译检查：
 
@@ -421,6 +434,69 @@ high
 
 自动化测试不会真实调用模型。接口测试通过 `dependency_overrides` 注入 fake service，服务测试通过 fake client 验证 JSON Mode 参数、Pydantic 解析和错误处理。
 
+## Fake tool `/tools/query-order`
+
+`/tools/query-order` 当前通过 `app/tools/fake_order_tool.py` 模拟订单查询工具，不调用真实 Java 服务，也不调用数据库。
+
+调用链路：
+
+```text
+POST /tools/query-order
+-> app/routers/tools.py
+-> QueryOrderArgs 校验 order_id
+-> fake_order_tool.query_order()
+-> _FAKE_ORDER_STORE
+-> validate_query_order_result()
+-> QueryOrderResult
+```
+
+请求示例：
+
+```json
+{
+  "order_id": "A1001"
+}
+```
+
+成功响应示例：
+
+```json
+{
+  "result": {
+    "order_id": "A1001",
+    "order_status": "waiting_shipment",
+    "payment_status": "paid",
+    "logistics_message": "商家已接单，等待仓库发货。",
+    "latest_event": "仓库正在准备出库。",
+    "can_create_ticket": true,
+    "source": "fake_order_tool"
+  }
+}
+```
+
+如果订单号格式合法但 fake 数据里不存在，会返回：
+
+```json
+{
+  "code": "ORDER_NOT_FOUND",
+  "message": "订单不存在，请确认订单号是否正确。",
+  "trace_id": "..."
+}
+```
+
+如果 fake tool 或未来 Java API 返回的数据不符合 `QueryOrderResult`，会返回：
+
+```json
+{
+  "code": "TOOL_RESULT_VALIDATION_FAILED",
+  "message": "工具返回结果校验失败，请稍后重试。",
+  "trace_id": "...",
+  "details": []
+}
+```
+
+当前 fake tool 只是为了学习工具函数的输入、输出、结果校验和错误边界。后续会把内部 fake 数据替换成 Java mock API，再学习工具调用错误处理和工具调用日志。
+
 ## 模型调用测试工具
 
 测试代码里的共享 fake 工具放在：
@@ -608,6 +684,7 @@ app/core/exception_handlers.py
 | POST | `/chat` | 聊天接口，调用 OpenAI-compatible 模型 |
 | POST | `/stream-chat` | 流式聊天接口，调用 OpenAI-compatible 模型并返回 SSE |
 | POST | `/extract-ticket` | 结构化工单字段抽取接口，调用 OpenAI-compatible 模型并用 Pydantic 校验 |
+| POST | `/tools/query-order` | fake 订单查询工具接口，用内存假数据模拟后续 Java 订单服务 |
 
 ## 当前模型
 
@@ -620,6 +697,11 @@ app/core/exception_handlers.py
 | `StructuredOutputRequest` | `app/schemas/structured.py` | 结构化输出请求体，要求 `message` 是非空字符串 |
 | `TicketExtraction` | `app/schemas/structured.py` | 工单字段抽取结果，包含 `intent`、`order_id`、`summary`、`urgency`、`need_human_review` |
 | `StructuredOutputResponse` | `app/schemas/structured.py` | 结构化输出响应体，包裹 `TicketExtraction` |
+| `QueryOrderArgs` | `app/schemas/tool.py` | `query_order` 工具参数模型，要求 `order_id` 非空且格式合法 |
+| `OrderStatus` | `app/schemas/tool.py` | fake 订单状态枚举，如 `waiting_shipment`、`shipped`、`delivered` |
+| `PaymentStatus` | `app/schemas/tool.py` | fake 支付状态枚举，如 `unpaid`、`paid`、`refunded` |
+| `QueryOrderResult` | `app/schemas/tool.py` | fake 订单查询结果，包含订单状态、支付状态、物流说明和是否可创建工单 |
+| `QueryOrderResponse` | `app/schemas/tool.py` | fake 订单查询接口响应体，包裹 `QueryOrderResult` |
 | `ErrorResponse` | `app/schemas/error.py` | 统一错误响应体，包含 `code`、`message`、`trace_id` 和可选 `details` |
 
 ## 阶段 1 验收
@@ -643,7 +725,10 @@ app/core/exception_handlers.py
 
 - 理解 Tool Calling 不是模型直接执行代码，而是模型返回工具名和参数，由后端决定是否执行。
 - 理解 AI 不能绕过 Java 后端直接操作业务系统，模型输出必须当成不可信输入处理。
+- 理解工具参数如何用 JSON Schema 描述，并用 Pydantic 在后端校验模型返回的 arguments。
+- 理解结构化输出和 Tool Calling 的区别：前者把自然语言整理成固定格式数据，后者让模型提出调用外部工具的请求。
 - 用 fake tool 先模拟订单查询，避免一开始就引入复杂业务服务。
+- 理解工具返回结果、Java API 响应和第三方接口返回也要先用 Pydantic 校验。
 - 用 FastAPI 写一个 Java mock 业务服务，模拟后续 Spring Boot 接口。
 - 让 Python AI 服务调用 Java mock API，并处理超时、404、500、权限、确认和幂等。
 - 后续再引入 LangChain 的 Tool 抽象，把已经理解的底层流程封装起来。

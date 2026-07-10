@@ -112,6 +112,10 @@ projects/ 练习项目、Demo 和完整作品
 | --- | --- | --- | --- |
 | 1 | Tool Calling 是什么 | [notes/tool-calling-stage3-01-what-is-tool-calling.md](notes/tool-calling-stage3-01-what-is-tool-calling.md) | [projects/ai-service](projects/ai-service) |
 | 2 | 为什么 AI 不能直接操作业务系统 | [notes/tool-calling-stage3-02-why-ai-cannot-operate-business-system-directly.md](notes/tool-calling-stage3-02-why-ai-cannot-operate-business-system-directly.md) | [projects/ai-service](projects/ai-service) |
+| 3 | 工具参数和 JSON Schema | [notes/tool-calling-stage3-03-tool-parameters-json-schema.md](notes/tool-calling-stage3-03-tool-parameters-json-schema.md) | [projects/ai-service](projects/ai-service) |
+| 4 | 结构化输出 vs Tool Calling | [notes/tool-calling-stage3-04-structured-output-vs-tool-calling.md](notes/tool-calling-stage3-04-structured-output-vs-tool-calling.md) | [projects/ai-service](projects/ai-service) |
+| 5 | 用 fake tool 模拟查订单 | [notes/tool-calling-stage3-05-fake-query-order-tool.md](notes/tool-calling-stage3-05-fake-query-order-tool.md) | [projects/ai-service](projects/ai-service) |
+| 6 | 工具调用结果也要 Pydantic 校验 | [notes/tool-calling-stage3-06-tool-result-pydantic-validation.md](notes/tool-calling-stage3-06-tool-result-pydantic-validation.md) | [projects/ai-service](projects/ai-service) |
 
 ## 当前目标
 
