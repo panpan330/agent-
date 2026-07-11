@@ -76,6 +76,17 @@
 - [Requests 中文快速上手](https://docs.python-requests.org/projects/cn/zh-cn/latest/user/quickstart.html)
   - 用途：中文辅助理解。
 
+### HTTPX 跨服务调用
+
+- [HTTPX Quickstart](https://www.python-httpx.org/quickstart/)
+  - 用途：学习 `httpx.Client`、GET 请求、读取 JSON 响应和基础请求写法。
+- [HTTPX Timeouts](https://www.python-httpx.org/advanced/timeouts/)
+  - 用途：理解跨服务 HTTP 调用为什么必须配置 timeout，以及 timeout 不是可选细节。
+- [HTTPX Exceptions](https://www.python-httpx.org/exceptions/)
+  - 用途：理解 `TimeoutException`、`RequestError` 等异常层级，方便把底层错误映射成项目统一错误码。
+- [HTTPX Transports and MockTransport](https://www.python-httpx.org/advanced/transports/)
+  - 用途：学习测试时如何模拟 HTTP 响应，避免单元测试依赖真实外部服务。
+
 ### 辅助练习
 
 - [4GeeksAcademy: Python API Requests Tutorial and Exercises](https://github.com/4GeeksAcademy/python-http-requests-api-tutorial-exercises)
@@ -404,6 +415,12 @@
 - [OpenAI API Key Safety](https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety)
   - 用途：复习 API key 为什么不能放到客户端、仓库或模型上下文里。
 
+- [RFC 9110：HTTP Semantics，Idempotent Methods](https://datatracker.ietf.org/doc/html/rfc9110#section-9.2.2)
+  - 用途：理解“同一个请求执行一次和多次，服务端预期效果相同”这个幂等性基础定义。
+
+- [Stripe：Idempotent requests](https://docs.stripe.com/api/idempotent_requests)
+  - 用途：学习真实 API 如何用 idempotency key 防止连接错误和重试导致重复创建或重复更新。
+
 - [阿里云百炼：Function Calling](https://help.aliyun.com/zh/model-studio/qwen-function-calling)
   - 用途：理解千问兼容模型里的工具调用流程、工具定义和多轮调用方式。
 
@@ -451,6 +468,21 @@
 - [阶段 3 第 6 节：工具调用结果也要 Pydantic 校验](../notes/tool-calling-stage3-06-tool-result-pydantic-validation.md)
   - 用途：理解工具返回结果、Java API 响应和第三方接口返回都属于外部输入，进入业务逻辑前也要校验成 Pydantic 对象。
 
+- [阶段 3 第 7 节：工具调用错误处理：超时、404、500](../notes/tool-calling-stage3-07-tool-error-handling.md)
+  - 用途：理解工具调用失败时如何把底层 timeout、404、上游 500 转换成统一、安全、可测试的 API 错误。
+
+- [阶段 3 第 8 节：工具调用权限边界](../notes/tool-calling-stage3-08-tool-permission-boundary.md)
+  - 用途：理解模型只能请求工具，后端必须通过工具注册表、启用状态、用户确认和风险等级决定是否执行。
+
+- [阶段 3 第 9 节：工具调用幂等性](../notes/tool-calling-stage3-09-tool-idempotency.md)
+  - 用途：理解 `Idempotency-Key`、参数指纹、重复请求复用结果和同 key 不同参数冲突。
+
+- [阶段 3 第 10 节：用 FastAPI 写一个最小 Java mock 业务服务](../notes/tool-calling-stage3-10-java-mock-service.md)
+  - 用途：理解 mock service、业务服务边界、`/orders/{order_id}` 路径参数、统一错误响应和跨服务调用准备。
+
+- [阶段 3 第 11 节：Python AI 服务调用 Java mock API](../notes/tool-calling-stage3-11-python-calls-java-mock-api.md)
+  - 用途：理解跨服务 HTTP 调用、`JavaOrderClient`、`base_url`、timeout、上游错误映射、DTO 字段映射、Pydantic 二次校验和 `httpx.MockTransport` 测试。
+
 ## 当前阶段推荐资料组合
 
 阶段 3：LangChain + Java 工具调用基础。当前优先看：
@@ -461,25 +493,42 @@
 4. 本仓库 `notes/tool-calling-stage3-04-structured-output-vs-tool-calling.md`
 5. 本仓库 `notes/tool-calling-stage3-05-fake-query-order-tool.md`
 6. 本仓库 `notes/tool-calling-stage3-06-tool-result-pydantic-validation.md`
-7. OpenAI Function Calling Guide，理解工具定义、工具调用和后端执行的边界
-8. OpenAI Structured model outputs，理解结构化输出和 Tool Calling 的边界
-9. OpenAI Tools Guide，理解 tools 在模型调用里的定位
-10. OpenAI Safety Best Practices，理解对抗测试和人类审核
-11. OWASP Top 10 for LLM Applications，理解 Prompt Injection、Insecure Output Handling、Excessive Agency
-12. OWASP LLM01:2025 Prompt Injection，理解为什么不能只靠 prompt 做安全控制
-13. OpenAI Responses API Reference，后续查真实工具调用参数和响应结构
-14. 阿里云百炼：Function Calling，理解千问兼容模型里的工具调用流程
-15. 阿里云百炼：结构化输出，理解千问兼容模型里的 JSON 输出能力
-16. JSON Schema Creating your first schema，理解工具参数 schema 的基础
-17. JSON Schema Object，理解 `properties`、`required`、`additionalProperties`
-18. JSON Schema Enumerated values，理解 `enum`
-19. Pydantic JSON Schema，理解 `BaseModel.model_json_schema()`
-20. Pydantic Models，理解 `model_validate` 和 `ValidationError`
-21. Pydantic Configuration，理解 `ConfigDict(extra="forbid")`
-22. 本仓库 `notes/llm-api-stage2-15-structured-output-concept.md`，复习结构化输出
-23. 本仓库 `notes/llm-api-stage2-16-pydantic-structured-output.md`，复习 Pydantic 校验
-24. 本仓库 `notes/fastapi-stage1-13-trace-id.md`，复习请求追踪
-25. 本仓库 `notes/fastapi-stage1-14-exception-handling.md`，复习统一异常处理
+7. 本仓库 `notes/tool-calling-stage3-07-tool-error-handling.md`
+8. 本仓库 `notes/tool-calling-stage3-08-tool-permission-boundary.md`
+9. 本仓库 `notes/tool-calling-stage3-09-tool-idempotency.md`
+10. 本仓库 `notes/tool-calling-stage3-10-java-mock-service.md`
+11. 本仓库 `notes/tool-calling-stage3-11-python-calls-java-mock-api.md`
+12. HTTPX Quickstart，理解 Python HTTP 客户端的 GET、JSON 和响应读取
+13. HTTPX Timeouts，理解跨服务调用为什么必须配置 timeout
+14. HTTPX Exceptions，理解 timeout、连接失败等异常层级
+15. HTTPX Transports and MockTransport，理解如何在测试里模拟 HTTP 响应
+16. OpenAI Function Calling Guide，理解工具定义、工具调用和后端执行的边界
+17. RFC 9110 Idempotent Methods，理解幂等性的基础定义
+18. Stripe Idempotent requests，理解 idempotency key 的真实 API 实践
+19. FastAPI Path Parameters，理解 `/orders/{order_id}` 这类路径参数
+20. FastAPI Bigger Applications，理解 `APIRouter` 和多文件项目结构
+21. FastAPI Handling Errors，理解接口错误应该统一抛出和统一响应
+22. FastAPI Testing，理解如何用 `TestClient` 测试 API
+23. OpenAI Structured model outputs，理解结构化输出和 Tool Calling 的边界
+24. OpenAI Tools Guide，理解 tools 在模型调用里的定位
+25. OpenAI Safety Best Practices，理解对抗测试和人类审核
+26. OWASP Top 10 for LLM Applications，理解 Prompt Injection、Insecure Output Handling、Excessive Agency
+27. OWASP LLM06:2025 Excessive Agency，理解过多工具、过大权限和过高自主性带来的风险
+28. OWASP LLM01:2025 Prompt Injection，理解为什么不能只靠 prompt 做安全控制
+29. OpenAI Responses API Reference，后续查真实工具调用参数和响应结构
+30. 阿里云百炼：Function Calling，理解千问兼容模型里的工具调用流程
+31. 阿里云百炼：结构化输出，理解千问兼容模型里的 JSON 输出能力
+32. JSON Schema Creating your first schema，理解工具参数 schema 的基础
+33. JSON Schema Object，理解 `properties`、`required`、`additionalProperties`
+34. JSON Schema Enumerated values，理解 `enum`
+35. Pydantic JSON Schema，理解 `BaseModel.model_json_schema()`
+36. Pydantic Models，理解 `model_validate` 和 `ValidationError`
+37. Pydantic Configuration，理解 `ConfigDict(extra="forbid")`
+38. MDN HTTP response status codes，理解 404、502、504 的语义
+39. 本仓库 `notes/llm-api-stage2-15-structured-output-concept.md`，复习结构化输出
+40. 本仓库 `notes/llm-api-stage2-16-pydantic-structured-output.md`，复习 Pydantic 校验
+41. 本仓库 `notes/fastapi-stage1-13-trace-id.md`，复习请求追踪
+42. 本仓库 `notes/fastapi-stage1-14-exception-handling.md`，复习统一异常处理
 
 阶段 2：LLM API 基础调用已完成。复盘时可看：
 

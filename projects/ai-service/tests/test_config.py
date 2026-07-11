@@ -22,6 +22,9 @@ def test_settings_use_default_values() -> None:
     assert settings.request_timeout_seconds == 30.0
     assert settings.llm_max_retries == 2
     assert settings.max_output_tokens == 1024
+    assert settings.java_mock_service_base_url == "http://127.0.0.1:8001"
+    assert settings.resolved_java_mock_service_base_url == "http://127.0.0.1:8001"
+    assert settings.java_mock_service_timeout_seconds == 5.0
     assert settings.log_level == "INFO"
     assert settings.cors_allowed_origins == "http://localhost:5173,http://127.0.0.1:5173"
     assert settings.cors_allowed_origin_list == [
@@ -45,6 +48,8 @@ def test_settings_read_environment_variables(monkeypatch: pytest.MonkeyPatch) ->
     monkeypatch.setenv("REQUEST_TIMEOUT_SECONDS", "12.5")
     monkeypatch.setenv("LLM_MAX_RETRIES", "3")
     monkeypatch.setenv("MAX_OUTPUT_TOKENS", "256")
+    monkeypatch.setenv("JAVA_MOCK_SERVICE_BASE_URL", " http://localhost:9001/ ")
+    monkeypatch.setenv("JAVA_MOCK_SERVICE_TIMEOUT_SECONDS", "2.5")
     monkeypatch.setenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000")
 
     settings = Settings(_env_file=None)
@@ -62,6 +67,8 @@ def test_settings_read_environment_variables(monkeypatch: pytest.MonkeyPatch) ->
     assert settings.request_timeout_seconds == 12.5
     assert settings.llm_max_retries == 3
     assert settings.max_output_tokens == 256
+    assert settings.resolved_java_mock_service_base_url == "http://localhost:9001"
+    assert settings.java_mock_service_timeout_seconds == 2.5
     assert settings.cors_allowed_origin_list == ["http://localhost:3000"]
 
 
@@ -126,6 +133,8 @@ def test_settings_read_env_file(tmp_path: Path) -> None:
                 'LLM_API_KEY=""',
                 "LLM_MAX_RETRIES=4",
                 "MAX_OUTPUT_TOKENS=512",
+                'JAVA_MOCK_SERVICE_BASE_URL="http://localhost:9001/"',
+                "JAVA_MOCK_SERVICE_TIMEOUT_SECONDS=3",
                 'CORS_ALLOWED_ORIGINS="http://localhost:5173, http://localhost:3000"',
                 'OPENAI_API_KEY=""',
             ]
@@ -147,6 +156,8 @@ def test_settings_read_env_file(tmp_path: Path) -> None:
     assert settings.has_llm_api_key is False
     assert settings.llm_max_retries == 4
     assert settings.max_output_tokens == 512
+    assert settings.resolved_java_mock_service_base_url == "http://localhost:9001"
+    assert settings.java_mock_service_timeout_seconds == 3.0
     assert settings.cors_allowed_origin_list == [
         "http://localhost:5173",
         "http://localhost:3000",
@@ -181,6 +192,15 @@ def test_settings_reject_invalid_max_output_tokens() -> None:
 
     error = exc_info.value.errors()[0]
     assert error["loc"] == ("max_output_tokens",)
+    assert error["type"] == "greater_than"
+
+
+def test_settings_reject_invalid_java_mock_service_timeout() -> None:
+    with pytest.raises(ValidationError) as exc_info:
+        Settings(java_mock_service_timeout_seconds=0, _env_file=None)
+
+    error = exc_info.value.errors()[0]
+    assert error["loc"] == ("java_mock_service_timeout_seconds",)
     assert error["type"] == "greater_than"
 
 

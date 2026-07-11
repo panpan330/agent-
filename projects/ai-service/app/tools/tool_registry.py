@@ -1,0 +1,63 @@
+from app.core.exceptions import AppException
+from app.schemas.tool import (
+    ToolAccessLevel,
+    ToolDefinition,
+    get_query_order_args_json_schema,
+)
+
+
+TOOL_REGISTRY: dict[str, ToolDefinition] = {
+    "query_order": ToolDefinition(
+        name="query_order",
+        description="查询订单状态和物流摘要，只读取订单信息，不修改业务数据。",
+        access_level=ToolAccessLevel.READ,
+        requires_confirmation=False,
+        enabled=True,
+        argument_schema=get_query_order_args_json_schema(),
+    ),
+    "create_ticket": ToolDefinition(
+        name="create_ticket",
+        description="创建客服工单，会写入业务系统，必须先让用户确认。",
+        access_level=ToolAccessLevel.WRITE,
+        requires_confirmation=True,
+        enabled=True,
+    ),
+    "refund_order": ToolDefinition(
+        name="refund_order",
+        description="发起退款操作，属于敏感业务动作，当前阶段不允许模型调用。",
+        access_level=ToolAccessLevel.SENSITIVE,
+        requires_confirmation=True,
+        enabled=False,
+    ),
+}
+
+
+def get_tool_definition(tool_name: str) -> ToolDefinition | None:
+    return TOOL_REGISTRY.get(tool_name)
+
+
+def list_tool_definitions() -> list[ToolDefinition]:
+    return list(TOOL_REGISTRY.values())
+
+
+def authorize_tool_call(
+    tool_name: str,
+    *,
+    user_confirmed: bool = False,
+) -> ToolDefinition:
+    definition = get_tool_definition(tool_name)
+    if definition is None or not definition.enabled:
+        raise AppException(
+            code="TOOL_NOT_ALLOWED",
+            message="工具不在允许列表中，后端已拒绝执行。",
+            status_code=403,
+        )
+
+    if definition.requires_confirmation and not user_confirmed:
+        raise AppException(
+            code="TOOL_CONFIRMATION_REQUIRED",
+            message="该工具需要用户确认后才能执行。",
+            status_code=409,
+        )
+
+    return definition

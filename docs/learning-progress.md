@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 3 LangChain + Java 工具调用基础已开始，第 6 节 工具调用结果也要 Pydantic 校验已完成，下一步进入第 7 节
+当前阶段：阶段 3 LangChain + Java 工具调用基础已开始，第 11 节 Python AI 服务调用 Java mock API 已完成，下一步进入第 12 节。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -102,6 +102,11 @@
 - [x] 完成阶段 3 第 4 节：结构化输出 vs Tool Calling
 - [x] 完成阶段 3 第 5 节：用 fake tool 模拟查订单
 - [x] 完成阶段 3 第 6 节：工具调用结果也要 Pydantic 校验
+- [x] 完成阶段 3 第 7 节：工具调用错误处理：超时、404、500
+- [x] 完成阶段 3 第 8 节：工具调用权限边界
+- [x] 完成阶段 3 第 9 节：工具调用幂等性
+- [x] 完成阶段 3 第 10 节：用 FastAPI 写一个最小 Java mock 业务服务
+- [x] 完成阶段 3 第 11 节：Python AI 服务调用 Java mock API
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -164,11 +169,11 @@
 | 4 | 结构化输出 vs Tool Calling | 已完成 | `notes/tool-calling-stage3-04-structured-output-vs-tool-calling.md` |
 | 5 | 用 fake tool 模拟查订单 | 已完成 | `notes/tool-calling-stage3-05-fake-query-order-tool.md`、`app/tools/fake_order_tool.py`、`app/schemas/tool.py`、`app/routers/tools.py`、`tests/test_fake_order_tool.py`、`tests/test_tools_api.py`、`tests/test_tool_schema.py` |
 | 6 | 工具调用结果也要 Pydantic 校验 | 已完成 | `notes/tool-calling-stage3-06-tool-result-pydantic-validation.md`、`validate_query_order_result()`、`QueryOrderResult.model_validate(...)`、`TOOL_RESULT_VALIDATION_FAILED` |
-| 7 | 工具调用错误处理：超时、404、500 | 未开始 | 待新增 |
-| 8 | 工具调用权限边界 | 未开始 | 待新增 |
-| 9 | 工具调用幂等性 | 未开始 | 待新增 |
-| 10 | 用 FastAPI 写一个最小 Java mock 业务服务 | 未开始 | 待新增 |
-| 11 | Python AI 服务调用 Java mock API | 未开始 | 待新增 |
+| 7 | 工具调用错误处理：超时、404、500 | 已完成 | `notes/tool-calling-stage3-07-tool-error-handling.md`、`FakeOrderServiceTimeoutError`、`FakeOrderServiceError`、`map_query_order_error()`、`TOOL_TIMEOUT`、`TOOL_UPSTREAM_ERROR`、`TOOL_CALL_FAILED` |
+| 8 | 工具调用权限边界 | 已完成 | `notes/tool-calling-stage3-08-tool-permission-boundary.md`、`ToolDefinition`、`ToolAccessLevel`、`TOOL_REGISTRY`、`authorize_tool_call()`、`TOOL_NOT_ALLOWED`、`TOOL_CONFIRMATION_REQUIRED` |
+| 9 | 工具调用幂等性 | 已完成 | `notes/tool-calling-stage3-09-tool-idempotency.md`、`Idempotency-Key`、`run_idempotent_tool()`、`build_arguments_fingerprint()`、`IDEMPOTENCY_KEY_CONFLICT`、`IDEMPOTENCY_KEY_INVALID` |
+| 10 | 用 FastAPI 写一个最小 Java mock 业务服务 | 已完成 | `notes/tool-calling-stage3-10-java-mock-service.md`、`projects/java-mock-service`、`GET /health`、`GET /orders/{order_id}`、`ORDER_NOT_FOUND`、`ORDER_SERVICE_ERROR` |
+| 11 | Python AI 服务调用 Java mock API | 已完成 | `notes/tool-calling-stage3-11-python-calls-java-mock-api.md`、`app/services/java_order_client.py`、`JAVA_MOCK_SERVICE_BASE_URL`、`JAVA_MOCK_SERVICE_TIMEOUT_SECONDS`、`httpx.MockTransport`、`map_java_order_to_query_order_payload()`、`source=java_mock_service` |
 | 12 | 让模型决定是否调用工具 | 未开始 | 待新增 |
 | 13 | 工具调用结果再交给模型总结 | 未开始 | 待新增 |
 | 14 | 用户确认机制：敏感操作不能直接执行 | 未开始 | 待新增 |
@@ -238,7 +243,7 @@ M0/M1 第一阶段完成时，必须满足：
 - [ ] 依赖管理
 - [ ] FastAPI
 - [ ] Pydantic
-- [ ] httpx
+- [x] httpx
 - [x] logging
 - [x] pytest
 - [ ] Dockerfile
@@ -297,7 +302,7 @@ M0/M1 第一阶段完成时，必须满足：
 - [ ] 订单查询接口
 - [ ] 退款查询接口
 - [ ] 工单创建接口
-- [ ] AI tools 调 Java API
+- [x] AI tools 调 Java API
 - [ ] 敏感操作确认
 
 ### 工程化

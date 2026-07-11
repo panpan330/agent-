@@ -1,18 +1,16 @@
 [project]
-name = "ai-service"
+name = "java-mock-service"
 version = "0.1.0"
-description = "Add your description here"
+description = "Mock Java business service for learning AI tool calling integration"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.139.0",
-    "httpx2>=2.5.0",
-    "openai>=2.44.0",
-    "pydantic-settings>=2.14.2",
     "uvicorn>=0.50.0",
 ]
 
 [dependency-groups]
 dev = [
+    "httpx2>=2.5.0",
     "pytest>=9.1.1",
 ]

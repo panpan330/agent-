@@ -1,43 +1,31 @@
 from collections.abc import Mapping
-from typing import Any
+from typing import Any, Protocol
 
 from pydantic import ValidationError
 
+from app.core.config import Settings, get_settings
 from app.core.exceptions import AppException
-from app.schemas.tool import (
-    OrderStatus,
-    PaymentStatus,
-    QueryOrderArgs,
-    QueryOrderResult,
-)
+from app.schemas.tool import QueryOrderArgs, QueryOrderResult
+from app.services.java_order_client import JavaOrderClient
 
 
-_FAKE_ORDER_STORE: dict[str, dict[str, object]] = {
-    "A1001": {
-        "order_id": "A1001",
-        "order_status": OrderStatus.WAITING_SHIPMENT.value,
-        "payment_status": PaymentStatus.PAID.value,
-        "logistics_message": "商家已接单，等待仓库发货。",
-        "latest_event": "仓库正在准备出库。",
-        "can_create_ticket": True,
-    },
-    "A1002": {
-        "order_id": "A1002",
-        "order_status": OrderStatus.SHIPPED.value,
-        "payment_status": PaymentStatus.PAID.value,
-        "logistics_message": "包裹已发出，正在运输途中。",
-        "latest_event": "快递已从分拨中心发出。",
-        "can_create_ticket": False,
-    },
-    "A1003": {
-        "order_id": "A1003",
-        "order_status": OrderStatus.DELIVERED.value,
-        "payment_status": PaymentStatus.PAID.value,
-        "logistics_message": "订单已签收。",
-        "latest_event": "用户已签收包裹。",
-        "can_create_ticket": False,
-    },
-}
+class OrderLookupClient(Protocol):
+    def get_order(self, order_id: str) -> Mapping[str, Any]:
+        """Return raw order data from a business service."""
+
+
+def map_java_order_to_query_order_payload(
+    raw_order: Mapping[str, Any],
+) -> dict[str, Any]:
+    return {
+        "order_id": raw_order.get("order_id"),
+        "order_status": raw_order.get("order_status"),
+        "payment_status": raw_order.get("payment_status"),
+        "logistics_message": raw_order.get("logistics_message"),
+        "latest_event": raw_order.get("latest_event"),
+        "can_create_ticket": raw_order.get("can_create_ticket"),
+        "source": "java_mock_service",
+    }
 
 
 def validate_query_order_result(raw_result: Mapping[str, Any]) -> QueryOrderResult:
@@ -52,13 +40,32 @@ def validate_query_order_result(raw_result: Mapping[str, Any]) -> QueryOrderResu
         ) from exc
 
 
-def query_order(arguments: QueryOrderArgs) -> QueryOrderResult:
-    raw_result = _FAKE_ORDER_STORE.get(arguments.order_id)
-    if raw_result is None:
-        raise AppException(
-            code="ORDER_NOT_FOUND",
-            message="订单不存在，请确认订单号是否正确。",
-            status_code=404,
-        )
+def map_query_order_error(exc: Exception) -> AppException:
+    if isinstance(exc, AppException):
+        return exc
+    return AppException(
+        code="TOOL_CALL_FAILED",
+        message="工具调用失败，请稍后重试。",
+        status_code=502,
+    )
 
-    return validate_query_order_result(raw_result)
+
+def create_order_lookup_client(settings: Settings | None = None) -> JavaOrderClient:
+    return JavaOrderClient.from_settings(settings or get_settings())
+
+
+def query_order(
+    arguments: QueryOrderArgs,
+    *,
+    client: OrderLookupClient | None = None,
+    settings: Settings | None = None,
+) -> QueryOrderResult:
+    try:
+        order_client = client or create_order_lookup_client(settings)
+        raw_order = order_client.get_order(arguments.order_id)
+        tool_payload = map_java_order_to_query_order_payload(raw_order)
+        return validate_query_order_result(tool_payload)
+    except AppException:
+        raise
+    except Exception as exc:
+        raise map_query_order_error(exc) from exc

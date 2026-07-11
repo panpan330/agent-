@@ -116,6 +116,11 @@ projects/ 练习项目、Demo 和完整作品
 | 4 | 结构化输出 vs Tool Calling | [notes/tool-calling-stage3-04-structured-output-vs-tool-calling.md](notes/tool-calling-stage3-04-structured-output-vs-tool-calling.md) | [projects/ai-service](projects/ai-service) |
 | 5 | 用 fake tool 模拟查订单 | [notes/tool-calling-stage3-05-fake-query-order-tool.md](notes/tool-calling-stage3-05-fake-query-order-tool.md) | [projects/ai-service](projects/ai-service) |
 | 6 | 工具调用结果也要 Pydantic 校验 | [notes/tool-calling-stage3-06-tool-result-pydantic-validation.md](notes/tool-calling-stage3-06-tool-result-pydantic-validation.md) | [projects/ai-service](projects/ai-service) |
+| 7 | 工具调用错误处理：超时、404、500 | [notes/tool-calling-stage3-07-tool-error-handling.md](notes/tool-calling-stage3-07-tool-error-handling.md) | [projects/ai-service](projects/ai-service) |
+| 8 | 工具调用权限边界 | [notes/tool-calling-stage3-08-tool-permission-boundary.md](notes/tool-calling-stage3-08-tool-permission-boundary.md) | [projects/ai-service](projects/ai-service) |
+| 9 | 工具调用幂等性 | [notes/tool-calling-stage3-09-tool-idempotency.md](notes/tool-calling-stage3-09-tool-idempotency.md) | [projects/ai-service](projects/ai-service) |
+| 10 | 用 FastAPI 写一个最小 Java mock 业务服务 | [notes/tool-calling-stage3-10-java-mock-service.md](notes/tool-calling-stage3-10-java-mock-service.md) | [projects/java-mock-service](projects/java-mock-service) |
+| 11 | Python AI 服务调用 Java mock API | [notes/tool-calling-stage3-11-python-calls-java-mock-api.md](notes/tool-calling-stage3-11-python-calls-java-mock-api.md) | [projects/ai-service](projects/ai-service)、[projects/java-mock-service](projects/java-mock-service) |
 
 ## 当前目标
 

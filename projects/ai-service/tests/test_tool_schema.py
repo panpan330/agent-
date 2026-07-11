@@ -7,6 +7,8 @@ from app.schemas.tool import (
     QueryOrderArgs,
     QueryOrderResponse,
     QueryOrderResult,
+    ToolAccessLevel,
+    ToolDefinition,
     get_query_order_args_json_schema,
     get_query_order_result_json_schema,
 )
@@ -16,6 +18,35 @@ def test_query_order_args_accepts_and_strips_order_id() -> None:
     args = QueryOrderArgs(order_id="  A1001  ")
 
     assert args.order_id == "A1001"
+
+
+def test_tool_definition_accepts_backend_owned_tool_metadata() -> None:
+    definition = ToolDefinition(
+        name="query_order",
+        description="查询订单状态。",
+        access_level="read",
+        requires_confirmation=False,
+        enabled=True,
+        argument_schema=get_query_order_args_json_schema(),
+    )
+
+    assert definition.name == "query_order"
+    assert definition.access_level == ToolAccessLevel.READ
+    assert definition.requires_confirmation is False
+    assert definition.enabled is True
+
+
+def test_tool_definition_rejects_invalid_tool_name() -> None:
+    with pytest.raises(ValidationError) as exc_info:
+        ToolDefinition(
+            name="RefundOrder",
+            description="非法工具名。",
+            access_level="sensitive",
+        )
+
+    error = exc_info.value.errors()[0]
+    assert error["loc"] == ("name",)
+    assert error["type"] == "string_pattern_mismatch"
 
 
 def test_query_order_args_rejects_empty_order_id() -> None:

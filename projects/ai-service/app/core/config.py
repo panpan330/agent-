@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     request_timeout_seconds: float = Field(default=30.0, gt=0)
     llm_max_retries: int = Field(default=2, ge=0, le=5)
     max_output_tokens: int = Field(default=1024, gt=0)
+    java_mock_service_base_url: str = Field(default="http://127.0.0.1:8001")
+    java_mock_service_timeout_seconds: float = Field(default=5.0, gt=0)
     log_level: str = Field(default="INFO")
     cors_allowed_origins: str = Field(
         default="http://localhost:5173,http://127.0.0.1:5173"
@@ -63,6 +65,10 @@ class Settings(BaseSettings):
         if not self.llm_base_url or not self.llm_base_url.strip():
             return None
         return self.llm_base_url.strip()
+
+    @property
+    def resolved_java_mock_service_base_url(self) -> str:
+        return self.java_mock_service_base_url.strip().rstrip("/")
 
 
 @lru_cache

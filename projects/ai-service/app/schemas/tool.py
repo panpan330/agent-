@@ -17,6 +17,43 @@ class PaymentStatus(StrEnum):
     REFUNDED = "refunded"
 
 
+class ToolAccessLevel(StrEnum):
+    READ = "read"
+    WRITE = "write"
+    SENSITIVE = "sensitive"
+
+
+class ToolDefinition(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(
+        min_length=1,
+        max_length=64,
+        pattern=r"^[a-z][a-z0-9_]*$",
+        description="Internal tool name that the backend is willing to recognize.",
+    )
+    description: str = Field(
+        min_length=1,
+        max_length=300,
+        description="Short backend-owned description of what this tool can do.",
+    )
+    access_level: ToolAccessLevel = Field(
+        description="How risky this tool is from a permission perspective.",
+    )
+    requires_confirmation: bool = Field(
+        default=False,
+        description="Whether this tool requires explicit user confirmation.",
+    )
+    enabled: bool = Field(
+        default=True,
+        description="Whether this tool can currently be used by the AI service.",
+    )
+    argument_schema: dict[str, Any] = Field(
+        default_factory=dict,
+        description="JSON Schema for tool arguments.",
+    )
+
+
 class QueryOrderArgs(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
