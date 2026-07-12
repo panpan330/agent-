@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 3 LangChain + Java 工具调用基础已开始，第 11 节 Python AI 服务调用 Java mock API 已完成，下一步进入第 12 节。
+当前阶段：阶段 3 LangChain + Java 工具调用基础进行中，第 13 节 工具调用结果再交给模型总结 已完成，下一步进入第 14 节。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -107,6 +107,8 @@
 - [x] 完成阶段 3 第 9 节：工具调用幂等性
 - [x] 完成阶段 3 第 10 节：用 FastAPI 写一个最小 Java mock 业务服务
 - [x] 完成阶段 3 第 11 节：Python AI 服务调用 Java mock API
+- [x] 完成阶段 3 第 12 节：让模型决定是否调用工具
+- [x] 完成阶段 3 第 13 节：工具调用结果再交给模型总结
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -174,8 +176,8 @@
 | 9 | 工具调用幂等性 | 已完成 | `notes/tool-calling-stage3-09-tool-idempotency.md`、`Idempotency-Key`、`run_idempotent_tool()`、`build_arguments_fingerprint()`、`IDEMPOTENCY_KEY_CONFLICT`、`IDEMPOTENCY_KEY_INVALID` |
 | 10 | 用 FastAPI 写一个最小 Java mock 业务服务 | 已完成 | `notes/tool-calling-stage3-10-java-mock-service.md`、`projects/java-mock-service`、`GET /health`、`GET /orders/{order_id}`、`ORDER_NOT_FOUND`、`ORDER_SERVICE_ERROR` |
 | 11 | Python AI 服务调用 Java mock API | 已完成 | `notes/tool-calling-stage3-11-python-calls-java-mock-api.md`、`app/services/java_order_client.py`、`JAVA_MOCK_SERVICE_BASE_URL`、`JAVA_MOCK_SERVICE_TIMEOUT_SECONDS`、`httpx.MockTransport`、`map_java_order_to_query_order_payload()`、`source=java_mock_service` |
-| 12 | 让模型决定是否调用工具 | 未开始 | 待新增 |
-| 13 | 工具调用结果再交给模型总结 | 未开始 | 待新增 |
+| 12 | 让模型决定是否调用工具 | 已完成 | `notes/tool-calling-stage3-12-model-decides-tool-call.md`、`app/services/tool_decision_service.py`、`app/schemas/tool_decision.py`、`POST /tool-decision`、`tools=...`、`tool_choice="auto"`、`tool_calls`、`QueryOrderArgs.model_validate(arguments)` |
+| 13 | 工具调用结果再交给模型总结 | 已完成 | `notes/tool-calling-stage3-13-tool-result-model-summary.md`、`app/services/tool_calling_chat_service.py`、`POST /tool-chat`、assistant tool-call message、`tool_call_id`、tool message、第二轮模型总结、`TOOL_CALL_ID_MISSING` |
 | 14 | 用户确认机制：敏感操作不能直接执行 | 未开始 | 待新增 |
 | 15 | 创建工单流程：提取字段、确认、调用 Java API | 未开始 | 待新增 |
 | 16 | 工具调用日志和 trace_id 串联 | 未开始 | 待新增 |
@@ -254,7 +256,7 @@ M0/M1 第一阶段完成时，必须满足：
 - [x] system prompt / user prompt
 - [x] streaming
 - [x] structured output
-- [ ] tool calling
+- [x] tool calling
 - [x] token 成本
 - [x] 超时和重试
 - [x] 模型错误兜底

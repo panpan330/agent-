@@ -121,6 +121,8 @@ projects/ 练习项目、Demo 和完整作品
 | 9 | 工具调用幂等性 | [notes/tool-calling-stage3-09-tool-idempotency.md](notes/tool-calling-stage3-09-tool-idempotency.md) | [projects/ai-service](projects/ai-service) |
 | 10 | 用 FastAPI 写一个最小 Java mock 业务服务 | [notes/tool-calling-stage3-10-java-mock-service.md](notes/tool-calling-stage3-10-java-mock-service.md) | [projects/java-mock-service](projects/java-mock-service) |
 | 11 | Python AI 服务调用 Java mock API | [notes/tool-calling-stage3-11-python-calls-java-mock-api.md](notes/tool-calling-stage3-11-python-calls-java-mock-api.md) | [projects/ai-service](projects/ai-service)、[projects/java-mock-service](projects/java-mock-service) |
+| 12 | 让模型决定是否调用工具 | [notes/tool-calling-stage3-12-model-decides-tool-call.md](notes/tool-calling-stage3-12-model-decides-tool-call.md) | [projects/ai-service](projects/ai-service) |
+| 13 | 工具调用结果再交给模型总结 | [notes/tool-calling-stage3-13-tool-result-model-summary.md](notes/tool-calling-stage3-13-tool-result-model-summary.md) | [projects/ai-service](projects/ai-service)、[projects/java-mock-service](projects/java-mock-service) |
 
 ## 当前目标
 

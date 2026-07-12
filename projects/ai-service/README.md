@@ -8,7 +8,7 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：L
 
 当前 `/extract-ticket` 已经支持 OpenAI-compatible JSON Mode，并用 Pydantic 校验模型返回的结构化工单字段。
 
-当前阶段 3 第 1-11 节已完成 Tool Calling 概念、业务系统安全边界、工具参数和 JSON Schema、结构化输出与 Tool Calling 的边界、fake tool 模拟订单查询、工具调用结果 Pydantic 校验、工具调用错误处理、工具调用权限边界、工具调用幂等性、`projects/java-mock-service` 最小业务服务，以及 Python AI 服务调用 Java mock API。后续会让模型决定是否调用工具，并继续补工具调用日志和 trace_id 串联。
+当前阶段 3 第 1-13 节已完成 Tool Calling 概念、业务系统安全边界、工具参数和 JSON Schema、结构化输出与 Tool Calling 的边界、fake tool 模拟订单查询、工具调用结果 Pydantic 校验、工具调用错误处理、工具调用权限边界、工具调用幂等性、`projects/java-mock-service` 最小业务服务、Python AI 服务调用 Java mock API、让模型决定是否调用工具，以及工具调用结果再交给模型总结。后续会学习敏感操作的用户确认机制，并继续补工具调用日志和 trace_id 串联。
 
 ## 当前能力
 
@@ -28,6 +28,8 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：L
 - SSE `message` / `done` / `error` 事件格式
 - `/extract-ticket` 工单字段结构化抽取接口
 - `/tools/query-order` 订单查询工具接口，当前调用 Java mock API
+- `/tool-decision` 模型工具调用决策接口，当前只返回工具调用意图，不执行工具
+- `/tool-chat` 完整工具调用接口：执行 `query_order` 后把 tool message 交回模型生成最终回答
 - Pydantic 结构化输出模型和 JSON Schema 生成
 - 模型返回 JSON 的 Pydantic 校验
 - `QueryOrderArgs` 工具参数模型
@@ -49,6 +51,15 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：L
 - `run_idempotent_tool` 工具幂等执行包装函数
 - `build_arguments_fingerprint` 工具名和参数指纹生成函数
 - `IDEMPOTENCY_KEY_CONFLICT`、`IDEMPOTENCY_KEY_INVALID` 工具幂等错误
+- `ToolDecisionType` 工具决策枚举
+- `ToolCallCandidate` 模型请求的工具调用候选
+- `ToolDecisionResponse` 工具决策响应模型
+- `ToolDecisionService` 模型工具选择服务
+- `ToolCallingChatService` 一次只读工具调用与第二轮模型总结服务
+- `tools=...` 和 `tool_choice="auto"` 模型工具选择参数
+- `tool_calls` 模型工具调用请求解析
+- `TOOL_ARGUMENTS_INVALID_JSON`、`TOOL_ARGUMENTS_VALIDATION_FAILED`、`TOOL_DECISION_TOO_MANY_CALLS` 工具决策阶段错误
+- `TOOL_CALL_ID_MISSING`、`TOOL_SUMMARY_UNEXPECTED_TOOL_CALL` 完整工具调用阶段错误
 - 共享 fake OpenAI-compatible client 测试工具
 - 模型调用 timeout 统一错误处理
 - SDK retry 次数配置和 rate limit 统一错误处理
@@ -86,6 +97,7 @@ app/
     error.py               统一错误响应模型
     structured.py          结构化输出请求/响应和工单字段模型
     tool.py                工具参数和工具结果模型
+    tool_decision.py       模型工具调用决策响应模型
   services/
     llm_client.py          OpenAI-compatible SDK client 初始化
     llm_service.py         LLM 聊天调用服务
@@ -93,6 +105,8 @@ app/
     prompt_builder.py      prompt 分段构建工具
     structured_output_service.py 结构化输出调用服务
     java_order_client.py   Java mock 订单服务 HTTP 客户端
+    tool_decision_service.py 模型工具选择和 tool_calls 解析服务
+    tool_calling_chat_service.py 执行工具并将结果回传模型总结
   tools/
     fake_order_tool.py     订单查询工具，当前调用 Java mock API
     idempotency.py         工具调用幂等性辅助函数
@@ -121,6 +135,9 @@ tests/
   test_structured_schema.py 结构化输出模型测试
   test_tool_idempotency.py 工具调用幂等性测试
   test_tool_registry.py    工具注册表和权限守卫测试
+  test_tool_decision_schema.py 工具决策响应模型测试
+  test_tool_decision_service.py 模型工具选择服务测试
+  test_tool_calling_chat_service.py 完整工具调用与第二轮总结服务测试
   test_tool_schema.py      工具参数和工具结果模型测试
   test_tools_api.py        /tools/query-order 接口测试
   test_token_usage.py      token 粗略估算测试
@@ -160,7 +177,7 @@ http://127.0.0.1:8000/docs
 uv run pytest -q
 ```
 
-当前测试使用 FastAPI 的 `TestClient`，覆盖 `/health`、`/chat`、`/stream-chat`、`/extract-ticket`、`/tools/query-order`、`ChatRequest`、`ChatResponse`、`ChatMessage`、`TicketExtraction`、`QueryOrderArgs`、`QueryOrderResult`、`ToolDefinition`、`ToolAccessLevel`、多轮 `history`、配置读取、日志、`trace_id`、统一异常处理、CORS、token 粗略估算、LLM client 初始化、LLM service、结构化输出 service、JavaOrderClient、Java mock API 字段映射、工具结果 Pydantic 校验、工具调用 timeout/上游错误映射、工具注册表和权限守卫、工具调用幂等性、fake OpenAI-compatible client、OpenAI-compatible SDK 错误映射、模型调用日志、流式调用日志、结构化输出日志、模型响应 token usage 提取、messages 构建和 prompt 构建。
+当前测试使用 FastAPI 的 `TestClient`，覆盖 `/health`、`/chat`、`/stream-chat`、`/extract-ticket`、`/tool-decision`、`/tool-chat`、`/tools/query-order`、`ChatRequest`、`ChatResponse`、`ChatMessage`、`TicketExtraction`、`QueryOrderArgs`、`QueryOrderResult`、`ToolDefinition`、`ToolAccessLevel`、`ToolDecisionType`、`ToolCallCandidate`、`ToolDecisionResponse`、多轮 `history`、配置读取、日志、`trace_id`、统一异常处理、CORS、token 粗略估算、LLM client 初始化、LLM service、结构化输出 service、工具决策 service、完整工具调用 service、JavaOrderClient、Java mock API 字段映射、工具结果 Pydantic 校验、工具参数 Pydantic 校验、assistant tool-call message、tool message、`tool_call_id` 关联、工具调用 timeout/上游错误映射、工具注册表和权限守卫、模型可见工具筛选、工具调用幂等性、fake OpenAI-compatible client、fake `tool_calls`、OpenAI-compatible SDK 错误映射、模型调用日志、流式调用日志、结构化输出日志、模型响应 token usage 提取、messages 构建和 prompt 构建。
 
 也可以运行 Python 编译检查：
 
@@ -632,6 +649,143 @@ app/tools/idempotency.py
 
 当前订单查询工具已经把内部 fake 数据替换成 Java mock API。后续会继续让模型决定是否调用这个工具，并把工具结果交回模型做自然语言总结。
 
+## 模型工具决策 `/tool-decision`
+
+`/tool-decision` 当前通过 `app/services/tool_decision_service.py` 调用 OpenAI-compatible 模型，并把后端允许模型看到的工具定义传给模型：
+
+```python
+tools=list_model_callable_openai_tools()
+tool_choice="auto"
+```
+
+当前模型可见工具只包含启用的、只读的、不需要用户确认的工具，所以只有：
+
+```text
+query_order
+```
+
+调用链路：
+
+```text
+POST /tool-decision
+-> app/routers/chat.py
+-> ToolDecisionService.decide()
+-> build_tool_decision_messages()
+-> client.chat.completions.create(..., tools=..., tool_choice="auto")
+-> extract_tool_decision()
+-> authorize_tool_call(tool_name)
+-> parse_tool_call_arguments(raw_arguments)
+-> QueryOrderArgs.model_validate(arguments)
+-> ToolDecisionResponse
+```
+
+请求示例：
+
+```json
+{
+  "message": "帮我查一下订单 A1001"
+}
+```
+
+如果模型决定调用工具，响应类似：
+
+```json
+{
+  "decision": "call_tool",
+  "reply": null,
+  "tool_call": {
+    "name": "query_order",
+    "arguments": {
+      "order_id": "A1001"
+    },
+    "call_id": "call_001"
+  }
+}
+```
+
+如果模型决定直接回答，响应类似：
+
+```json
+{
+  "decision": "answer_directly",
+  "reply": "请提供订单号后我再帮你查询。",
+  "tool_call": null
+}
+```
+
+注意：本接口当前只返回模型工具调用意图，不执行 `query_order`，也不调用 Java mock API。真正执行工具并把结果交回模型总结会在下一节继续实现。
+
+当前工具决策阶段新增错误：
+
+| 错误码 | HTTP 状态码 | 含义 |
+| --- | --- | --- |
+| `TOOL_ARGUMENTS_INVALID_JSON` | 502 | 模型返回的工具参数不是合法 JSON 对象 |
+| `TOOL_ARGUMENTS_VALIDATION_FAILED` | 502 | 模型返回的工具参数不符合 Pydantic 参数模型 |
+| `TOOL_DECISION_BAD_RESPONSE` | 502 | 模型返回的工具调用结构异常 |
+| `TOOL_DECISION_TOO_MANY_CALLS` | 502 | 当前阶段一次只支持一个工具调用请求 |
+
+## 完整工具调用 `/tool-chat`
+
+`/tool-chat` 是阶段 3 第 13 节新增的教学接口。它保留 `/tool-decision`，用于单独观察模型“是否想调用工具”；同时新增一条完整链路，用于真正执行安全的只读工具并生成用户可读回答。
+
+调用链路：
+
+```text
+POST /tool-chat
+-> app/routers/chat.py
+-> ToolCallingChatService.generate_reply()
+-> 第一轮 client.chat.completions.create(..., tools=..., tool_choice="auto")
+-> 模型返回 query_order tool_call
+-> 后端再次授权、校验参数与 call_id
+-> fake_order_tool.query_order()
+-> JavaOrderClient -> GET java-mock-service /orders/{order_id}
+-> QueryOrderResult 校验与字段白名单映射
+-> assistant tool-call message + tool message(tool_call_id, JSON content)
+-> 第二轮 client.chat.completions.create(...)
+-> ChatResponse.reply
+```
+
+请求示例：
+
+```json
+{
+  "message": "帮我查订单 A1001 的物流"
+}
+```
+
+成功响应示例：
+
+```json
+{
+  "reply": "订单 A1001 已付款，商家已接单，仓库正在准备出库。"
+}
+```
+
+这里的关键不是“再发一次 prompt”，而是保留协议关系：第二轮消息里先放模型第一轮的 assistant tool-call message，再放后端产生的 tool message。tool message 必须使用同一个 `tool_call_id`，并把已经校验过的工具结果序列化成 JSON 字符串。这样模型才知道这份业务数据对应哪一个工具请求。
+
+当前为保持学习边界，只支持一轮、一个只读工具。如果第二轮模型又返回 `tool_calls`，后端不会继续自动执行，而是返回：
+
+| 错误码 | HTTP 状态码 | 含义 |
+| --- | --- | --- |
+| `TOOL_CALL_ID_MISSING` | 502 | 第一轮模型工具请求没有可用于关联 tool result 的编号 |
+| `TOOL_SUMMARY_UNEXPECTED_TOOL_CALL` | 502 | 第二轮模型又请求工具；多轮工具循环不属于当前小节 |
+
+订单不存在、Java 服务超时或上游异常时，后端会直接返回已有统一错误，例如 `ORDER_NOT_FOUND`、`TOOL_TIMEOUT`、`TOOL_UPSTREAM_ERROR`；不会把失败伪装成成功结果再交给模型总结。
+
+手动验证完整链路时，需要分别启动两个服务：
+
+```powershell
+# 终端 1：Java mock 业务服务
+cd D:\wendang\java+python+ai\projects\java-mock-service
+uv run uvicorn app.main:app --reload --port 8001
+
+# 终端 2：AI 服务
+cd D:\wendang\java+python+ai\projects\ai-service
+uv run uvicorn app.main:app --reload --port 8000
+```
+
+再向 `POST http://127.0.0.1:8000/tool-chat` 发送上面的请求体。这个手动调用会请求本机配置的模型，可能产生费用；自动化测试不会调用真实模型或真实 Java 服务。
+
 ## 模型调用测试工具
 
 测试代码里的共享 fake 工具放在：
@@ -819,6 +973,8 @@ app/core/exception_handlers.py
 | POST | `/chat` | 聊天接口，调用 OpenAI-compatible 模型 |
 | POST | `/stream-chat` | 流式聊天接口，调用 OpenAI-compatible 模型并返回 SSE |
 | POST | `/extract-ticket` | 结构化工单字段抽取接口，调用 OpenAI-compatible 模型并用 Pydantic 校验 |
+| POST | `/tool-decision` | 模型工具调用决策接口，返回直接回答或工具调用意图 |
+| POST | `/tool-chat` | 完整工具调用接口：执行只读工具后将结果交给模型总结 |
 | POST | `/tools/query-order` | 订单查询工具接口，通过 Java mock API 查询订单 |
 
 ## 当前模型
@@ -839,6 +995,9 @@ app/core/exception_handlers.py
 | `PaymentStatus` | `app/schemas/tool.py` | 支付状态枚举，如 `unpaid`、`paid`、`refunded` |
 | `QueryOrderResult` | `app/schemas/tool.py` | 订单查询工具结果，包含订单状态、支付状态、物流说明和是否可创建工单 |
 | `QueryOrderResponse` | `app/schemas/tool.py` | 订单查询接口响应体，包裹 `QueryOrderResult` |
+| `ToolDecisionType` | `app/schemas/tool_decision.py` | 工具决策枚举，当前包含 `answer_directly` 和 `call_tool` |
+| `ToolCallCandidate` | `app/schemas/tool_decision.py` | 模型请求的工具调用候选，包含工具名、参数和可选 `call_id` |
+| `ToolDecisionResponse` | `app/schemas/tool_decision.py` | `/tool-decision` 响应体，表示模型直接回答或请求工具 |
 | `ErrorResponse` | `app/schemas/error.py` | 统一错误响应体，包含 `code`、`message`、`trace_id` 和可选 `details` |
 
 ## 阶段 1 验收
@@ -871,5 +1030,6 @@ app/core/exception_handlers.py
 - 理解重复工具调用要通过 `Idempotency-Key` 和参数指纹避免重复产生业务效果。
 - 已用 FastAPI 写一个 Java mock 业务服务，模拟后续 Spring Boot 接口。
 - 当前已经让 Python AI 服务调用 Java mock API，并处理超时、404、500、权限和幂等。
-- 下一步让模型决定是否调用订单查询工具。
+- 当前已经完成一个只读工具的执行、tool message 回传和第二轮模型总结。
+- 下一步学习用户确认机制：敏感操作不能由模型直接执行。
 - 后续再引入 LangChain 的 Tool 抽象，把已经理解的底层流程封装起来。

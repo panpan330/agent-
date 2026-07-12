@@ -482,6 +482,11 @@
 
 - [阶段 3 第 11 节：Python AI 服务调用 Java mock API](../notes/tool-calling-stage3-11-python-calls-java-mock-api.md)
   - 用途：理解跨服务 HTTP 调用、`JavaOrderClient`、`base_url`、timeout、上游错误映射、DTO 字段映射、Pydantic 二次校验和 `httpx.MockTransport` 测试。
+- [阶段 3 第 12 节：让模型决定是否调用工具](../notes/tool-calling-stage3-12-model-decides-tool-call.md)
+  - 用途：理解 `tools`、`tool_choice="auto"`、`tool_calls`、模型工具选择、后端工具白名单、工具参数 JSON 解析和 Pydantic 二次校验。
+
+- [阶段 3 第 13 节：工具调用结果再交给模型总结](../notes/tool-calling-stage3-13-tool-result-model-summary.md)
+  - 用途：理解 assistant tool-call message、`tool_call_id`、tool message、工具结果 JSON 序列化、第二轮模型总结，以及为什么工具执行失败时不能让模型假装成功。
 
 ## 当前阶段推荐资料组合
 
@@ -498,37 +503,39 @@
 9. 本仓库 `notes/tool-calling-stage3-09-tool-idempotency.md`
 10. 本仓库 `notes/tool-calling-stage3-10-java-mock-service.md`
 11. 本仓库 `notes/tool-calling-stage3-11-python-calls-java-mock-api.md`
-12. HTTPX Quickstart，理解 Python HTTP 客户端的 GET、JSON 和响应读取
-13. HTTPX Timeouts，理解跨服务调用为什么必须配置 timeout
-14. HTTPX Exceptions，理解 timeout、连接失败等异常层级
-15. HTTPX Transports and MockTransport，理解如何在测试里模拟 HTTP 响应
-16. OpenAI Function Calling Guide，理解工具定义、工具调用和后端执行的边界
-17. RFC 9110 Idempotent Methods，理解幂等性的基础定义
-18. Stripe Idempotent requests，理解 idempotency key 的真实 API 实践
-19. FastAPI Path Parameters，理解 `/orders/{order_id}` 这类路径参数
-20. FastAPI Bigger Applications，理解 `APIRouter` 和多文件项目结构
-21. FastAPI Handling Errors，理解接口错误应该统一抛出和统一响应
-22. FastAPI Testing，理解如何用 `TestClient` 测试 API
-23. OpenAI Structured model outputs，理解结构化输出和 Tool Calling 的边界
-24. OpenAI Tools Guide，理解 tools 在模型调用里的定位
-25. OpenAI Safety Best Practices，理解对抗测试和人类审核
-26. OWASP Top 10 for LLM Applications，理解 Prompt Injection、Insecure Output Handling、Excessive Agency
-27. OWASP LLM06:2025 Excessive Agency，理解过多工具、过大权限和过高自主性带来的风险
-28. OWASP LLM01:2025 Prompt Injection，理解为什么不能只靠 prompt 做安全控制
-29. OpenAI Responses API Reference，后续查真实工具调用参数和响应结构
-30. 阿里云百炼：Function Calling，理解千问兼容模型里的工具调用流程
-31. 阿里云百炼：结构化输出，理解千问兼容模型里的 JSON 输出能力
-32. JSON Schema Creating your first schema，理解工具参数 schema 的基础
-33. JSON Schema Object，理解 `properties`、`required`、`additionalProperties`
-34. JSON Schema Enumerated values，理解 `enum`
-35. Pydantic JSON Schema，理解 `BaseModel.model_json_schema()`
-36. Pydantic Models，理解 `model_validate` 和 `ValidationError`
-37. Pydantic Configuration，理解 `ConfigDict(extra="forbid")`
-38. MDN HTTP response status codes，理解 404、502、504 的语义
-39. 本仓库 `notes/llm-api-stage2-15-structured-output-concept.md`，复习结构化输出
-40. 本仓库 `notes/llm-api-stage2-16-pydantic-structured-output.md`，复习 Pydantic 校验
-41. 本仓库 `notes/fastapi-stage1-13-trace-id.md`，复习请求追踪
-42. 本仓库 `notes/fastapi-stage1-14-exception-handling.md`，复习统一异常处理
+12. 本仓库 `notes/tool-calling-stage3-12-model-decides-tool-call.md`
+13. 本仓库 `notes/tool-calling-stage3-13-tool-result-model-summary.md`
+14. HTTPX Quickstart，理解 Python HTTP 客户端的 GET、JSON 和响应读取
+15. HTTPX Timeouts，理解跨服务调用为什么必须配置 timeout
+16. HTTPX Exceptions，理解 timeout、连接失败等异常层级
+17. HTTPX Transports and MockTransport，理解如何在测试里模拟 HTTP 响应
+18. OpenAI Function Calling Guide，理解工具定义、工具调用和后端执行的边界
+19. RFC 9110 Idempotent Methods，理解幂等性的基础定义
+20. Stripe Idempotent requests，理解 idempotency key 的真实 API 实践
+21. FastAPI Path Parameters，理解 `/orders/{order_id}` 这类路径参数
+22. FastAPI Bigger Applications，理解 `APIRouter` 和多文件项目结构
+23. FastAPI Handling Errors，理解接口错误应该统一抛出和统一响应
+24. FastAPI Testing，理解如何用 `TestClient` 测试 API
+25. OpenAI Structured model outputs，理解结构化输出和 Tool Calling 的边界
+26. OpenAI Tools Guide，理解 tools 在模型调用里的定位
+27. OpenAI Safety Best Practices，理解对抗测试和人类审核
+28. OWASP Top 10 for LLM Applications，理解 Prompt Injection、Insecure Output Handling、Excessive Agency
+29. OWASP LLM06:2025 Excessive Agency，理解过多工具、过大权限和过高自主性带来的风险
+30. OWASP LLM01:2025 Prompt Injection，理解为什么不能只靠 prompt 做安全控制
+31. OpenAI Responses API Reference，后续查真实工具调用参数和响应结构
+32. 阿里云百炼：Function Calling，理解千问兼容模型里的工具调用流程
+33. 阿里云百炼：结构化输出，理解千问兼容模型里的 JSON 输出能力
+34. JSON Schema Creating your first schema，理解工具参数 schema 的基础
+35. JSON Schema Object，理解 `properties`、`required`、`additionalProperties`
+36. JSON Schema Enumerated values，理解 `enum`
+37. Pydantic JSON Schema，理解 `BaseModel.model_json_schema()`
+38. Pydantic Models，理解 `model_validate` 和 `ValidationError`
+39. Pydantic Configuration，理解 `ConfigDict(extra="forbid")`
+40. MDN HTTP response status codes，理解 404、502、504 的语义
+41. 本仓库 `notes/llm-api-stage2-15-structured-output-concept.md`，复习结构化输出
+42. 本仓库 `notes/llm-api-stage2-16-pydantic-structured-output.md`，复习 Pydantic 校验
+43. 本仓库 `notes/fastapi-stage1-13-trace-id.md`，复习请求追踪
+44. 本仓库 `notes/fastapi-stage1-14-exception-handling.md`，复习统一异常处理
 
 阶段 2：LLM API 基础调用已完成。复盘时可看：
 

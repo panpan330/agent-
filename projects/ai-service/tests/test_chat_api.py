@@ -3,9 +3,19 @@ from fastapi.testclient import TestClient
 
 from app.core.exceptions import AppException
 from app.core.trace import TRACE_ID_HEADER
-from app.routers.chat import get_llm_chat_service, get_structured_output_service
+from app.routers.chat import (
+    get_llm_chat_service,
+    get_structured_output_service,
+    get_tool_decision_service,
+    get_tool_calling_chat_service,
+)
 from app.schemas.chat import ChatMessage
 from app.schemas.structured import TicketExtraction
+from app.schemas.tool_decision import (
+    ToolCallCandidate,
+    ToolDecisionResponse,
+    ToolDecisionType,
+)
 
 
 class FakeLLMChatService:
@@ -110,6 +120,64 @@ class FakeStructuredOutputService:
 
 class FakeConfigErrorStructuredOutputService:
     def extract_ticket(self, user_message: str) -> TicketExtraction:
+        raise AppException(
+            code="LLM_API_KEY_MISSING",
+            message="LLM API key 未配置，请先在本机 .env 中配置 LLM_API_KEY。",
+            status_code=500,
+        )
+
+
+class FakeToolDecisionService:
+    def __init__(self, decision: ToolDecisionResponse) -> None:
+        self.decision = decision
+        self.calls: list[tuple[str, list[ChatMessage]]] = []
+
+    def decide(
+        self,
+        user_message: str,
+        *,
+        history: list[ChatMessage] | None = None,
+    ) -> ToolDecisionResponse:
+        self.calls.append((user_message, list(history or [])))
+        return self.decision
+
+
+class FakeConfigErrorToolDecisionService:
+    def decide(
+        self,
+        user_message: str,
+        *,
+        history: list[ChatMessage] | None = None,
+    ) -> ToolDecisionResponse:
+        raise AppException(
+            code="LLM_API_KEY_MISSING",
+            message="LLM API key 未配置，请先在本机 .env 中配置 LLM_API_KEY。",
+            status_code=500,
+        )
+
+
+class FakeToolCallingChatService:
+    def __init__(self, reply: str) -> None:
+        self.reply = reply
+        self.calls: list[tuple[str, list[ChatMessage]]] = []
+
+    def generate_reply(
+        self,
+        user_message: str,
+        *,
+        history: list[ChatMessage] | None = None,
+    ) -> str:
+        self.calls.append((user_message, list(history or [])))
+        return self.reply
+
+
+class FakeConfigErrorToolCallingChatService:
+    def generate_reply(
+        self,
+        user_message: str,
+        *,
+        history: list[ChatMessage] | None = None,
+    ) -> str:
         raise AppException(
             code="LLM_API_KEY_MISSING",
             message="LLM API key 未配置，请先在本机 .env 中配置 LLM_API_KEY。",
@@ -361,6 +429,195 @@ def test_extract_ticket_returns_config_error_when_llm_key_is_missing(
     }
 
 
+def test_tool_decision_returns_tool_call(
+    app: FastAPI,
+    client: TestClient,
+) -> None:
+    fake_service = FakeToolDecisionService(
+        ToolDecisionResponse(
+            decision=ToolDecisionType.CALL_TOOL,
+            tool_call=ToolCallCandidate(
+                name="query_order",
+                arguments={"order_id": "A1001"},
+                call_id="call_001",
+            ),
+        )
+    )
+    app.dependency_overrides[get_tool_decision_service] = lambda: fake_service
+
+    response = client.post(
+        "/tool-decision",
+        json={"message": "帮我查订单 A1001"},
+    )
+    data = response.json()
+
+    assert response.status_code == 200
+    assert data == {
+        "decision": "call_tool",
+        "reply": None,
+        "tool_call": {
+            "name": "query_order",
+            "arguments": {"order_id": "A1001"},
+            "call_id": "call_001",
+        },
+    }
+    assert fake_service.calls == [("帮我查订单 A1001", [])]
+
+
+def test_tool_decision_returns_direct_reply(
+    app: FastAPI,
+    client: TestClient,
+) -> None:
+    fake_service = FakeToolDecisionService(
+        ToolDecisionResponse(
+            decision=ToolDecisionType.ANSWER_DIRECTLY,
+            reply="请提供订单号后我再帮你查询。",
+        )
+    )
+    app.dependency_overrides[get_tool_decision_service] = lambda: fake_service
+
+    response = client.post(
+        "/tool-decision",
+        json={"message": "帮我查一下订单"},
+    )
+    data = response.json()
+
+    assert response.status_code == 200
+    assert data == {
+        "decision": "answer_directly",
+        "reply": "请提供订单号后我再帮你查询。",
+        "tool_call": None,
+    }
+    assert fake_service.calls == [("帮我查一下订单", [])]
+
+
+def test_tool_decision_passes_history_to_service(
+    app: FastAPI,
+    client: TestClient,
+) -> None:
+    fake_service = FakeToolDecisionService(
+        ToolDecisionResponse(
+            decision=ToolDecisionType.ANSWER_DIRECTLY,
+            reply="请提供订单号后我再帮你查询。",
+        )
+    )
+    app.dependency_overrides[get_tool_decision_service] = lambda: fake_service
+
+    response = client.post(
+        "/tool-decision",
+        json={
+            "message": "对，查一下",
+            "history": [
+                {"role": "user", "content": "订单 A1001 有问题"},
+                {"role": "assistant", "content": "你想查询订单状态吗？"},
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    user_message, history = fake_service.calls[0]
+    assert user_message == "对，查一下"
+    assert [message.role for message in history] == ["user", "assistant"]
+    assert [message.content for message in history] == [
+        "订单 A1001 有问题",
+        "你想查询订单状态吗？",
+    ]
+
+
+def test_tool_decision_returns_config_error_when_llm_key_is_missing(
+    app: FastAPI,
+    client: TestClient,
+) -> None:
+    app.dependency_overrides[get_tool_decision_service] = (
+        lambda: FakeConfigErrorToolDecisionService()
+    )
+
+    response = client.post(
+        "/tool-decision",
+        headers={TRACE_ID_HEADER: "trace-tool-decision-no-key"},
+        json={"message": "帮我查订单 A1001"},
+    )
+    data = response.json()
+
+    assert response.status_code == 500
+    assert data == {
+        "code": "LLM_API_KEY_MISSING",
+        "message": "LLM API key 未配置，请先在本机 .env 中配置 LLM_API_KEY。",
+        "trace_id": "trace-tool-decision-no-key",
+    }
+
+
+def test_tool_chat_returns_final_reply(
+    app: FastAPI,
+    client: TestClient,
+) -> None:
+    fake_service = FakeToolCallingChatService(
+        "订单 A1001 已付款，商家已接单，仓库正在准备出库。"
+    )
+    app.dependency_overrides[get_tool_calling_chat_service] = lambda: fake_service
+
+    response = client.post(
+        "/tool-chat",
+        json={"message": "帮我查订单 A1001"},
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "reply": "订单 A1001 已付款，商家已接单，仓库正在准备出库。"
+    }
+    assert fake_service.calls == [("帮我查订单 A1001", [])]
+
+
+def test_tool_chat_passes_history_to_service(
+    app: FastAPI,
+    client: TestClient,
+) -> None:
+    fake_service = FakeToolCallingChatService("订单已发货。")
+    app.dependency_overrides[get_tool_calling_chat_service] = lambda: fake_service
+
+    response = client.post(
+        "/tool-chat",
+        json={
+            "message": "那物流呢？",
+            "history": [
+                {"role": "user", "content": "帮我查订单 A1002"},
+                {"role": "assistant", "content": "我来为你查询订单。"},
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    user_message, history = fake_service.calls[0]
+    assert user_message == "那物流呢？"
+    assert [message.role for message in history] == ["user", "assistant"]
+    assert [message.content for message in history] == [
+        "帮我查订单 A1002",
+        "我来为你查询订单。",
+    ]
+
+
+def test_tool_chat_returns_config_error_when_llm_key_is_missing(
+    app: FastAPI,
+    client: TestClient,
+) -> None:
+    app.dependency_overrides[get_tool_calling_chat_service] = (
+        lambda: FakeConfigErrorToolCallingChatService()
+    )
+
+    response = client.post(
+        "/tool-chat",
+        headers={TRACE_ID_HEADER: "trace-tool-chat-no-key"},
+        json={"message": "帮我查订单 A1001"},
+    )
+
+    assert response.status_code == 500
+    assert response.json() == {
+        "code": "LLM_API_KEY_MISSING",
+        "message": "LLM API key 未配置，请先在本机 .env 中配置 LLM_API_KEY。",
+        "trace_id": "trace-tool-chat-no-key",
+    }
+
+
 def test_chat_returns_config_error_when_llm_key_is_missing(
     client: TestClient,
 ) -> None:
@@ -419,6 +676,38 @@ def test_extract_ticket_rejects_missing_message(client: TestClient) -> None:
     assert data["code"] == "VALIDATION_ERROR"
     assert data["message"] == "请求参数校验失败"
     assert data["trace_id"] == "trace-extract-missing"
+    assert data["details"][0]["loc"] == ["body", "message"]
+    assert data["details"][0]["type"] == "missing"
+
+
+def test_tool_decision_rejects_missing_message(client: TestClient) -> None:
+    response = client.post(
+        "/tool-decision",
+        headers={TRACE_ID_HEADER: "trace-tool-decision-missing"},
+        json={},
+    )
+    data = response.json()
+
+    assert response.status_code == 422
+    assert data["code"] == "VALIDATION_ERROR"
+    assert data["message"] == "请求参数校验失败"
+    assert data["trace_id"] == "trace-tool-decision-missing"
+    assert data["details"][0]["loc"] == ["body", "message"]
+    assert data["details"][0]["type"] == "missing"
+
+
+def test_tool_chat_rejects_missing_message(client: TestClient) -> None:
+    response = client.post(
+        "/tool-chat",
+        headers={TRACE_ID_HEADER: "trace-tool-chat-missing"},
+        json={},
+    )
+    data = response.json()
+
+    assert response.status_code == 422
+    assert data["code"] == "VALIDATION_ERROR"
+    assert data["message"] == "请求参数校验失败"
+    assert data["trace_id"] == "trace-tool-chat-missing"
     assert data["details"][0]["loc"] == ["body", "message"]
     assert data["details"][0]["type"] == "missing"
 
@@ -514,4 +803,34 @@ def test_extract_ticket_does_not_allow_get(client: TestClient) -> None:
         "code": "METHOD_NOT_ALLOWED",
         "message": "请求方法不允许",
         "trace_id": "trace-extract-method",
+    }
+
+
+def test_tool_decision_does_not_allow_get(client: TestClient) -> None:
+    response = client.get(
+        "/tool-decision",
+        headers={TRACE_ID_HEADER: "trace-tool-decision-method"},
+    )
+    data = response.json()
+
+    assert response.status_code == 405
+    assert data == {
+        "code": "METHOD_NOT_ALLOWED",
+        "message": "请求方法不允许",
+        "trace_id": "trace-tool-decision-method",
+    }
+
+
+def test_tool_chat_does_not_allow_get(client: TestClient) -> None:
+    response = client.get(
+        "/tool-chat",
+        headers={TRACE_ID_HEADER: "trace-tool-chat-method"},
+    )
+    data = response.json()
+
+    assert response.status_code == 405
+    assert data == {
+        "code": "METHOD_NOT_ALLOWED",
+        "message": "请求方法不允许",
+        "trace_id": "trace-tool-chat-method",
     }

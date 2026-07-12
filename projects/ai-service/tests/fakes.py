@@ -1,3 +1,4 @@
+import json
 from collections.abc import Iterable
 from types import SimpleNamespace
 from typing import Any
@@ -23,14 +24,40 @@ def make_chat_completion(
     content: str | None,
     *,
     usage: object | None = None,
+    tool_calls: list[object] | None = None,
 ) -> object:
+    message = SimpleNamespace(content=content)
+    if tool_calls is not None:
+        message.tool_calls = tool_calls
+
     return SimpleNamespace(
         choices=[
             SimpleNamespace(
-                message=SimpleNamespace(content=content),
+                message=message,
             )
         ],
         usage=usage,
+    )
+
+
+def make_tool_call(
+    name: str,
+    arguments: dict[str, Any] | str,
+    *,
+    call_id: str = "call_001",
+) -> object:
+    if isinstance(arguments, str):
+        raw_arguments = arguments
+    else:
+        raw_arguments = json.dumps(arguments, ensure_ascii=False, separators=(",", ":"))
+
+    return SimpleNamespace(
+        id=call_id,
+        type="function",
+        function=SimpleNamespace(
+            name=name,
+            arguments=raw_arguments,
+        ),
     )
 
 
@@ -56,11 +83,13 @@ class FakeChatCompletions:
         error: Exception | None = None,
         usage: object | None = None,
         stream_chunks: Iterable[object] | None = None,
+        tool_calls: list[object] | None = None,
     ) -> None:
         self.content = content
         self.error = error
         self.usage = usage
         self.stream_chunks = stream_chunks
+        self.tool_calls = tool_calls
         self.calls: list[dict[str, Any]] = []
 
     @property
@@ -75,7 +104,11 @@ class FakeChatCompletions:
             raise self.error
         if kwargs.get("stream") is True:
             return iter(self.stream_chunks or [])
-        return make_chat_completion(self.content, usage=self.usage)
+        return make_chat_completion(
+            self.content,
+            usage=self.usage,
+            tool_calls=self.tool_calls,
+        )
 
 
 class FakeOpenAICompatibleClient:

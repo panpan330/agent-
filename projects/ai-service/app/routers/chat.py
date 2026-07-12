@@ -10,10 +10,19 @@ from app.core.exceptions import AppException
 from app.core.trace import get_trace_id
 from app.schemas.chat import ChatRequest, ChatResponse
 from app.schemas.structured import StructuredOutputRequest, StructuredOutputResponse
+from app.schemas.tool_decision import ToolDecisionResponse
 from app.services.llm_service import LLMChatService, create_llm_chat_service
 from app.services.structured_output_service import (
     StructuredOutputService,
     create_structured_output_service,
+)
+from app.services.tool_decision_service import (
+    ToolDecisionService,
+    create_tool_decision_service,
+)
+from app.services.tool_calling_chat_service import (
+    ToolCallingChatService,
+    create_tool_calling_chat_service,
 )
 
 
@@ -32,6 +41,18 @@ def get_structured_output_service(
     settings: Settings = Depends(get_settings),
 ) -> StructuredOutputService:
     return create_structured_output_service(settings)
+
+
+def get_tool_decision_service(
+    settings: Settings = Depends(get_settings),
+) -> ToolDecisionService:
+    return create_tool_decision_service(settings)
+
+
+def get_tool_calling_chat_service(
+    settings: Settings = Depends(get_settings),
+) -> ToolCallingChatService:
+    return create_tool_calling_chat_service(settings)
 
 
 def format_sse_event(event: str, data: dict[str, object]) -> str:
@@ -126,3 +147,38 @@ def extract_ticket(
     )
     extraction = structured_output_service.extract_ticket(request.message)
     return StructuredOutputResponse(extraction=extraction)
+
+
+@router.post("/tool-decision", response_model=ToolDecisionResponse)
+def tool_decision(
+    request: ChatRequest,
+    tool_decision_service: ToolDecisionService = Depends(get_tool_decision_service),
+) -> ToolDecisionResponse:
+    logger.info(
+        "tool_decision_requested message_length=%s history_size=%s",
+        len(request.message),
+        len(request.history),
+    )
+    return tool_decision_service.decide(
+        request.message,
+        history=request.history,
+    )
+
+
+@router.post("/tool-chat", response_model=ChatResponse)
+def tool_chat(
+    request: ChatRequest,
+    tool_calling_chat_service: ToolCallingChatService = Depends(
+        get_tool_calling_chat_service
+    ),
+) -> ChatResponse:
+    logger.info(
+        "tool_chat_requested message_length=%s history_size=%s",
+        len(request.message),
+        len(request.history),
+    )
+    reply = tool_calling_chat_service.generate_reply(
+        request.message,
+        history=request.history,
+    )
+    return ChatResponse(reply=reply)

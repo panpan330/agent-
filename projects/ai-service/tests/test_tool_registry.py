@@ -4,7 +4,10 @@ from app.core.exceptions import AppException
 from app.schemas.tool import ToolAccessLevel, ToolDefinition
 from app.tools.tool_registry import (
     authorize_tool_call,
+    build_openai_chat_tool_definition,
     get_tool_definition,
+    list_model_callable_openai_tools,
+    list_model_callable_tool_definitions,
     list_tool_definitions,
 )
 
@@ -26,6 +29,35 @@ def test_list_tool_definitions_contains_backend_owned_tools() -> None:
 
     assert names == {"query_order", "create_ticket", "refund_order"}
     assert all(isinstance(definition, ToolDefinition) for definition in definitions)
+
+
+def test_list_model_callable_tool_definitions_only_exposes_safe_read_tools() -> None:
+    definitions = list_model_callable_tool_definitions()
+
+    assert [definition.name for definition in definitions] == ["query_order"]
+    assert definitions[0].access_level == ToolAccessLevel.READ
+    assert definitions[0].requires_confirmation is False
+
+
+def test_build_openai_chat_tool_definition_uses_function_tool_shape() -> None:
+    definition = get_tool_definition("query_order")
+    assert definition is not None
+
+    tool = build_openai_chat_tool_definition(definition)
+
+    assert tool["type"] == "function"
+    assert tool["function"]["name"] == "query_order"
+    assert tool["function"]["parameters"]["type"] == "object"
+    assert tool["function"]["parameters"]["additionalProperties"] is False
+    assert tool["function"]["strict"] is True
+
+
+def test_list_model_callable_openai_tools_contains_query_order_schema() -> None:
+    tools = list_model_callable_openai_tools()
+
+    assert len(tools) == 1
+    assert tools[0]["function"]["name"] == "query_order"
+    assert set(tools[0]["function"]["parameters"]["properties"]) == {"order_id"}
 
 
 def test_authorize_tool_call_allows_read_tool_without_confirmation() -> None:

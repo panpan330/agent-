@@ -40,6 +40,37 @@ def list_tool_definitions() -> list[ToolDefinition]:
     return list(TOOL_REGISTRY.values())
 
 
+def list_model_callable_tool_definitions() -> list[ToolDefinition]:
+    return [
+        definition
+        for definition in list_tool_definitions()
+        if definition.enabled
+        and definition.access_level == ToolAccessLevel.READ
+        and not definition.requires_confirmation
+    ]
+
+
+def build_openai_chat_tool_definition(
+    definition: ToolDefinition,
+) -> dict[str, object]:
+    return {
+        "type": "function",
+        "function": {
+            "name": definition.name,
+            "description": definition.description,
+            "parameters": definition.argument_schema,
+            "strict": True,
+        },
+    }
+
+
+def list_model_callable_openai_tools() -> list[dict[str, object]]:
+    return [
+        build_openai_chat_tool_definition(definition)
+        for definition in list_model_callable_tool_definitions()
+    ]
+
+
 def authorize_tool_call(
     tool_name: str,
     *,
