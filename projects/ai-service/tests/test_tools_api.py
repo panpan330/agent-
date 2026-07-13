@@ -300,3 +300,133 @@ def test_query_order_api_does_not_allow_get(client: TestClient) -> None:
         "message": "请求方法不允许",
         "trace_id": "trace-query-order-method",
     }
+
+
+def test_tool_confirmation_api_creates_then_confirms_exact_plan(
+    client: TestClient,
+) -> None:
+    create_response = client.post(
+        "/tools/confirmations",
+        headers={TRACE_ID_HEADER: "trace-confirmation-create"},
+        json={
+            "actor_id": "demo_user_001",
+            "tool_name": "create_ticket",
+            "arguments": {
+                "title": "订单 A1001 未发货",
+                "description": "用户反馈订单迟迟未发货。",
+                "order_id": "A1001",
+            },
+        },
+    )
+    pending = create_response.json()
+
+    assert create_response.status_code == 200
+    assert create_response.headers[TRACE_ID_HEADER] == "trace-confirmation-create"
+    assert pending["status"] == "pending"
+    assert pending["tool_name"] == "create_ticket"
+    assert pending["arguments"]["order_id"] == "A1001"
+    assert len(pending["confirmation_id"]) == 32
+    assert "不会执行" in pending["message"]
+
+    confirm_response = client.post(
+        f"/tools/confirmations/{pending['confirmation_id']}/confirm",
+        headers={TRACE_ID_HEADER: "trace-confirmation-confirm"},
+        json={"actor_id": "demo_user_001"},
+    )
+    confirmed = confirm_response.json()
+
+    assert confirm_response.status_code == 200
+    assert confirm_response.headers[TRACE_ID_HEADER] == "trace-confirmation-confirm"
+    assert confirmed["status"] == "confirmed"
+    assert confirmed["tool_name"] == "create_ticket"
+    assert confirmed["arguments"] == pending["arguments"]
+    assert confirmed["arguments_fingerprint"] == pending["arguments_fingerprint"]
+    assert "专用执行接口" in confirmed["message"]
+
+
+def test_tool_confirmation_api_rejects_other_actor(client: TestClient) -> None:
+    create_response = client.post(
+        "/tools/confirmations",
+        json={
+            "actor_id": "demo_user_001",
+            "tool_name": "create_ticket",
+            "arguments": {"title": "订单 A1001 未发货"},
+        },
+    )
+    confirmation_id = create_response.json()["confirmation_id"]
+
+    response = client.post(
+        f"/tools/confirmations/{confirmation_id}/confirm",
+        headers={TRACE_ID_HEADER: "trace-confirmation-other-actor"},
+        json={"actor_id": "other_user_002"},
+    )
+
+    assert response.status_code == 403
+    assert response.json() == {
+        "code": "TOOL_CONFIRMATION_FORBIDDEN",
+        "message": "当前操作者不能确认其他人的工具请求。",
+        "trace_id": "trace-confirmation-other-actor",
+    }
+
+
+def test_tool_confirmation_api_rejects_read_tool(client: TestClient) -> None:
+    response = client.post(
+        "/tools/confirmations",
+        headers={TRACE_ID_HEADER: "trace-confirmation-read-tool"},
+        json={
+            "actor_id": "demo_user_001",
+            "tool_name": "query_order",
+            "arguments": {"order_id": "A1001"},
+        },
+    )
+
+    assert response.status_code == 409
+    assert response.json() == {
+        "code": "TOOL_CONFIRMATION_NOT_REQUIRED",
+        "message": "该工具不需要用户确认。",
+        "trace_id": "trace-confirmation-read-tool",
+    }
+
+
+def test_tool_confirmation_api_rejects_arguments_change_in_confirm_request(
+    client: TestClient,
+) -> None:
+    create_response = client.post(
+        "/tools/confirmations",
+        json={
+            "actor_id": "demo_user_001",
+            "tool_name": "create_ticket",
+            "arguments": {"title": "订单 A1001 未发货"},
+        },
+    )
+    confirmation_id = create_response.json()["confirmation_id"]
+
+    response = client.post(
+        f"/tools/confirmations/{confirmation_id}/confirm",
+        headers={TRACE_ID_HEADER: "trace-confirmation-arguments-change"},
+        json={
+            "actor_id": "demo_user_001",
+            "arguments": {"title": "改成退款"},
+        },
+    )
+    data = response.json()
+
+    assert response.status_code == 422
+    assert data["code"] == "VALIDATION_ERROR"
+    assert data["trace_id"] == "trace-confirmation-arguments-change"
+    assert data["details"][0]["loc"] == ["body", "arguments"]
+    assert data["details"][0]["type"] == "extra_forbidden"
+
+
+def test_tool_confirmation_api_does_not_allow_get(client: TestClient) -> None:
+    response = client.get(
+        "/tools/confirmations",
+        headers={TRACE_ID_HEADER: "trace-confirmation-method"},
+    )
+
+    assert response.status_code == 405
+    assert response.json() == {
+        "code": "METHOD_NOT_ALLOWED",
+        "message": "请求方法不允许",
+        "trace_id": "trace-confirmation-method",
+    }

@@ -4,6 +4,7 @@ from app.schemas.tool import (
     ToolDefinition,
     get_query_order_args_json_schema,
 )
+from app.schemas.ticket import get_create_ticket_args_json_schema
 
 
 TOOL_REGISTRY: dict[str, ToolDefinition] = {
@@ -21,6 +22,7 @@ TOOL_REGISTRY: dict[str, ToolDefinition] = {
         access_level=ToolAccessLevel.WRITE,
         requires_confirmation=True,
         enabled=True,
+        argument_schema=get_create_ticket_args_json_schema(),
     ),
     "refund_order": ToolDefinition(
         name="refund_order",
@@ -71,11 +73,7 @@ def list_model_callable_openai_tools() -> list[dict[str, object]]:
     ]
 
 
-def authorize_tool_call(
-    tool_name: str,
-    *,
-    user_confirmed: bool = False,
-) -> ToolDefinition:
+def require_enabled_tool_definition(tool_name: str) -> ToolDefinition:
     definition = get_tool_definition(tool_name)
     if definition is None or not definition.enabled:
         raise AppException(
@@ -83,6 +81,15 @@ def authorize_tool_call(
             message="工具不在允许列表中，后端已拒绝执行。",
             status_code=403,
         )
+    return definition
+
+
+def authorize_tool_call(
+    tool_name: str,
+    *,
+    user_confirmed: bool = False,
+) -> ToolDefinition:
+    definition = require_enabled_tool_definition(tool_name)
 
     if definition.requires_confirmation and not user_confirmed:
         raise AppException(

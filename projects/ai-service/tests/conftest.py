@@ -13,6 +13,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from app.core.config import Settings, get_settings  # noqa: E402
 from app.main import create_app  # noqa: E402
+from app.tools.tool_confirmation import clear_tool_confirmation_store  # noqa: E402
 from app.tools.idempotency import clear_idempotency_store  # noqa: E402
 
 
@@ -28,6 +29,13 @@ def clear_tool_idempotency_store() -> None:
     clear_idempotency_store()
     yield
     clear_idempotency_store()
+
+
+@pytest.fixture(autouse=True)
+def clear_pending_tool_confirmations() -> None:
+    clear_tool_confirmation_store()
+    yield
+    clear_tool_confirmation_store()
 
 
 @pytest.fixture

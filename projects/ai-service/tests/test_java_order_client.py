@@ -6,6 +6,7 @@ import pytest
 
 from app.core.config import Settings
 from app.core.exceptions import AppException
+from app.core.trace import TRACE_ID_HEADER, reset_trace_id, set_trace_id
 from app.services.java_order_client import JavaOrderClient
 
 
@@ -43,6 +44,24 @@ def test_java_order_client_get_order_returns_json_payload() -> None:
 
     assert result["order_id"] == "A1001"
     assert result["customer_id"] == "C9001"
+
+
+def test_java_order_client_forwards_current_trace_id() -> None:
+    received_headers: dict[str, str] = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        received_headers["trace_id"] = request.headers[TRACE_ID_HEADER]
+        return httpx.Response(200, json=make_order_payload(), request=request)
+
+    client = make_client(handler)
+    token = set_trace_id("trace-order-client-001")
+
+    try:
+        client.get_order("A1001")
+    finally:
+        reset_trace_id(token)
+
+    assert received_headers["trace_id"] == "trace-order-client-001"
 
 
 def test_java_order_client_maps_404_to_order_not_found() -> None:

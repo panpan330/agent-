@@ -17,7 +17,7 @@ Python AI Service
 ```text
 Python AI Service
 -> Java Mock Service
--> 内存订单数据
+-> 内存订单数据 / 内存工单数据
 ```
 
 ## 当前接口
@@ -26,6 +26,7 @@ Python AI Service
 | --- | --- | --- |
 | `GET` | `/health` | 健康检查 |
 | `GET` | `/orders/{order_id}` | 查询订单 |
+| `POST` | `/tickets` | 创建工单，支持 `Idempotency-Key` |
 
 ## 运行
 
@@ -46,6 +47,7 @@ uv run uvicorn app.main:app --reload --port 8001
 ```text
 http://127.0.0.1:8001/health
 http://127.0.0.1:8001/orders/A1001
+http://127.0.0.1:8001/tickets
 http://127.0.0.1:8001/docs
 ```
 
@@ -106,6 +108,43 @@ GET /orders/A500
 }
 ```
 
+## 工单接口示例
+
+请求：
+
+```http
+POST /tickets
+Idempotency-Key: ticket-create-key-001
+```
+
+```json
+{
+  "requester_id": "demo_user_001",
+  "title": "订单 A1001 未发货",
+  "description": "用户反馈订单迟迟未发货。",
+  "category": "complaint",
+  "priority": "high",
+  "related_order_id": "A1001"
+}
+```
+
+响应：
+
+```json
+{
+  "ticket_id": "T1001",
+  "requester_id": "demo_user_001",
+  "title": "订单 A1001 未发货",
+  "description": "用户反馈订单迟迟未发货。",
+  "category": "complaint",
+  "priority": "high",
+  "related_order_id": "A1001",
+  "created_at": "2026-07-12T10:00:00Z"
+}
+```
+
+同一个 `Idempotency-Key` 配同一份参数会返回同一张工单；如果同一个幂等键换了参数，会返回 `TICKET_IDEMPOTENCY_KEY_CONFLICT`。这模拟真实业务服务对写操作的防重复保护。
+
 ## 项目结构
 
 ```text
@@ -116,18 +155,22 @@ app/
   routers/
     health.py              /health
     orders.py              /orders/{order_id}
+    tickets.py             /tickets
   schemas/
     error.py               错误响应模型
     health.py              健康检查响应模型
     order.py               订单响应模型和枚举
+    ticket.py              工单创建请求和响应模型
   services/
     order_service.py       mock 订单业务逻辑和内存数据
+    ticket_service.py      mock 工单创建、内存数据和幂等保护
   main.py                  FastAPI 应用入口
 tests/
   conftest.py              pytest 共享夹具
   test_health_api.py       健康检查接口测试
   test_order_service.py    订单 service 测试
   test_orders_api.py       订单接口测试
+  test_tickets_api.py      工单创建和幂等测试
 ```
 
 ## 测试
@@ -153,4 +196,4 @@ AI 服务通过 HTTP 调用业务服务。
 AI 服务负责模型调用、工具编排和结果总结。
 ```
 
-下一节会让 `ai-service` 调用这个 mock 服务，把当前内部 fake 数据逐步替换成跨服务 HTTP 调用。
+当前 `ai-service` 已经通过 HTTP 调用这个 mock 服务查询订单，并能在用户确认后调用 `POST /tickets` 创建工单。后续会继续补工具调用日志、trace_id 串联和更接近真实 Java 服务的业务边界。

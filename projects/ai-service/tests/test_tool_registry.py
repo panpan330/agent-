@@ -9,6 +9,7 @@ from app.tools.tool_registry import (
     list_model_callable_openai_tools,
     list_model_callable_tool_definitions,
     list_tool_definitions,
+    require_enabled_tool_definition,
 )
 
 
@@ -75,6 +76,21 @@ def test_authorize_tool_call_rejects_unknown_tool() -> None:
     assert exc.code == "TOOL_NOT_ALLOWED"
     assert exc.message == "工具不在允许列表中，后端已拒绝执行。"
     assert exc.status_code == 403
+
+
+def test_require_enabled_tool_definition_allows_write_tool_before_confirmation() -> None:
+    definition = require_enabled_tool_definition("create_ticket")
+
+    assert definition.name == "create_ticket"
+    assert definition.requires_confirmation is True
+
+
+def test_require_enabled_tool_definition_rejects_disabled_tool() -> None:
+    with pytest.raises(AppException) as exc_info:
+        require_enabled_tool_definition("refund_order")
+
+    assert exc_info.value.code == "TOOL_NOT_ALLOWED"
+    assert exc_info.value.status_code == 403
 
 
 def test_authorize_tool_call_requires_confirmation_for_write_tool() -> None:

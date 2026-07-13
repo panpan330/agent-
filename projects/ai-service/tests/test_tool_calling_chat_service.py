@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Any
 
 import pytest
@@ -145,6 +146,48 @@ def test_tool_calling_chat_executes_tool_and_asks_model_to_summarize() -> None:
     assert tool_result_message["role"] == "tool"
     assert tool_result_message["tool_call_id"] == "call_query_order_001"
     assert "customer_id" not in tool_result_message["content"]
+
+
+def test_tool_calling_chat_logs_tool_execution_stages(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    completions = SequentialFakeChatCompletions(
+        [
+            make_chat_completion(
+                None,
+                tool_calls=[
+                    make_tool_call(
+                        "query_order",
+                        {"order_id": "A1001"},
+                        call_id="call_query_order_001",
+                    )
+                ],
+            ),
+            make_chat_completion("订单 A1001 正在准备出库。"),
+        ]
+    )
+    service = make_service(
+        completions,
+        query_order_executor=lambda arguments: make_query_order_result(),
+    )
+    caplog.set_level(logging.INFO, logger="app.services.tool_calling_chat_service")
+
+    service.generate_reply("帮我查订单 A1001")
+
+    messages = [
+        record.getMessage()
+        for record in caplog.records
+        if record.name == "app.services.tool_calling_chat_service"
+    ]
+
+    assert any(
+        message.startswith("tool_execution_started tool_name=query_order")
+        for message in messages
+    )
+    assert any(
+        message.startswith("tool_execution_succeeded tool_name=query_order")
+        for message in messages
+    )
 
 
 def test_tool_calling_chat_returns_direct_model_reply_without_executing_tool() -> None:

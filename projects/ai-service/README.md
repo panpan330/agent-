@@ -8,13 +8,13 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：L
 
 当前 `/extract-ticket` 已经支持 OpenAI-compatible JSON Mode，并用 Pydantic 校验模型返回的结构化工单字段。
 
-当前阶段 3 第 1-13 节已完成 Tool Calling 概念、业务系统安全边界、工具参数和 JSON Schema、结构化输出与 Tool Calling 的边界、fake tool 模拟订单查询、工具调用结果 Pydantic 校验、工具调用错误处理、工具调用权限边界、工具调用幂等性、`projects/java-mock-service` 最小业务服务、Python AI 服务调用 Java mock API、让模型决定是否调用工具，以及工具调用结果再交给模型总结。后续会学习敏感操作的用户确认机制，并继续补工具调用日志和 trace_id 串联。
+当前阶段 3 第 1-18 节已完成 Tool Calling 概念、业务系统安全边界、工具参数和 JSON Schema、结构化输出与 Tool Calling 的边界、fake tool 模拟订单查询、工具调用结果 Pydantic 校验、工具调用错误处理、工具调用权限边界、工具调用幂等性、`projects/java-mock-service` 最小业务服务、Python AI 服务调用 Java mock API、让模型决定是否调用工具、工具调用结果再交给模型总结、敏感操作的用户确认机制、确认后创建工单的完整流程、工具调用日志和 `trace_id` 串联、fake Java API / fake tool 的分层测试策略，以及 LangChain 的框架定位和引入时机。后续会继续学习 LangChain ChatModel 基础。
 
 ## 当前能力
 
 - FastAPI 应用创建和启动
 - `/health` 健康检查接口
-- `/chat` mock 聊天接口
+- `/chat` OpenAI-compatible 真实模型聊天接口
 - router 路由拆分
 - Pydantic 请求模型和响应模型
 - `.env` 配置读取
@@ -30,6 +30,10 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：L
 - `/tools/query-order` 订单查询工具接口，当前调用 Java mock API
 - `/tool-decision` 模型工具调用决策接口，当前只返回工具调用意图，不执行工具
 - `/tool-chat` 完整工具调用接口：执行 `query_order` 后把 tool message 交回模型生成最终回答
+- `/tools/confirmations` 创建待确认的写操作计划，不执行工具
+- `/tools/confirmations/{confirmation_id}/confirm` 由同一操作者确认已绑定的计划，仍不执行工具
+- `/tickets/plans` 从用户问题提取工单字段并创建 `create_ticket` 确认计划
+- `/tickets/confirmations/{confirmation_id}/execute` 执行已确认的创建工单计划
 - Pydantic 结构化输出模型和 JSON Schema 生成
 - 模型返回 JSON 的 Pydantic 校验
 - `QueryOrderArgs` 工具参数模型
@@ -60,7 +64,23 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：L
 - `tool_calls` 模型工具调用请求解析
 - `TOOL_ARGUMENTS_INVALID_JSON`、`TOOL_ARGUMENTS_VALIDATION_FAILED`、`TOOL_DECISION_TOO_MANY_CALLS` 工具决策阶段错误
 - `TOOL_CALL_ID_MISSING`、`TOOL_SUMMARY_UNEXPECTED_TOOL_CALL` 完整工具调用阶段错误
+- `ToolConfirmationService`、`ToolConfirmationStore` 待确认操作的状态管理
+- 确认 ID、操作者绑定、参数指纹、过期时间和确认幂等
+- `TOOL_CONFIRMATION_NOT_FOUND`、`TOOL_CONFIRMATION_FORBIDDEN`、`TOOL_CONFIRMATION_EXPIRED` 确认阶段错误
+- `CreateTicketArgs`、`CreatedTicket` 工单创建命令和 Java 返回结果模型
+- `TicketWorkflowService` 工单计划、确认计划消费和执行编排
+- `JavaTicketClient` Java mock 工单服务 HTTP 客户端
+- 创建工单时使用 `confirmation_id` 作为幂等键
+- `TICKET_INTENT_UNSUPPORTED`、`TICKET_ARGUMENTS_VALIDATION_FAILED`、`TICKET_UPSTREAM_REJECTED` 工单流程错误
+- `build_trace_headers` 出站 `X-Trace-Id` 构建函数
+- Java 订单/工单 HTTP client 会把当前 `trace_id` 传给下游
+- `tool_execution_*`、`ticket_execution_*`、`java_order_request_*`、`java_ticket_create_*` 关键节点日志
+- 工具调用日志只记录定位字段，不记录完整用户问题、完整工单描述或 API key
 - 共享 fake OpenAI-compatible client 测试工具
+- 共享 fake 订单查询、工单字段提取和工单创建测试工具
+- service/client/router 分层测试策略
+- `httpx.MockTransport` 模拟 Java API HTTP 响应
+- FastAPI `dependency_overrides` 替换接口依赖
 - 模型调用 timeout 统一错误处理
 - SDK retry 次数配置和 rate limit 统一错误处理
 - OpenAI-compatible SDK 常见错误映射
@@ -91,13 +111,16 @@ app/
   routers/
     chat.py                /chat 路由
     health.py              /health 路由
+    tickets.py             工单计划和已确认计划执行路由
     tools.py               工具调用学习接口
   schemas/
     chat.py                聊天请求/响应模型
     error.py               统一错误响应模型
     structured.py          结构化输出请求/响应和工单字段模型
+    ticket.py              创建工单命令、响应和工作流请求模型
     tool.py                工具参数和工具结果模型
     tool_decision.py       模型工具调用决策响应模型
+    tool_confirmation.py   工具确认请求、状态和响应模型
   services/
     llm_client.py          OpenAI-compatible SDK client 初始化
     llm_service.py         LLM 聊天调用服务
@@ -105,18 +128,23 @@ app/
     prompt_builder.py      prompt 分段构建工具
     structured_output_service.py 结构化输出调用服务
     java_order_client.py   Java mock 订单服务 HTTP 客户端
+    java_ticket_client.py  Java mock 工单服务 HTTP 客户端
+    ticket_workflow_service.py 工单字段提取、确认计划消费和创建工单编排
     tool_decision_service.py 模型工具选择和 tool_calls 解析服务
     tool_calling_chat_service.py 执行工具并将结果回传模型总结
+    tool_confirmation_service.py 创建和确认待执行工具计划
   tools/
     fake_order_tool.py     订单查询工具，当前调用 Java mock API
     idempotency.py         工具调用幂等性辅助函数
     tool_registry.py       工具注册表和权限守卫
+    tool_confirmation.py   内存确认计划存储与过期检查
   main.py                  FastAPI 应用入口
 scripts/
   llm_compatible_smoke_test.py 手动检查或调用兼容模型
 tests/
   conftest.py              pytest 共享夹具
   fakes.py                 OpenAI-compatible fake client 测试工具
+  tool_fakes.py            工具调用 fake 对象和测试数据构造工具
   test_chat_api.py         /chat 接口测试
   test_chat_schema.py      聊天模型测试
   test_config.py           配置测试
@@ -124,6 +152,7 @@ tests/
   test_exception_handlers.py 统一异常处理测试
   test_fake_order_tool.py  订单查询工具映射和校验测试
   test_java_order_client.py Java mock HTTP 客户端测试
+  test_java_ticket_client.py Java mock 工单 HTTP 客户端测试
   test_fake_llm_client.py  fake LLM client 工具测试
   test_health.py           /health 测试
   test_llm_client.py       LLM client 初始化测试
@@ -137,7 +166,12 @@ tests/
   test_tool_registry.py    工具注册表和权限守卫测试
   test_tool_decision_schema.py 工具决策响应模型测试
   test_tool_decision_service.py 模型工具选择服务测试
+  test_tool_fakes.py       共享工具 fake 测试
   test_tool_calling_chat_service.py 完整工具调用与第二轮总结服务测试
+  test_tool_confirmation_schema.py 确认请求模型测试
+  test_tool_confirmation_service.py 确认计划、操作者绑定和过期测试
+  test_ticket_workflow_service.py 工单计划、确认消费和执行编排测试
+  test_tickets_api.py      工单计划和执行接口测试
   test_tool_schema.py      工具参数和工具结果模型测试
   test_tools_api.py        /tools/query-order 接口测试
   test_token_usage.py      token 粗略估算测试
@@ -177,7 +211,7 @@ http://127.0.0.1:8000/docs
 uv run pytest -q
 ```
 
-当前测试使用 FastAPI 的 `TestClient`，覆盖 `/health`、`/chat`、`/stream-chat`、`/extract-ticket`、`/tool-decision`、`/tool-chat`、`/tools/query-order`、`ChatRequest`、`ChatResponse`、`ChatMessage`、`TicketExtraction`、`QueryOrderArgs`、`QueryOrderResult`、`ToolDefinition`、`ToolAccessLevel`、`ToolDecisionType`、`ToolCallCandidate`、`ToolDecisionResponse`、多轮 `history`、配置读取、日志、`trace_id`、统一异常处理、CORS、token 粗略估算、LLM client 初始化、LLM service、结构化输出 service、工具决策 service、完整工具调用 service、JavaOrderClient、Java mock API 字段映射、工具结果 Pydantic 校验、工具参数 Pydantic 校验、assistant tool-call message、tool message、`tool_call_id` 关联、工具调用 timeout/上游错误映射、工具注册表和权限守卫、模型可见工具筛选、工具调用幂等性、fake OpenAI-compatible client、fake `tool_calls`、OpenAI-compatible SDK 错误映射、模型调用日志、流式调用日志、结构化输出日志、模型响应 token usage 提取、messages 构建和 prompt 构建。
+当前测试使用 FastAPI 的 `TestClient`，覆盖 `/health`、`/chat`、`/stream-chat`、`/extract-ticket`、`/tool-decision`、`/tool-chat`、`/tools/query-order`、`/tools/confirmations`、`/tickets/plans`、`/tickets/confirmations/{confirmation_id}/execute`、`ChatRequest`、`ChatResponse`、`ChatMessage`、`TicketExtraction`、`CreateTicketArgs`、`CreatedTicket`、`QueryOrderArgs`、`QueryOrderResult`、`ToolDefinition`、`ToolAccessLevel`、`ToolDecisionType`、`ToolCallCandidate`、`ToolDecisionResponse`、确认请求模型、确认计划状态、工单计划和工单执行响应、多轮 `history`、配置读取、日志、`trace_id`、出站 `X-Trace-Id`、统一异常处理、CORS、token 粗略估算、LLM client 初始化、LLM service、结构化输出 service、工具决策 service、完整工具调用 service、确认计划 service、工单工作流 service、JavaOrderClient、JavaTicketClient、Java mock API 字段映射、Java mock 工单创建、工具结果 Pydantic 校验、工具参数 Pydantic 校验、assistant tool-call message、tool message、`tool_call_id` 关联、操作者/参数绑定、参数指纹、确认过期和确认幂等、确认计划消费、创建工单幂等、工具调用关键节点日志、工具调用 timeout/上游错误映射、工具注册表和权限守卫、模型可见工具筛选、工具调用幂等性、fake OpenAI-compatible client、fake `tool_calls`、共享 fake tool、fake Java API、`httpx.MockTransport`、`dependency_overrides`、OpenAI-compatible SDK 错误映射、模型调用日志、流式调用日志、结构化输出日志、模型响应 token usage 提取、messages 构建和 prompt 构建。
 
 也可以运行 Python 编译检查：
 
@@ -206,6 +240,7 @@ uv run python -m compileall -q -x ".venv|__pycache__" .
 | `MAX_OUTPUT_TOKENS` | 后续限制模型最多生成多少输出 token |
 | `JAVA_MOCK_SERVICE_BASE_URL` | Java mock 订单服务基础地址，默认 `http://127.0.0.1:8001` |
 | `JAVA_MOCK_SERVICE_TIMEOUT_SECONDS` | 调用 Java mock 订单服务的超时时间，默认 `5` 秒 |
+| `TOOL_CONFIRMATION_TTL_SECONDS` | 待确认计划有效秒数，默认 `300`，当前允许 `30-3600` |
 | `LOG_LEVEL` | 日志级别 |
 | `CORS_ALLOWED_ORIGINS` | 允许跨源访问后端的前端来源，多个值用逗号分隔 |
 | `OPENAI_API_KEY` | 旧版兼容字段，后续优先使用 `LLM_API_KEY` |
@@ -647,7 +682,102 @@ app/tools/idempotency.py
 }
 ```
 
-当前订单查询工具已经把内部 fake 数据替换成 Java mock API。后续会继续让模型决定是否调用这个工具，并把工具结果交回模型做自然语言总结。
+当前订单查询工具已经把内部 fake 数据替换成 Java mock API，并完成了模型决策、工具执行、tool message 回传和第二轮模型总结。
+
+## 用户确认计划 `/tools/confirmations`
+
+阶段 3 第 14 节新增的是“确认计划”，不是“确认后立刻执行”。它用于把未来写操作的关键内容固定下来，等待用户明确确认。
+
+调用链路：
+
+```text
+POST /tools/confirmations
+-> ToolConfirmationRequest(actor_id, tool_name, arguments)
+-> require_enabled_tool_definition()
+-> 检查工具确实 requires_confirmation=True
+-> ToolConfirmationStore 创建 pending 计划
+-> 保存操作者、工具名、深拷贝参数、SHA-256 参数指纹、创建/过期时间
+-> ToolConfirmationResponse
+
+POST /tools/confirmations/{confirmation_id}/confirm
+-> ConfirmToolConfirmationRequest(actor_id)
+-> 按确认 ID 读取后端保存的计划
+-> 检查操作者相同、计划未过期
+-> 状态 pending -> confirmed
+-> ToolConfirmationResponse
+```
+
+创建确认计划示例：
+
+```json
+{
+  "actor_id": "demo_user_001",
+  "tool_name": "create_ticket",
+  "arguments": {
+    "title": "订单 A1001 未发货",
+    "description": "用户反馈订单迟迟未发货。",
+    "order_id": "A1001"
+  }
+}
+```
+
+响应会返回后端生成的 `confirmation_id`、固定参数、参数指纹与过期时间。确认时客户端只能发送操作者：
+
+```json
+{
+  "actor_id": "demo_user_001"
+}
+```
+
+确认接口不接受新的 `tool_name` 或 `arguments`。因此用户确认订单 A1001 的创建工单计划后，客户端不能在确认请求里偷偷替换为退款、其他订单或其他参数。
+
+当前计划是学习用内存实现：服务重启后记录会丢失，也没有真实登录系统；`actor_id` 只是教学占位，生产环境必须从 JWT/session 中可信地取得当前用户。确认接口本身不会写入 Java 业务系统，已确认计划由 `/tickets/confirmations/{confirmation_id}/execute` 专门消费并执行。
+
+| 错误码 | HTTP 状态码 | 含义 |
+| --- | --- | --- |
+| `TOOL_CONFIRMATION_NOT_REQUIRED` | 409 | 当前工具是只读工具，不应创建确认计划 |
+| `TOOL_CONFIRMATION_NOT_FOUND` | 404 | 确认 ID 不存在 |
+| `TOOL_CONFIRMATION_FORBIDDEN` | 403 | 其他操作者尝试确认该计划 |
+| `TOOL_CONFIRMATION_EXPIRED` | 409 | 确认计划过期，需要重新创建 |
+
+## 创建工单流程 `/tickets`
+
+阶段 3 第 15 节把第 14 节的 `confirmed` 计划真正用于写操作。流程分三步：
+
+```text
+POST /tickets/plans
+-> 模型提取 TicketExtraction
+-> 后端转换成 CreateTicketArgs
+-> 创建 create_ticket 的 pending 确认计划
+
+POST /tools/confirmations/{confirmation_id}/confirm
+-> 同一操作者确认这份固定计划
+
+POST /tickets/confirmations/{confirmation_id}/execute
+-> 读取已确认计划
+-> 重新校验 CreateTicketArgs
+-> 执行前再次 authorize_tool_call()
+-> 使用 confirmation_id 做幂等键
+-> JavaTicketClient 调用 Java mock POST /tickets
+-> 校验 CreatedTicket 后返回
+```
+
+关键边界：
+
+- `/tickets/plans` 不创建工单，只创建计划；
+- `/tools/confirmations/{confirmation_id}/confirm` 只确认计划，不创建工单；
+- `/tickets/confirmations/{confirmation_id}/execute` 才会调用 Java mock 服务创建工单；
+- 执行接口不接收新的工单参数，只读取后端保存的确认计划；
+- 当前仍是教学版，`actor_id` 和内存 store 不能直接用于生产。
+
+相关文件：
+
+```text
+app/schemas/ticket.py
+app/services/ticket_workflow_service.py
+app/services/java_ticket_client.py
+app/routers/tickets.py
+```
 
 ## 模型工具决策 `/tool-decision`
 
@@ -713,7 +843,7 @@ POST /tool-decision
 }
 ```
 
-注意：本接口当前只返回模型工具调用意图，不执行 `query_order`，也不调用 Java mock API。真正执行工具并把结果交回模型总结会在下一节继续实现。
+注意：本接口当前只返回模型工具调用意图，不执行 `query_order`，也不调用 Java mock API。真正执行只读工具并把结果交回模型总结的链路由 `/tool-chat` 负责。
 
 当前工具决策阶段新增错误：
 
@@ -786,12 +916,13 @@ uv run uvicorn app.main:app --reload --port 8000
 
 再向 `POST http://127.0.0.1:8000/tool-chat` 发送上面的请求体。这个手动调用会请求本机配置的模型，可能产生费用；自动化测试不会调用真实模型或真实 Java 服务。
 
-## 模型调用测试工具
+## 模型和工具调用测试工具
 
 测试代码里的共享 fake 工具放在：
 
 ```text
 tests/fakes.py
+tests/tool_fakes.py
 ```
 
 当前提供：
@@ -803,10 +934,16 @@ tests/fakes.py
 | `make_stream_chunk()` | 构造流式响应 chunk |
 | `make_usage()` | 构造 token usage |
 | `make_status_error()` | 构造 OpenAI SDK 风格的状态码错误 |
+| `FakeOrderLookupClient` | 模拟订单查询工具依赖，记录被查询过的订单号 |
+| `FakeTicketExtractor` | 模拟模型提取工单字段，避免测试真实调用 LLM |
+| `FakeTicketCreator` | 模拟 Java 工单创建客户端，记录参数和幂等键 |
+| `make_java_order_payload()` | 构造 Java 订单服务返回数据 |
+| `make_ticket_extraction()` | 构造结构化工单字段 |
+| `make_created_ticket()` | 构造 Java 工单创建返回结果 |
 
 service 测试通过 fake client 验证模型调用参数，例如 `model`、`messages`、`stream`、`stream_options` 和 `response_format`。
 
-router/API 测试通过 FastAPI `dependency_overrides` 注入 fake service，避免测试接口时真实调用模型。
+工具调用测试通过 fake tool 或 fake Java client 验证业务编排；HTTP client 测试通过 `httpx.MockTransport` 模拟 Java API 响应；router/API 测试通过 FastAPI `dependency_overrides` 注入 fake service，避免测试接口时真实调用模型或真实 Java 服务。
 
 ## 阶段 2 验收
 
@@ -909,6 +1046,8 @@ trace_id=...
 ```text
 app/core/trace.py
 app/middleware/tracing.py
+app/services/java_order_client.py
+app/services/java_ticket_client.py
 ```
 
 每个请求都会经过 trace middleware：
@@ -926,6 +1065,14 @@ X-Trace-Id
 服务端会复用它。
 
 如果客户端没有传，服务端会生成新的 `trace_id`。
+
+阶段 3 第 16 节开始，Python AI 服务调用 Java mock 时也会把当前 `trace_id` 放进出站请求头：
+
+```text
+X-Trace-Id: 当前请求的 trace_id
+```
+
+这样未来 Java 业务服务也记录 trace_id 时，就可以用同一个编号关联 Python 和 Java 两边日志。没有真实请求上下文时，不会把占位符 `-` 当作 trace_id 传给下游。
 
 ## 统一异常处理
 
@@ -976,6 +1123,10 @@ app/core/exception_handlers.py
 | POST | `/tool-decision` | 模型工具调用决策接口，返回直接回答或工具调用意图 |
 | POST | `/tool-chat` | 完整工具调用接口：执行只读工具后将结果交给模型总结 |
 | POST | `/tools/query-order` | 订单查询工具接口，通过 Java mock API 查询订单 |
+| POST | `/tools/confirmations` | 创建绑定工具、参数和操作者的待确认计划，不执行工具 |
+| POST | `/tools/confirmations/{confirmation_id}/confirm` | 确认已有计划，不执行工具 |
+| POST | `/tickets/plans` | 从用户问题提取工单字段，并创建待确认的创建工单计划 |
+| POST | `/tickets/confirmations/{confirmation_id}/execute` | 执行已确认的创建工单计划，调用 Java mock API |
 
 ## 当前模型
 
@@ -988,6 +1139,11 @@ app/core/exception_handlers.py
 | `StructuredOutputRequest` | `app/schemas/structured.py` | 结构化输出请求体，要求 `message` 是非空字符串 |
 | `TicketExtraction` | `app/schemas/structured.py` | 工单字段抽取结果，包含 `intent`、`order_id`、`summary`、`urgency`、`need_human_review` |
 | `StructuredOutputResponse` | `app/schemas/structured.py` | 结构化输出响应体，包裹 `TicketExtraction` |
+| `CreateTicketArgs` | `app/schemas/ticket.py` | 后端拥有的创建工单业务命令 |
+| `CreatedTicket` | `app/schemas/ticket.py` | Java mock 服务返回后经 Python 校验的工单结果 |
+| `TicketPlanRequest` | `app/schemas/ticket.py` | 创建工单计划请求，包含操作者和用户自然语言问题 |
+| `TicketPlanResponse` | `app/schemas/ticket.py` | 返回模型提取结果和待确认计划 |
+| `TicketExecutionResponse` | `app/schemas/ticket.py` | 返回确认 ID 和创建出的工单 |
 | `ToolAccessLevel` | `app/schemas/tool.py` | 工具风险等级枚举，当前包括 `read`、`write`、`sensitive` |
 | `ToolDefinition` | `app/schemas/tool.py` | 后端工具定义模型，包含工具名、描述、风险等级、是否启用和是否需要确认 |
 | `QueryOrderArgs` | `app/schemas/tool.py` | `query_order` 工具参数模型，要求 `order_id` 非空且格式合法 |
@@ -1031,5 +1187,10 @@ app/core/exception_handlers.py
 - 已用 FastAPI 写一个 Java mock 业务服务，模拟后续 Spring Boot 接口。
 - 当前已经让 Python AI 服务调用 Java mock API，并处理超时、404、500、权限和幂等。
 - 当前已经完成一个只读工具的执行、tool message 回传和第二轮模型总结。
-- 下一步学习用户确认机制：敏感操作不能由模型直接执行。
+- 当前已经完成写操作前的确认计划、操作者绑定、参数绑定、过期和确认幂等。
+- 当前已经完成创建工单流程：提取字段、使用已确认计划、调用 Java mock API，并用 `confirmation_id` 做幂等保护。
+- 当前已经完成工具调用日志和 `trace_id` 串联，让模型、工具、确认计划和 Java API 调用更容易排查。
+- 当前已经完成工具调用测试：fake Java API / fake tool，整理了模型 fake、工具 fake、`MockTransport` 和 `dependency_overrides` 的分层测试策略。
+- 当前已经完成 LangChain 的框架定位学习，明确 LangChain 是 AI 编排封装层，不是业务权限、安全、幂等和校验边界。
+- 下一步学习 LangChain ChatModel 基础。
 - 后续再引入 LangChain 的 Tool 抽象，把已经理解的底层流程封装起来。

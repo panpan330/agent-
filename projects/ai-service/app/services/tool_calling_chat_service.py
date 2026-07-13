@@ -179,6 +179,7 @@ class ToolCallingChatService:
             raise map_openai_error_to_app_exception(exc) from exc
 
     def _execute_tool_call(self, tool_call: ToolCallCandidate) -> QueryOrderResult:
+        tool_call_id = require_tool_call_id(tool_call)
         definition = authorize_tool_call(tool_call.name)
         if definition.name != "query_order":
             raise AppException(
@@ -197,9 +198,45 @@ class ToolCallingChatService:
                 details=exc.errors(include_url=False),
             ) from exc
 
-        if self._query_order_executor is not None:
-            return self._query_order_executor(arguments)
-        return query_order(arguments, settings=self.settings)
+        start_time = perf_counter()
+        logger.info(
+            "tool_execution_started tool_name=%s tool_call_id=%s order_id=%s",
+            definition.name,
+            tool_call_id,
+            arguments.order_id,
+        )
+        try:
+            if self._query_order_executor is not None:
+                result = self._query_order_executor(arguments)
+            else:
+                result = query_order(arguments, settings=self.settings)
+        except AppException as exc:
+            logger.warning(
+                (
+                    "tool_execution_failed tool_name=%s tool_call_id=%s "
+                    "order_id=%s code=%s status_code=%s elapsed_ms=%.2f"
+                ),
+                definition.name,
+                tool_call_id,
+                arguments.order_id,
+                exc.code,
+                exc.status_code,
+                (perf_counter() - start_time) * 1000,
+            )
+            raise
+
+        logger.info(
+            (
+                "tool_execution_succeeded tool_name=%s tool_call_id=%s "
+                "order_id=%s source=%s elapsed_ms=%.2f"
+            ),
+            definition.name,
+            tool_call_id,
+            result.order_id,
+            result.source,
+            (perf_counter() - start_time) * 1000,
+        )
+        return result
 
     def _log_success(
         self,

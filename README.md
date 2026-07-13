@@ -123,6 +123,11 @@ projects/ 练习项目、Demo 和完整作品
 | 11 | Python AI 服务调用 Java mock API | [notes/tool-calling-stage3-11-python-calls-java-mock-api.md](notes/tool-calling-stage3-11-python-calls-java-mock-api.md) | [projects/ai-service](projects/ai-service)、[projects/java-mock-service](projects/java-mock-service) |
 | 12 | 让模型决定是否调用工具 | [notes/tool-calling-stage3-12-model-decides-tool-call.md](notes/tool-calling-stage3-12-model-decides-tool-call.md) | [projects/ai-service](projects/ai-service) |
 | 13 | 工具调用结果再交给模型总结 | [notes/tool-calling-stage3-13-tool-result-model-summary.md](notes/tool-calling-stage3-13-tool-result-model-summary.md) | [projects/ai-service](projects/ai-service)、[projects/java-mock-service](projects/java-mock-service) |
+| 14 | 用户确认机制：敏感操作不能直接执行 | [notes/tool-calling-stage3-14-user-confirmation.md](notes/tool-calling-stage3-14-user-confirmation.md) | [projects/ai-service](projects/ai-service) |
+| 15 | 创建工单流程：提取字段、确认、调用 Java API | [notes/tool-calling-stage3-15-ticket-creation-workflow.md](notes/tool-calling-stage3-15-ticket-creation-workflow.md) | [projects/ai-service](projects/ai-service)、[projects/java-mock-service](projects/java-mock-service) |
+| 16 | 工具调用日志和 trace_id 串联 | [notes/tool-calling-stage3-16-tool-logging-trace-id.md](notes/tool-calling-stage3-16-tool-logging-trace-id.md) | [projects/ai-service](projects/ai-service) |
+| 17 | 工具调用测试：fake Java API / fake tool | [notes/tool-calling-stage3-17-tool-testing-fakes.md](notes/tool-calling-stage3-17-tool-testing-fakes.md) | [projects/ai-service](projects/ai-service) |
+| 18 | LangChain 是什么，为什么现在才引入 | [notes/tool-calling-stage3-18-what-is-langchain.md](notes/tool-calling-stage3-18-what-is-langchain.md) | [projects/ai-service](projects/ai-service) |
 
 ## 当前目标
 

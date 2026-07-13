@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 3 LangChain + Java 工具调用基础进行中，第 13 节 工具调用结果再交给模型总结 已完成，下一步进入第 14 节。
+当前阶段：阶段 3 LangChain + Java 工具调用基础进行中，第 18 节 LangChain 是什么，为什么现在才引入 已完成，下一步进入第 19 节。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -109,6 +109,11 @@
 - [x] 完成阶段 3 第 11 节：Python AI 服务调用 Java mock API
 - [x] 完成阶段 3 第 12 节：让模型决定是否调用工具
 - [x] 完成阶段 3 第 13 节：工具调用结果再交给模型总结
+- [x] 完成阶段 3 第 14 节：用户确认机制：敏感操作不能直接执行
+- [x] 完成阶段 3 第 15 节：创建工单流程：提取字段、确认、调用 Java API
+- [x] 完成阶段 3 第 16 节：工具调用日志和 trace_id 串联
+- [x] 完成阶段 3 第 17 节：工具调用测试：fake Java API / fake tool
+- [x] 完成阶段 3 第 18 节：LangChain 是什么，为什么现在才引入
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -178,11 +183,11 @@
 | 11 | Python AI 服务调用 Java mock API | 已完成 | `notes/tool-calling-stage3-11-python-calls-java-mock-api.md`、`app/services/java_order_client.py`、`JAVA_MOCK_SERVICE_BASE_URL`、`JAVA_MOCK_SERVICE_TIMEOUT_SECONDS`、`httpx.MockTransport`、`map_java_order_to_query_order_payload()`、`source=java_mock_service` |
 | 12 | 让模型决定是否调用工具 | 已完成 | `notes/tool-calling-stage3-12-model-decides-tool-call.md`、`app/services/tool_decision_service.py`、`app/schemas/tool_decision.py`、`POST /tool-decision`、`tools=...`、`tool_choice="auto"`、`tool_calls`、`QueryOrderArgs.model_validate(arguments)` |
 | 13 | 工具调用结果再交给模型总结 | 已完成 | `notes/tool-calling-stage3-13-tool-result-model-summary.md`、`app/services/tool_calling_chat_service.py`、`POST /tool-chat`、assistant tool-call message、`tool_call_id`、tool message、第二轮模型总结、`TOOL_CALL_ID_MISSING` |
-| 14 | 用户确认机制：敏感操作不能直接执行 | 未开始 | 待新增 |
-| 15 | 创建工单流程：提取字段、确认、调用 Java API | 未开始 | 待新增 |
-| 16 | 工具调用日志和 trace_id 串联 | 未开始 | 待新增 |
-| 17 | 工具调用测试：fake Java API / fake tool | 未开始 | 待新增 |
-| 18 | LangChain 是什么，为什么现在才引入 | 未开始 | 待新增 |
+| 14 | 用户确认机制：敏感操作不能直接执行 | 已完成 | `notes/tool-calling-stage3-14-user-confirmation.md`、`ToolConfirmationService`、`ToolConfirmationStore`、`POST /tools/confirmations`、确认 ID、操作者/参数绑定、参数指纹、TTL 过期、确认幂等 |
+| 15 | 创建工单流程：提取字段、确认、调用 Java API | 已完成 | `notes/tool-calling-stage3-15-ticket-creation-workflow.md`、`CreateTicketArgs`、`TicketWorkflowService`、`JavaTicketClient`、`POST /tickets/plans`、`POST /tickets/confirmations/{confirmation_id}/execute`、Java mock `POST /tickets`、确认计划消费、写操作幂等 |
+| 16 | 工具调用日志和 trace_id 串联 | 已完成 | `notes/tool-calling-stage3-16-tool-logging-trace-id.md`、`build_trace_headers()`、出站 `X-Trace-Id`、`java_order_request_*`、`java_ticket_create_*`、`tool_execution_*`、`ticket_execution_*`、敏感字段不入日志 |
+| 17 | 工具调用测试：fake Java API / fake tool | 已完成 | `notes/tool-calling-stage3-17-tool-testing-fakes.md`、`tests/tool_fakes.py`、`tests/test_tool_fakes.py`、`FakeOrderLookupClient`、`FakeTicketExtractor`、`FakeTicketCreator`、`httpx.MockTransport`、`dependency_overrides`、service/client/router 分层测试 |
+| 18 | LangChain 是什么，为什么现在才引入 | 已完成 | `notes/tool-calling-stage3-18-what-is-langchain.md`、LangChain 定位、框架/库/抽象/编排、LangChain vs LangGraph vs LangSmith、SDK vs LangChain vs LangGraph、当前项目模块和 LangChain 概念映射 |
 | 19 | LangChain ChatModel 基础 | 未开始 | 待新增 |
 | 20 | LangChain Tool 基础 | 未开始 | 待新增 |
 | 21 | LangChain 结构化输出 | 未开始 | 待新增 |
@@ -303,15 +308,15 @@ M0/M1 第一阶段完成时，必须满足：
 - [ ] 用户权限接口
 - [ ] 订单查询接口
 - [ ] 退款查询接口
-- [ ] 工单创建接口
+- [x] 工单创建接口
 - [x] AI tools 调 Java API
-- [ ] 敏感操作确认
+- [x] 敏感操作确认
 
 ### 工程化
 
 - [x] 请求日志
 - [x] 模型调用日志
-- [ ] tool 调用日志
+- [x] tool 调用日志
 - [x] trace_id
 - [ ] token 成本统计
 - [ ] 限流

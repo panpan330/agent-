@@ -1,6 +1,3 @@
-from collections.abc import Mapping
-from typing import Any
-
 import pytest
 
 from app.core.exceptions import AppException
@@ -11,38 +8,7 @@ from app.tools.fake_order_tool import (
     query_order,
     validate_query_order_result,
 )
-
-
-class FakeOrderLookupClient:
-    def __init__(
-        self,
-        payload: Mapping[str, Any] | None = None,
-        *,
-        error: Exception | None = None,
-    ) -> None:
-        self.payload = payload or make_java_order_payload()
-        self.error = error
-        self.calls: list[str] = []
-
-    def get_order(self, order_id: str) -> Mapping[str, Any]:
-        self.calls.append(order_id)
-        if self.error is not None:
-            raise self.error
-        return self.payload
-
-
-def make_java_order_payload(**overrides: Any) -> dict[str, Any]:
-    payload: dict[str, Any] = {
-        "order_id": "A1001",
-        "customer_id": "C9001",
-        "order_status": "waiting_shipment",
-        "payment_status": "paid",
-        "logistics_message": "商家已接单，等待仓库发货。",
-        "latest_event": "仓库正在准备出库。",
-        "can_create_ticket": True,
-    }
-    payload.update(overrides)
-    return payload
+from tests.tool_fakes import FakeOrderLookupClient, make_java_order_payload
 
 
 def test_query_order_returns_java_mock_order_result() -> None:

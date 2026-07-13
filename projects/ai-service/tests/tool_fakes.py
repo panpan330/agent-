@@ -1,0 +1,119 @@
+from collections.abc import Mapping
+from datetime import datetime, timezone
+from typing import Any
+
+from app.schemas.structured import TicketExtraction, TicketIntent, TicketUrgency
+from app.schemas.ticket import CreateTicketArgs, CreatedTicket
+
+
+def make_java_order_payload(**overrides: Any) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "order_id": "A1001",
+        "customer_id": "C9001",
+        "order_status": "waiting_shipment",
+        "payment_status": "paid",
+        "logistics_message": "商家已接单，等待仓库发货。",
+        "latest_event": "仓库正在准备出库。",
+        "can_create_ticket": True,
+    }
+    payload.update(overrides)
+    return payload
+
+
+class FakeOrderLookupClient:
+    def __init__(
+        self,
+        payload: Mapping[str, Any] | None = None,
+        *,
+        error: Exception | None = None,
+    ) -> None:
+        self.payload = payload or make_java_order_payload()
+        self.error = error
+        self.calls: list[str] = []
+
+    def get_order(self, order_id: str) -> Mapping[str, Any]:
+        self.calls.append(order_id)
+        if self.error is not None:
+            raise self.error
+        return self.payload
+
+
+def make_ticket_extraction(
+    *,
+    intent: TicketIntent = TicketIntent.COMPLAINT,
+    order_id: str | None = "A1001",
+    summary: str = "订单 A1001 一直未发货",
+    urgency: TicketUrgency = TicketUrgency.HIGH,
+    need_human_review: bool = True,
+) -> TicketExtraction:
+    return TicketExtraction(
+        intent=intent,
+        order_id=order_id,
+        summary=summary,
+        urgency=urgency,
+        need_human_review=need_human_review,
+    )
+
+
+class FakeTicketExtractor:
+    def __init__(self, extraction: TicketExtraction | None = None) -> None:
+        self.extraction = extraction or make_ticket_extraction()
+        self.messages: list[str] = []
+
+    def extract_ticket(self, user_message: str) -> TicketExtraction:
+        self.messages.append(user_message)
+        return self.extraction
+
+
+def make_created_ticket(
+    arguments: CreateTicketArgs | None = None,
+    *,
+    ticket_id: str = "T1001",
+    created_at: datetime | None = None,
+) -> CreatedTicket:
+    if arguments is None:
+        arguments = CreateTicketArgs(
+            requester_id="demo_user_001",
+            title="订单 A1001 一直未发货",
+            description="订单 A1001 已付款一周仍未发货，请帮我处理。",
+            category="complaint",
+            priority="high",
+            related_order_id="A1001",
+        )
+
+    return CreatedTicket(
+        ticket_id=ticket_id,
+        requester_id=arguments.requester_id,
+        title=arguments.title,
+        description=arguments.description,
+        category=arguments.category,
+        priority=arguments.priority,
+        related_order_id=arguments.related_order_id,
+        created_at=created_at
+        or datetime(2026, 7, 12, 10, 0, tzinfo=timezone.utc),
+    )
+
+
+class FakeTicketCreator:
+    def __init__(
+        self,
+        *,
+        ticket: CreatedTicket | None = None,
+        error: Exception | None = None,
+    ) -> None:
+        self.ticket = ticket
+        self.error = error
+        self.calls: list[CreateTicketArgs] = []
+        self.idempotency_keys: list[str] = []
+
+    def create_ticket(
+        self,
+        arguments: CreateTicketArgs,
+        *,
+        idempotency_key: str,
+    ) -> CreatedTicket:
+        self.calls.append(arguments)
+        self.idempotency_keys.append(idempotency_key)
+        if self.error is not None:
+            raise self.error
+        return self.ticket or make_created_ticket(arguments)

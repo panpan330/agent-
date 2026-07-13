@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     max_output_tokens: int = Field(default=1024, gt=0)
     java_mock_service_base_url: str = Field(default="http://127.0.0.1:8001")
     java_mock_service_timeout_seconds: float = Field(default=5.0, gt=0)
+    tool_confirmation_ttl_seconds: int = Field(default=300, ge=30, le=3600)
     log_level: str = Field(default="INFO")
     cors_allowed_origins: str = Field(
         default="http://localhost:5173,http://127.0.0.1:5173"

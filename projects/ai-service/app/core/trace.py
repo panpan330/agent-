@@ -22,6 +22,13 @@ def get_trace_id() -> str:
     return _trace_id.get()
 
 
+def build_trace_headers() -> dict[str, str]:
+    trace_id = get_trace_id()
+    if trace_id == DEFAULT_TRACE_ID:
+        return {}
+    return {TRACE_ID_HEADER: trace_id}
+
+
 def set_trace_id(trace_id: str) -> Token[str]:
     return _trace_id.set(trace_id)
 

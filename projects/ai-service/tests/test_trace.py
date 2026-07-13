@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from app.core.trace import (
     DEFAULT_TRACE_ID,
     TRACE_ID_HEADER,
+    build_trace_headers,
     generate_trace_id,
     get_or_create_trace_id,
     get_trace_id,
@@ -53,6 +54,16 @@ def test_trace_id_context_can_be_set_and_reset() -> None:
         reset_trace_id(token)
 
     assert get_trace_id() == DEFAULT_TRACE_ID
+
+
+def test_build_trace_headers_uses_current_trace_id_only_when_available() -> None:
+    assert build_trace_headers() == {}
+
+    token = set_trace_id("trace-outgoing-001")
+    try:
+        assert build_trace_headers() == {TRACE_ID_HEADER: "trace-outgoing-001"}
+    finally:
+        reset_trace_id(token)
 
 
 def test_health_response_has_trace_id_header(client: TestClient) -> None:

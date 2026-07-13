@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from app.core.exception_handlers import register_exception_handlers
-from app.routers import health, orders
+from app.routers import health, orders, tickets
 
 
 def create_app() -> FastAPI:
@@ -13,6 +13,7 @@ def create_app() -> FastAPI:
     register_exception_handlers(app)
     app.include_router(health.router)
     app.include_router(orders.router)
+    app.include_router(tickets.router)
     return app
 
 
