@@ -1,14 +1,20 @@
 # AI Service
 
-Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：LLM API 基础调用已完成；阶段 3：LangChain + Java 工具调用基础已开始。
+Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：LLM API 基础调用已完成；阶段 3：LangChain + Java 工具调用基础已完成。
 
 当前 `/chat` 已经从 mock 回复改成 OpenAI-compatible 真实模型调用。没有配置本机 `LLM_API_KEY` 时，接口会返回统一配置错误。
+
+当前 `/langchain-chat` 已经支持用 LangChain `ChatOpenAI` / ChatModel 完成一次普通聊天调用，用于对比原生 SDK 调用和 LangChain 模型调用封装。
 
 当前 `/stream-chat` 已经支持 OpenAI-compatible 流式输出，并通过 SSE 逐块返回模型生成内容。
 
 当前 `/extract-ticket` 已经支持 OpenAI-compatible JSON Mode，并用 Pydantic 校验模型返回的结构化工单字段。
 
-当前阶段 3 第 1-18 节已完成 Tool Calling 概念、业务系统安全边界、工具参数和 JSON Schema、结构化输出与 Tool Calling 的边界、fake tool 模拟订单查询、工具调用结果 Pydantic 校验、工具调用错误处理、工具调用权限边界、工具调用幂等性、`projects/java-mock-service` 最小业务服务、Python AI 服务调用 Java mock API、让模型决定是否调用工具、工具调用结果再交给模型总结、敏感操作的用户确认机制、确认后创建工单的完整流程、工具调用日志和 `trace_id` 串联、fake Java API / fake tool 的分层测试策略，以及 LangChain 的框架定位和引入时机。后续会继续学习 LangChain ChatModel 基础。
+当前 `/langchain-extract-ticket` 已经支持用 LangChain `with_structured_output(TicketExtraction, method="json_mode")` 抽取工单字段，用于对比原生 JSON Mode + Pydantic 和 LangChain 结构化输出封装。
+
+当前 `/tools/langchain` 和 `/tools/langchain/query-order` 已经支持查看 LangChain Tool 元数据，并手动调用包装后的 `query_order` 工具。
+
+当前阶段 3 第 1-22 节已完成 Tool Calling 概念、业务系统安全边界、工具参数和 JSON Schema、结构化输出与 Tool Calling 的边界、fake tool 模拟订单查询、工具调用结果 Pydantic 校验、工具调用错误处理、工具调用权限边界、工具调用幂等性、`projects/java-mock-service` 最小业务服务、Python AI 服务调用 Java mock API、让模型决定是否调用工具、工具调用结果再交给模型总结、敏感操作的用户确认机制、确认后创建工单的完整流程、工具调用日志和 `trace_id` 串联、fake Java API / fake tool 的分层测试策略、LangChain 的框架定位和引入时机、LangChain ChatModel 基础、LangChain Tool 基础、LangChain 结构化输出，以及阶段 3 项目整理。后续会进入企业知识库 RAG 基础。
 
 ## 当前能力
 
@@ -19,15 +25,21 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：L
 - Pydantic 请求模型和响应模型
 - `.env` 配置读取
 - OpenAI SDK 依赖
+- LangChain `langchain-openai` 依赖
 - OpenAI-compatible LLM client 初始化
+- LangChain `ChatOpenAI` / ChatModel 初始化
 - `system` / `user` / `assistant` 消息结构
 - prompt 分段构建工具
 - `/chat` 真实模型调用
+- `/langchain-chat` LangChain ChatModel 普通聊天调用
 - `/chat` 可选多轮对话 `history`
 - `/stream-chat` 流式聊天接口
 - SSE `message` / `done` / `error` 事件格式
 - `/extract-ticket` 工单字段结构化抽取接口
+- `/langchain-extract-ticket` LangChain 结构化工单字段抽取接口
 - `/tools/query-order` 订单查询工具接口，当前调用 Java mock API
+- `/tools/langchain` LangChain Tool 元数据查看接口
+- `/tools/langchain/query-order` 手动调用 LangChain `query_order` Tool 的学习接口
 - `/tool-decision` 模型工具调用决策接口，当前只返回工具调用意图，不执行工具
 - `/tool-chat` 完整工具调用接口：执行 `query_order` 后把 tool message 交回模型生成最终回答
 - `/tools/confirmations` 创建待确认的写操作计划，不执行工具
@@ -51,6 +63,9 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：L
 - `TOOL_REGISTRY` 后端工具注册表
 - `authorize_tool_call` 工具权限守卫函数
 - `TOOL_NOT_ALLOWED`、`TOOL_CONFIRMATION_REQUIRED` 工具权限错误
+- `StructuredTool.from_function()` LangChain Tool 包装
+- `QueryOrderArgs` 作为 LangChain Tool `args_schema`
+- `LangChainToolInfo` 和 `LangChainToolListResponse` 工具元数据响应模型
 - `Idempotency-Key` 工具调用幂等请求头
 - `run_idempotent_tool` 工具幂等执行包装函数
 - `build_arguments_fingerprint` 工具名和参数指纹生成函数
@@ -59,7 +74,12 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：L
 - `ToolCallCandidate` 模型请求的工具调用候选
 - `ToolDecisionResponse` 工具决策响应模型
 - `ToolDecisionService` 模型工具选择服务
+- `LangChainChatModelService` LangChain ChatModel 调用服务
+- `LangChainStructuredOutputService` LangChain 结构化输出服务
+- `with_structured_output(TicketExtraction, method="json_mode")` 结构化输出封装
 - `ToolCallingChatService` 一次只读工具调用与第二轮模型总结服务
+- `SystemMessage`、`HumanMessage`、`AIMessage` 消息对象转换
+- `model.invoke()` 一次完整 ChatModel 调用
 - `tools=...` 和 `tool_choice="auto"` 模型工具选择参数
 - `tool_calls` 模型工具调用请求解析
 - `TOOL_ARGUMENTS_INVALID_JSON`、`TOOL_ARGUMENTS_VALIDATION_FAILED`、`TOOL_DECISION_TOO_MANY_CALLS` 工具决策阶段错误
@@ -122,6 +142,8 @@ app/
     tool_decision.py       模型工具调用决策响应模型
     tool_confirmation.py   工具确认请求、状态和响应模型
   services/
+    langchain_chat_model_service.py LangChain ChatModel 调用服务
+    langchain_structured_output_service.py LangChain 结构化输出服务
     llm_client.py          OpenAI-compatible SDK client 初始化
     llm_service.py         LLM 聊天调用服务
     message_builder.py     聊天 messages 构建工具
@@ -136,6 +158,7 @@ app/
   tools/
     fake_order_tool.py     订单查询工具，当前调用 Java mock API
     idempotency.py         工具调用幂等性辅助函数
+    langchain_tools.py     LangChain Tool 适配和元数据辅助
     tool_registry.py       工具注册表和权限守卫
     tool_confirmation.py   内存确认计划存储与过期检查
   main.py                  FastAPI 应用入口
@@ -155,6 +178,9 @@ tests/
   test_java_ticket_client.py Java mock 工单 HTTP 客户端测试
   test_fake_llm_client.py  fake LLM client 工具测试
   test_health.py           /health 测试
+  test_langchain_chat_model_service.py LangChain ChatModel 服务测试
+  test_langchain_structured_output_service.py LangChain 结构化输出服务测试
+  test_langchain_tools.py  LangChain Tool 适配测试
   test_llm_client.py       LLM client 初始化测试
   test_llm_service.py      LLM 聊天服务测试
   test_logging.py          日志测试
@@ -211,7 +237,7 @@ http://127.0.0.1:8000/docs
 uv run pytest -q
 ```
 
-当前测试使用 FastAPI 的 `TestClient`，覆盖 `/health`、`/chat`、`/stream-chat`、`/extract-ticket`、`/tool-decision`、`/tool-chat`、`/tools/query-order`、`/tools/confirmations`、`/tickets/plans`、`/tickets/confirmations/{confirmation_id}/execute`、`ChatRequest`、`ChatResponse`、`ChatMessage`、`TicketExtraction`、`CreateTicketArgs`、`CreatedTicket`、`QueryOrderArgs`、`QueryOrderResult`、`ToolDefinition`、`ToolAccessLevel`、`ToolDecisionType`、`ToolCallCandidate`、`ToolDecisionResponse`、确认请求模型、确认计划状态、工单计划和工单执行响应、多轮 `history`、配置读取、日志、`trace_id`、出站 `X-Trace-Id`、统一异常处理、CORS、token 粗略估算、LLM client 初始化、LLM service、结构化输出 service、工具决策 service、完整工具调用 service、确认计划 service、工单工作流 service、JavaOrderClient、JavaTicketClient、Java mock API 字段映射、Java mock 工单创建、工具结果 Pydantic 校验、工具参数 Pydantic 校验、assistant tool-call message、tool message、`tool_call_id` 关联、操作者/参数绑定、参数指纹、确认过期和确认幂等、确认计划消费、创建工单幂等、工具调用关键节点日志、工具调用 timeout/上游错误映射、工具注册表和权限守卫、模型可见工具筛选、工具调用幂等性、fake OpenAI-compatible client、fake `tool_calls`、共享 fake tool、fake Java API、`httpx.MockTransport`、`dependency_overrides`、OpenAI-compatible SDK 错误映射、模型调用日志、流式调用日志、结构化输出日志、模型响应 token usage 提取、messages 构建和 prompt 构建。
+当前测试使用 FastAPI 的 `TestClient`，覆盖 `/health`、`/chat`、`/langchain-chat`、`/stream-chat`、`/extract-ticket`、`/langchain-extract-ticket`、`/tool-decision`、`/tool-chat`、`/tools/query-order`、`/tools/langchain`、`/tools/langchain/query-order`、`/tools/confirmations`、`/tickets/plans`、`/tickets/confirmations/{confirmation_id}/execute`、`ChatRequest`、`ChatResponse`、`ChatMessage`、`TicketExtraction`、`CreateTicketArgs`、`CreatedTicket`、`QueryOrderArgs`、`QueryOrderResult`、`ToolDefinition`、`ToolAccessLevel`、`ToolDecisionType`、`ToolCallCandidate`、`ToolDecisionResponse`、`LangChainToolInfo`、`LangChainToolListResponse`、确认请求模型、确认计划状态、工单计划和工单执行响应、多轮 `history`、配置读取、日志、`trace_id`、出站 `X-Trace-Id`、统一异常处理、CORS、token 粗略估算、LLM client 初始化、LLM service、LangChain ChatModel service、LangChain structured output service、LangChain Tool 适配、结构化输出 service、工具决策 service、完整工具调用 service、确认计划 service、工单工作流 service、JavaOrderClient、JavaTicketClient、Java mock API 字段映射、Java mock 工单创建、工具结果 Pydantic 校验、工具参数 Pydantic 校验、assistant tool-call message、tool message、`tool_call_id` 关联、LangChain `SystemMessage` / `HumanMessage` / `AIMessage` 转换、`model.invoke()` 调用封装、`with_structured_output(TicketExtraction, method="json_mode")` 结构化输出封装、`StructuredTool.from_function()` 包装、LangChain Tool `args_schema`、操作者/参数绑定、参数指纹、确认过期和确认幂等、确认计划消费、创建工单幂等、工具调用关键节点日志、工具调用 timeout/上游错误映射、工具注册表和权限守卫、模型可见工具筛选、工具调用幂等性、fake OpenAI-compatible client、fake LangChain ChatModel、fake LangChain structured output model、fake LangChain Tool、fake `tool_calls`、共享 fake tool、fake Java API、`httpx.MockTransport`、`dependency_overrides`、OpenAI-compatible SDK 错误映射、模型调用日志、流式调用日志、结构化输出日志、模型响应 token usage 提取、messages 构建和 prompt 构建。
 
 也可以运行 Python 编译检查：
 
@@ -507,6 +533,37 @@ high
 ```
 
 自动化测试不会真实调用模型。接口测试通过 `dependency_overrides` 注入 fake service，服务测试通过 fake client 验证 JSON Mode 参数、Pydantic 解析和错误处理。
+
+## LangChain 结构化 `/langchain-extract-ticket`
+
+`/langchain-extract-ticket` 当前通过 `app/services/langchain_structured_output_service.py` 调用 LangChain ChatModel，并使用 `with_structured_output()` 让模型输出尽量贴合 `TicketExtraction`：
+
+```python
+model.with_structured_output(TicketExtraction, method="json_mode")
+```
+
+调用链路：
+
+```text
+POST /langchain-extract-ticket
+-> app/routers/chat.py
+-> LangChainStructuredOutputService.extract_ticket()
+-> build_langchain_ticket_extraction_messages()
+-> create_langchain_chat_model()
+-> model.with_structured_output(TicketExtraction, method="json_mode")
+-> structured_model.invoke(messages)
+-> validate_langchain_ticket_extraction()
+```
+
+这个接口和 `/extract-ticket` 解决的是同一类问题：把用户自然语言抽取成结构化工单字段。区别是 `/extract-ticket` 直接使用 OpenAI-compatible SDK、JSON Mode 和手动 Pydantic 解析；`/langchain-extract-ticket` 把结构化输出能力交给 LangChain ChatModel 封装，再由项目自己的校验函数把结果收口成 `TicketExtraction`。
+
+学习边界：
+
+- 当前只学习 LangChain 结构化输出，不替换原来的 `/extract-ticket`。
+- 当前不引入 Agent，也不让模型自动执行工具。
+- LangChain 可以减少样板代码，但不能替代项目自己的配置读取、异常映射、日志、安全边界和 Pydantic 兜底校验。
+
+自动化测试不会真实调用模型。服务测试通过 fake LangChain model 验证 `with_structured_output(TicketExtraction, method="json_mode")`、`invoke(messages)`、结构化结果校验和错误映射；接口测试通过 `dependency_overrides` 注入 fake service。
 
 ## 订单查询工具 `/tools/query-order`
 
@@ -1118,11 +1175,15 @@ app/core/exception_handlers.py
 | --- | --- | --- |
 | GET | `/health` | 服务健康检查 |
 | POST | `/chat` | 聊天接口，调用 OpenAI-compatible 模型 |
+| POST | `/langchain-chat` | LangChain ChatModel 聊天接口，用于对比原生 SDK 调用 |
 | POST | `/stream-chat` | 流式聊天接口，调用 OpenAI-compatible 模型并返回 SSE |
 | POST | `/extract-ticket` | 结构化工单字段抽取接口，调用 OpenAI-compatible 模型并用 Pydantic 校验 |
+| POST | `/langchain-extract-ticket` | LangChain 结构化工单字段抽取接口，使用 `with_structured_output()` |
 | POST | `/tool-decision` | 模型工具调用决策接口，返回直接回答或工具调用意图 |
 | POST | `/tool-chat` | 完整工具调用接口：执行只读工具后将结果交给模型总结 |
 | POST | `/tools/query-order` | 订单查询工具接口，通过 Java mock API 查询订单 |
+| GET | `/tools/langchain` | 查看 LangChain Tool 元数据 |
+| POST | `/tools/langchain/query-order` | 手动调用包装后的 LangChain `query_order` Tool |
 | POST | `/tools/confirmations` | 创建绑定工具、参数和操作者的待确认计划，不执行工具 |
 | POST | `/tools/confirmations/{confirmation_id}/confirm` | 确认已有计划，不执行工具 |
 | POST | `/tickets/plans` | 从用户问题提取工单字段，并创建待确认的创建工单计划 |
@@ -1169,9 +1230,9 @@ app/core/exception_handlers.py
 - [x] CORS 允许配置的前端来源
 - [x] 自动化测试通过
 
-## 阶段 3 学习方向
+## 阶段 3 收尾状态
 
-下一步继续学习 LangChain + Java 工具调用基础，为智能工单 Agent 调用 Java 业务服务做准备。
+阶段 3 已经完成 LangChain + Java 工具调用基础，为后续智能工单 Agent 调用 Java 业务服务打好了基础。
 
 当前阶段 3 的核心目标：
 
@@ -1192,5 +1253,9 @@ app/core/exception_handlers.py
 - 当前已经完成工具调用日志和 `trace_id` 串联，让模型、工具、确认计划和 Java API 调用更容易排查。
 - 当前已经完成工具调用测试：fake Java API / fake tool，整理了模型 fake、工具 fake、`MockTransport` 和 `dependency_overrides` 的分层测试策略。
 - 当前已经完成 LangChain 的框架定位学习，明确 LangChain 是 AI 编排封装层，不是业务权限、安全、幂等和校验边界。
-- 下一步学习 LangChain ChatModel 基础。
-- 后续再引入 LangChain 的 Tool 抽象，把已经理解的底层流程封装起来。
+- 当前已经完成 LangChain ChatModel 基础，新增 `/langchain-chat` 对比原生 SDK 调用和 LangChain `model.invoke()` 调用。
+- 当前已经完成 LangChain Tool 基础，把已有 `query_order` 包装成 `StructuredTool`，并保留项目工具注册表、权限和参数校验边界。
+- 当前已经完成 LangChain 结构化输出，新增 `/langchain-extract-ticket` 对比原生 JSON Mode + Pydantic 和 LangChain `with_structured_output()`。
+- 当前已经完成阶段 3 项目整理，形成 Tool Calling、Java mock API、确认机制、trace_id、分层测试和 LangChain 封装的完整知识地图。
+- 下一步进入企业知识库 RAG 基础。
+- 后续会把业务工具调用能力和企业知识检索能力一起作为智能工单 Agent 的基础。

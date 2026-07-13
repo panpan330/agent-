@@ -101,6 +101,16 @@ class QueryOrderResponse(BaseModel):
     result: QueryOrderResult = Field(description="Validated fake query order result.")
 
 
+class LangChainToolInfo(BaseModel):
+    name: str = Field(description="LangChain tool name.")
+    description: str = Field(description="LangChain tool description.")
+    args_schema: dict[str, Any] = Field(description="LangChain tool input schema.")
+
+
+class LangChainToolListResponse(BaseModel):
+    tools: list[LangChainToolInfo] = Field(description="Available LangChain tools.")
+
+
 def get_query_order_args_json_schema() -> dict[str, Any]:
     return QueryOrderArgs.model_json_schema()
 

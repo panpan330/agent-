@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 3 LangChain + Java 工具调用基础进行中，第 18 节 LangChain 是什么，为什么现在才引入 已完成，下一步进入第 19 节。
+当前阶段：阶段 3 LangChain + Java 工具调用基础已完成，第 22 节阶段 3 项目整理已完成，下一步进入阶段 4：企业知识库 RAG 基础。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -14,8 +14,8 @@
 | 阶段 | 时间 | 主题 | 状态 | 产出 |
 | --- | --- | --- | --- | --- |
 | M0 | 第 0 周 | 环境与仓库 | 进行中 | README、上下文、路线图、进度表 |
-| M1 | 第 1-2 周 | Python AI 服务基础 | 进行中 | `projects/ai-service`、聊天接口、流式输出、结构化输出 |
-| M2 | 第 3-4 周 | LangChain + Java 工具调用 | 进行中 | 客服助手 v1、Java mock 业务服务 |
+| M1 | 第 1-2 周 | Python AI 服务基础 | 已完成 | `projects/ai-service`、聊天接口、流式输出、结构化输出 |
+| M2 | 第 3-4 周 | LangChain + Java 工具调用 | 已完成 | 客服助手 v1、Java mock 业务服务 |
 | M3 | 第 5-7 周 | 企业知识库 RAG | 未开始 | 文档入库、检索问答、引用来源、权限过滤、初版评测 |
 | M4 | 第 8-9 周 | LangGraph 智能工单 | 未开始 | 工单 Agent v1 |
 | M5 | 第 10-11 周 | 生产化与评测 | 未开始 | trace、日志、限流、重试、eval、Docker Compose |
@@ -114,6 +114,10 @@
 - [x] 完成阶段 3 第 16 节：工具调用日志和 trace_id 串联
 - [x] 完成阶段 3 第 17 节：工具调用测试：fake Java API / fake tool
 - [x] 完成阶段 3 第 18 节：LangChain 是什么，为什么现在才引入
+- [x] 完成阶段 3 第 19 节：LangChain ChatModel 基础
+- [x] 完成阶段 3 第 20 节：LangChain Tool 基础
+- [x] 完成阶段 3 第 21 节：LangChain 结构化输出
+- [x] 完成阶段 3 第 22 节：阶段 3 项目整理
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -188,10 +192,10 @@
 | 16 | 工具调用日志和 trace_id 串联 | 已完成 | `notes/tool-calling-stage3-16-tool-logging-trace-id.md`、`build_trace_headers()`、出站 `X-Trace-Id`、`java_order_request_*`、`java_ticket_create_*`、`tool_execution_*`、`ticket_execution_*`、敏感字段不入日志 |
 | 17 | 工具调用测试：fake Java API / fake tool | 已完成 | `notes/tool-calling-stage3-17-tool-testing-fakes.md`、`tests/tool_fakes.py`、`tests/test_tool_fakes.py`、`FakeOrderLookupClient`、`FakeTicketExtractor`、`FakeTicketCreator`、`httpx.MockTransport`、`dependency_overrides`、service/client/router 分层测试 |
 | 18 | LangChain 是什么，为什么现在才引入 | 已完成 | `notes/tool-calling-stage3-18-what-is-langchain.md`、LangChain 定位、框架/库/抽象/编排、LangChain vs LangGraph vs LangSmith、SDK vs LangChain vs LangGraph、当前项目模块和 LangChain 概念映射 |
-| 19 | LangChain ChatModel 基础 | 未开始 | 待新增 |
-| 20 | LangChain Tool 基础 | 未开始 | 待新增 |
-| 21 | LangChain 结构化输出 | 未开始 | 待新增 |
-| 22 | 阶段 3 项目整理 | 未开始 | 待新增 |
+| 19 | LangChain ChatModel 基础 | 已完成 | `notes/tool-calling-stage3-19-langchain-chatmodel-basics.md`、`langchain-openai`、`ChatOpenAI`、`SystemMessage`、`HumanMessage`、`AIMessage`、`model.invoke()`、`LangChainChatModelService`、`POST /langchain-chat`、ChatModel 与 OpenAI-compatible SDK 对比 |
+| 20 | LangChain Tool 基础 | 已完成 | `notes/tool-calling-stage3-20-langchain-tool-basics.md`、`app/tools/langchain_tools.py`、`StructuredTool.from_function()`、`QueryOrderArgs` 作为 `args_schema`、`GET /tools/langchain`、`POST /tools/langchain/query-order`、LangChain Tool 与项目 `ToolDefinition` 边界 |
+| 21 | LangChain 结构化输出 | 已完成 | `notes/tool-calling-stage3-21-langchain-structured-output.md`、`app/services/langchain_structured_output_service.py`、`POST /langchain-extract-ticket`、`with_structured_output(TicketExtraction, method="json_mode")`、LangChain 结构化输出与原生 JSON Mode 对比 |
+| 22 | 阶段 3 项目整理 | 已完成 | `notes/tool-calling-stage3-22-project-summary.md`、阶段 3 总图、接口地图、核心调用链路、Python AI 服务和 Java mock 服务分工、原生 SDK 与 LangChain 对比、阶段验收清单、阶段 4 RAG 衔接 |
 
 ## 当前 Sprint 验收标准
 

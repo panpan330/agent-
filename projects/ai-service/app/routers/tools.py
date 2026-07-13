@@ -2,16 +2,28 @@ import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Header
+from langchain_core.tools import StructuredTool
 
 from app.core.config import Settings, get_settings
+from app.schemas.tool import (
+    LangChainToolInfo,
+    LangChainToolListResponse,
+    QueryOrderArgs,
+    QueryOrderResponse,
+    QueryOrderResult,
+)
 from app.schemas.tool_confirmation import (
     ConfirmToolConfirmationRequest,
     ToolConfirmationRequest,
     ToolConfirmationResponse,
 )
 from app.services.tool_confirmation_service import ToolConfirmationService
-from app.schemas.tool import QueryOrderArgs, QueryOrderResponse
 from app.tools.fake_order_tool import query_order as run_query_order_tool
+from app.tools.langchain_tools import (
+    create_query_order_langchain_tool,
+    get_langchain_tool_metadata,
+    list_model_callable_langchain_tools,
+)
 from app.tools.tool_confirmation import get_tool_confirmation_store
 from app.tools.idempotency import IDEMPOTENCY_KEY_HEADER, run_idempotent_tool
 from app.tools.tool_registry import authorize_tool_call
@@ -25,6 +37,12 @@ def get_tool_confirmation_service(
     settings: Settings = Depends(get_settings),
 ) -> ToolConfirmationService:
     return ToolConfirmationService(settings, get_tool_confirmation_store())
+
+
+def get_query_order_langchain_tool(
+    settings: Settings = Depends(get_settings),
+) -> StructuredTool:
+    return create_query_order_langchain_tool(settings=settings)
 
 
 @router.post("/query-order", response_model=QueryOrderResponse)
@@ -44,6 +62,33 @@ def query_order(
         idempotency_key,
         lambda: run_query_order_tool(request, settings=settings),
     )
+    return QueryOrderResponse(result=result)
+
+
+@router.get("/langchain", response_model=LangChainToolListResponse)
+def list_langchain_tools(
+    settings: Settings = Depends(get_settings),
+) -> LangChainToolListResponse:
+    tools = list_model_callable_langchain_tools(settings=settings)
+    return LangChainToolListResponse(
+        tools=[
+            LangChainToolInfo.model_validate(get_langchain_tool_metadata(tool))
+            for tool in tools
+        ]
+    )
+
+
+@router.post("/langchain/query-order", response_model=QueryOrderResponse)
+def langchain_query_order(
+    request: QueryOrderArgs,
+    tool: StructuredTool = Depends(get_query_order_langchain_tool),
+) -> QueryOrderResponse:
+    logger.info(
+        "langchain_query_order_requested order_id=%s",
+        request.order_id,
+    )
+    raw_result = tool.invoke(request.model_dump(mode="json"))
+    result = QueryOrderResult.model_validate(raw_result)
     return QueryOrderResponse(result=result)
 
 

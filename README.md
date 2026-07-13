@@ -128,6 +128,10 @@ projects/ 练习项目、Demo 和完整作品
 | 16 | 工具调用日志和 trace_id 串联 | [notes/tool-calling-stage3-16-tool-logging-trace-id.md](notes/tool-calling-stage3-16-tool-logging-trace-id.md) | [projects/ai-service](projects/ai-service) |
 | 17 | 工具调用测试：fake Java API / fake tool | [notes/tool-calling-stage3-17-tool-testing-fakes.md](notes/tool-calling-stage3-17-tool-testing-fakes.md) | [projects/ai-service](projects/ai-service) |
 | 18 | LangChain 是什么，为什么现在才引入 | [notes/tool-calling-stage3-18-what-is-langchain.md](notes/tool-calling-stage3-18-what-is-langchain.md) | [projects/ai-service](projects/ai-service) |
+| 19 | LangChain ChatModel 基础 | [notes/tool-calling-stage3-19-langchain-chatmodel-basics.md](notes/tool-calling-stage3-19-langchain-chatmodel-basics.md) | [projects/ai-service](projects/ai-service) |
+| 20 | LangChain Tool 基础 | [notes/tool-calling-stage3-20-langchain-tool-basics.md](notes/tool-calling-stage3-20-langchain-tool-basics.md) | [projects/ai-service](projects/ai-service) |
+| 21 | LangChain 结构化输出 | [notes/tool-calling-stage3-21-langchain-structured-output.md](notes/tool-calling-stage3-21-langchain-structured-output.md) | [projects/ai-service](projects/ai-service) |
+| 22 | 阶段 3 项目整理 | [notes/tool-calling-stage3-22-project-summary.md](notes/tool-calling-stage3-22-project-summary.md) | [projects/ai-service](projects/ai-service)、[projects/java-mock-service](projects/java-mock-service) |
 
 ## 当前目标
 

@@ -4,6 +4,8 @@ from fastapi.testclient import TestClient
 from app.core.exceptions import AppException
 from app.core.trace import TRACE_ID_HEADER
 from app.routers.chat import (
+    get_langchain_chat_model_service,
+    get_langchain_structured_output_service,
     get_llm_chat_service,
     get_structured_output_service,
     get_tool_decision_service,
@@ -48,6 +50,21 @@ class FakeLLMChatService:
         return iter(self.stream_chunks)
 
 
+class FakeLangChainChatModelService:
+    def __init__(self, reply: str) -> None:
+        self.reply = reply
+        self.calls: list[tuple[str, list[ChatMessage]]] = []
+
+    def generate_reply(
+        self,
+        user_message: str,
+        *,
+        history: list[ChatMessage] | None = None,
+    ) -> str:
+        self.calls.append((user_message, list(history or [])))
+        return self.reply
+
+
 class FakeTimeoutLLMChatService:
     def generate_reply(
         self,
@@ -73,6 +90,20 @@ class FakeRateLimitedLLMChatService:
             code="LLM_RATE_LIMITED",
             message="模型服务请求过于频繁，请稍后重试。",
             status_code=429,
+        )
+
+
+class FakeConfigErrorLangChainChatModelService:
+    def generate_reply(
+        self,
+        user_message: str,
+        *,
+        history: list[ChatMessage] | None = None,
+    ) -> str:
+        raise AppException(
+            code="LLM_API_KEY_MISSING",
+            message="LLM API key 未配置，请先在本机 .env 中配置 LLM_API_KEY。",
+            status_code=500,
         )
 
 
@@ -118,7 +149,26 @@ class FakeStructuredOutputService:
         return self.extraction
 
 
+class FakeLangChainStructuredOutputService:
+    def __init__(self, extraction: TicketExtraction) -> None:
+        self.extraction = extraction
+        self.calls: list[str] = []
+
+    def extract_ticket(self, user_message: str) -> TicketExtraction:
+        self.calls.append(user_message)
+        return self.extraction
+
+
 class FakeConfigErrorStructuredOutputService:
+    def extract_ticket(self, user_message: str) -> TicketExtraction:
+        raise AppException(
+            code="LLM_API_KEY_MISSING",
+            message="LLM API key 未配置，请先在本机 .env 中配置 LLM_API_KEY。",
+            status_code=500,
+        )
+
+
+class FakeConfigErrorLangChainStructuredOutputService:
     def extract_ticket(self, user_message: str) -> TicketExtraction:
         raise AppException(
             code="LLM_API_KEY_MISSING",
@@ -251,6 +301,53 @@ def test_chat_passes_history_to_llm_service(
     assert [message.content for message in history] == [
         "什么是 API？",
         "API 是程序之间的接口。",
+    ]
+
+
+def test_langchain_chat_returns_model_reply(
+    app: FastAPI,
+    client: TestClient,
+) -> None:
+    fake_service = FakeLangChainChatModelService(
+        "LangChain ChatModel 是聊天模型封装。"
+    )
+    app.dependency_overrides[get_langchain_chat_model_service] = lambda: fake_service
+
+    response = client.post(
+        "/langchain-chat",
+        json={"message": "解释 LangChain ChatModel"},
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {"reply": "LangChain ChatModel 是聊天模型封装。"}
+    assert fake_service.calls == [("解释 LangChain ChatModel", [])]
+
+
+def test_langchain_chat_passes_history_to_service(
+    app: FastAPI,
+    client: TestClient,
+) -> None:
+    fake_service = FakeLangChainChatModelService("它封装模型调用。")
+    app.dependency_overrides[get_langchain_chat_model_service] = lambda: fake_service
+
+    response = client.post(
+        "/langchain-chat",
+        json={
+            "message": "那 ChatModel 呢？",
+            "history": [
+                {"role": "user", "content": "什么是 LangChain？"},
+                {"role": "assistant", "content": "LangChain 是 AI 应用框架。"},
+            ],
+        },
+    )
+
+    assert response.status_code == 200
+    user_message, history = fake_service.calls[0]
+    assert user_message == "那 ChatModel 呢？"
+    assert [message.role for message in history] == ["user", "assistant"]
+    assert [message.content for message in history] == [
+        "什么是 LangChain？",
+        "LangChain 是 AI 应用框架。",
     ]
 
 
@@ -406,6 +503,41 @@ def test_extract_ticket_returns_structured_response(
     assert fake_service.calls == ["订单 A1001 我想退款"]
 
 
+def test_langchain_extract_ticket_returns_structured_response(
+    app: FastAPI,
+    client: TestClient,
+) -> None:
+    fake_service = FakeLangChainStructuredOutputService(
+        TicketExtraction(
+            intent="complaint",
+            order_id="A1001",
+            summary="用户投诉订单一直未发货",
+            urgency="high",
+            need_human_review=True,
+        )
+    )
+    app.dependency_overrides[get_langchain_structured_output_service] = (
+        lambda: fake_service
+    )
+
+    response = client.post(
+        "/langchain-extract-ticket",
+        json={"message": "订单 A1001 一直不发货，我要投诉"},
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "extraction": {
+            "intent": "complaint",
+            "order_id": "A1001",
+            "summary": "用户投诉订单一直未发货",
+            "urgency": "high",
+            "need_human_review": True,
+        }
+    }
+    assert fake_service.calls == ["订单 A1001 一直不发货，我要投诉"]
+
+
 def test_extract_ticket_returns_config_error_when_llm_key_is_missing(
     app: FastAPI,
     client: TestClient,
@@ -426,6 +558,28 @@ def test_extract_ticket_returns_config_error_when_llm_key_is_missing(
         "code": "LLM_API_KEY_MISSING",
         "message": "LLM API key 未配置，请先在本机 .env 中配置 LLM_API_KEY。",
         "trace_id": "trace-extract-no-key",
+    }
+
+
+def test_langchain_extract_ticket_returns_config_error_when_llm_key_is_missing(
+    app: FastAPI,
+    client: TestClient,
+) -> None:
+    app.dependency_overrides[get_langchain_structured_output_service] = (
+        lambda: FakeConfigErrorLangChainStructuredOutputService()
+    )
+
+    response = client.post(
+        "/langchain-extract-ticket",
+        headers={TRACE_ID_HEADER: "trace-langchain-extract-no-key"},
+        json={"message": "订单 A1001 我想退款"},
+    )
+
+    assert response.status_code == 500
+    assert response.json() == {
+        "code": "LLM_API_KEY_MISSING",
+        "message": "LLM API key 未配置，请先在本机 .env 中配置 LLM_API_KEY。",
+        "trace_id": "trace-langchain-extract-no-key",
     }
 
 
@@ -636,6 +790,28 @@ def test_chat_returns_config_error_when_llm_key_is_missing(
     }
 
 
+def test_langchain_chat_returns_config_error_when_llm_key_is_missing(
+    app: FastAPI,
+    client: TestClient,
+) -> None:
+    app.dependency_overrides[get_langchain_chat_model_service] = (
+        lambda: FakeConfigErrorLangChainChatModelService()
+    )
+
+    response = client.post(
+        "/langchain-chat",
+        headers={TRACE_ID_HEADER: "trace-langchain-no-key"},
+        json={"message": "解释 LangChain"},
+    )
+
+    assert response.status_code == 500
+    assert response.json() == {
+        "code": "LLM_API_KEY_MISSING",
+        "message": "LLM API key 未配置，请先在本机 .env 中配置 LLM_API_KEY。",
+        "trace_id": "trace-langchain-no-key",
+    }
+
+
 def test_chat_rejects_missing_message(client: TestClient) -> None:
     response = client.post("/chat", headers={TRACE_ID_HEADER: "trace-missing"}, json={})
     data = response.json()
@@ -664,6 +840,22 @@ def test_stream_chat_rejects_missing_message(client: TestClient) -> None:
     assert data["details"][0]["type"] == "missing"
 
 
+def test_langchain_chat_rejects_missing_message(client: TestClient) -> None:
+    response = client.post(
+        "/langchain-chat",
+        headers={TRACE_ID_HEADER: "trace-langchain-missing"},
+        json={},
+    )
+    data = response.json()
+
+    assert response.status_code == 422
+    assert data["code"] == "VALIDATION_ERROR"
+    assert data["message"] == "请求参数校验失败"
+    assert data["trace_id"] == "trace-langchain-missing"
+    assert data["details"][0]["loc"] == ["body", "message"]
+    assert data["details"][0]["type"] == "missing"
+
+
 def test_extract_ticket_rejects_missing_message(client: TestClient) -> None:
     response = client.post(
         "/extract-ticket",
@@ -676,6 +868,22 @@ def test_extract_ticket_rejects_missing_message(client: TestClient) -> None:
     assert data["code"] == "VALIDATION_ERROR"
     assert data["message"] == "请求参数校验失败"
     assert data["trace_id"] == "trace-extract-missing"
+    assert data["details"][0]["loc"] == ["body", "message"]
+    assert data["details"][0]["type"] == "missing"
+
+
+def test_langchain_extract_ticket_rejects_missing_message(client: TestClient) -> None:
+    response = client.post(
+        "/langchain-extract-ticket",
+        headers={TRACE_ID_HEADER: "trace-langchain-extract-missing"},
+        json={},
+    )
+    data = response.json()
+
+    assert response.status_code == 422
+    assert data["code"] == "VALIDATION_ERROR"
+    assert data["message"] == "请求参数校验失败"
+    assert data["trace_id"] == "trace-langchain-extract-missing"
     assert data["details"][0]["loc"] == ["body", "message"]
     assert data["details"][0]["type"] == "missing"
 
@@ -791,6 +999,21 @@ def test_stream_chat_does_not_allow_get(client: TestClient) -> None:
     }
 
 
+def test_langchain_chat_does_not_allow_get(client: TestClient) -> None:
+    response = client.get(
+        "/langchain-chat",
+        headers={TRACE_ID_HEADER: "trace-langchain-method"},
+    )
+    data = response.json()
+
+    assert response.status_code == 405
+    assert data == {
+        "code": "METHOD_NOT_ALLOWED",
+        "message": "请求方法不允许",
+        "trace_id": "trace-langchain-method",
+    }
+
+
 def test_extract_ticket_does_not_allow_get(client: TestClient) -> None:
     response = client.get(
         "/extract-ticket",
@@ -803,6 +1026,21 @@ def test_extract_ticket_does_not_allow_get(client: TestClient) -> None:
         "code": "METHOD_NOT_ALLOWED",
         "message": "请求方法不允许",
         "trace_id": "trace-extract-method",
+    }
+
+
+def test_langchain_extract_ticket_does_not_allow_get(client: TestClient) -> None:
+    response = client.get(
+        "/langchain-extract-ticket",
+        headers={TRACE_ID_HEADER: "trace-langchain-extract-method"},
+    )
+    data = response.json()
+
+    assert response.status_code == 405
+    assert data == {
+        "code": "METHOD_NOT_ALLOWED",
+        "message": "请求方法不允许",
+        "trace_id": "trace-langchain-extract-method",
     }
 
 

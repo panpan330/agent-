@@ -12,6 +12,14 @@ from app.schemas.chat import ChatRequest, ChatResponse
 from app.schemas.structured import StructuredOutputRequest, StructuredOutputResponse
 from app.schemas.tool_decision import ToolDecisionResponse
 from app.services.llm_service import LLMChatService, create_llm_chat_service
+from app.services.langchain_chat_model_service import (
+    LangChainChatModelService,
+    create_langchain_chat_model_service,
+)
+from app.services.langchain_structured_output_service import (
+    LangChainStructuredOutputService,
+    create_langchain_structured_output_service,
+)
 from app.services.structured_output_service import (
     StructuredOutputService,
     create_structured_output_service,
@@ -35,6 +43,18 @@ def get_llm_chat_service(
     settings: Settings = Depends(get_settings),
 ) -> LLMChatService:
     return create_llm_chat_service(settings)
+
+
+def get_langchain_chat_model_service(
+    settings: Settings = Depends(get_settings),
+) -> LangChainChatModelService:
+    return create_langchain_chat_model_service(settings)
+
+
+def get_langchain_structured_output_service(
+    settings: Settings = Depends(get_settings),
+) -> LangChainStructuredOutputService:
+    return create_langchain_structured_output_service(settings)
 
 
 def get_structured_output_service(
@@ -114,6 +134,25 @@ def chat(
     return ChatResponse(reply=reply)
 
 
+@router.post("/langchain-chat", response_model=ChatResponse)
+def langchain_chat(
+    request: ChatRequest,
+    langchain_chat_model_service: LangChainChatModelService = Depends(
+        get_langchain_chat_model_service
+    ),
+) -> ChatResponse:
+    logger.info(
+        "langchain_chat_requested message_length=%s history_size=%s",
+        len(request.message),
+        len(request.history),
+    )
+    reply = langchain_chat_model_service.generate_reply(
+        request.message,
+        history=request.history,
+    )
+    return ChatResponse(reply=reply)
+
+
 @router.post("/stream-chat")
 def stream_chat(
     request: ChatRequest,
@@ -146,6 +185,21 @@ def extract_ticket(
         len(request.message),
     )
     extraction = structured_output_service.extract_ticket(request.message)
+    return StructuredOutputResponse(extraction=extraction)
+
+
+@router.post("/langchain-extract-ticket", response_model=StructuredOutputResponse)
+def langchain_extract_ticket(
+    request: StructuredOutputRequest,
+    langchain_structured_output_service: LangChainStructuredOutputService = Depends(
+        get_langchain_structured_output_service
+    ),
+) -> StructuredOutputResponse:
+    logger.info(
+        "langchain_extract_ticket_requested message_length=%s",
+        len(request.message),
+    )
+    extraction = langchain_structured_output_service.extract_ticket(request.message)
     return StructuredOutputResponse(extraction=extraction)
 
 

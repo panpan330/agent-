@@ -94,6 +94,68 @@ def test_query_order_api_returns_java_mock_order(
     }
 
 
+def test_list_langchain_tools_returns_query_order_metadata(
+    client: TestClient,
+) -> None:
+    response = client.get(
+        "/tools/langchain",
+        headers={TRACE_ID_HEADER: "trace-langchain-tools"},
+    )
+    data = response.json()
+
+    assert response.status_code == 200
+    assert response.headers[TRACE_ID_HEADER] == "trace-langchain-tools"
+    assert data["tools"][0]["name"] == "query_order"
+    assert data["tools"][0]["description"] == "查询订单状态和物流摘要，只读取订单信息，不修改业务数据。"
+    assert "order_id" in data["tools"][0]["args_schema"]
+
+
+def test_langchain_query_order_api_invokes_langchain_tool(
+    app: object,
+    client: TestClient,
+) -> None:
+    from app.routers.tools import get_query_order_langchain_tool
+
+    class FakeLangChainQueryOrderTool:
+        def __init__(self) -> None:
+            self.calls: list[dict[str, str]] = []
+
+        def invoke(self, arguments: dict[str, str]) -> dict[str, object]:
+            self.calls.append(arguments)
+            return make_query_order_result(arguments["order_id"]).model_dump(mode="json")
+
+    fake_tool = FakeLangChainQueryOrderTool()
+    app.dependency_overrides[get_query_order_langchain_tool] = lambda: fake_tool
+
+    response = client.post(
+        "/tools/langchain/query-order",
+        headers={TRACE_ID_HEADER: "trace-langchain-query-order"},
+        json={"order_id": "A1001"},
+    )
+
+    assert response.status_code == 200
+    assert response.headers[TRACE_ID_HEADER] == "trace-langchain-query-order"
+    assert response.json()["result"]["order_id"] == "A1001"
+    assert response.json()["result"]["source"] == "java_mock_service"
+    assert fake_tool.calls == [{"order_id": "A1001"}]
+
+
+def test_langchain_query_order_api_rejects_invalid_arguments(
+    client: TestClient,
+) -> None:
+    response = client.post(
+        "/tools/langchain/query-order",
+        headers={TRACE_ID_HEADER: "trace-langchain-query-order-invalid"},
+        json={"order_id": "A 1001"},
+    )
+    data = response.json()
+
+    assert response.status_code == 422
+    assert data["code"] == "VALIDATION_ERROR"
+    assert data["trace_id"] == "trace-langchain-query-order-invalid"
+    assert data["details"][0]["loc"] == ["body", "order_id"]
+
+
 def test_query_order_api_reuses_result_for_same_idempotency_key(
     client: TestClient,
     monkeypatch: pytest.MonkeyPatch,
