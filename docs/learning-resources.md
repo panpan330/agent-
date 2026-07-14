@@ -569,21 +569,41 @@
 - [阶段 4 第 2 节：RAG 完整流程](../notes/rag-stage4-02-rag-pipeline.md)
   - 用途：理解文档入库流水线和用户问答流水线，明确 load、clean、split、embed、store、retrieve、generate、cite sources 每一步的职责。
 
+- [阶段 4 第 3 节：文档、知识库、chunk、metadata 是什么](../notes/rag-stage4-03-documents-chunks-metadata.md)
+  - 用途：理解 RAG 的基本数据单位，区分 document、knowledge base、chunk、content、metadata、embedding、vector 和 vector store。
+
+- [阶段 4 第 4 节：embedding 是什么：文本怎么变成向量](../notes/rag-stage4-04-what-is-embedding.md)
+  - 用途：理解 embedding、chunk embedding、query embedding、向量维度、关键词匹配和语义检索的区别，以及 embedding 在 RAG 里的边界。
+
+- [阶段 4 第 5 节：向量相似度：为什么能用向量找相似内容](../notes/rag-stage4-05-vector-similarity.md)
+  - 用途：理解 similarity、distance、cosine similarity、dot product、top_k、score_threshold，以及为什么相似度高不等于答案正确。
+
+- [阶段 4 第 6 节：向量数据库是什么，为什么先选 Qdrant](../notes/rag-stage4-06-vector-database-qdrant.md)
+  - 用途：理解向量数据库的职责边界，Qdrant 的 collection/point/vector/payload/search/filter 基础，以及为什么先用 Qdrant 后对比 Milvus。
+
+- [阶段 4 第 7 节：Qdrant 基础：collection、point、vector、payload](../notes/rag-stage4-07-qdrant-core-concepts.md)
+  - 用途：理解 Qdrant 的 collection、point、id、vector、payload 数据模型，掌握 chunk 到 point、metadata 到 payload、embedding 到 vector 的映射关系。
+
 ## 阶段 4 推荐资料组合
 
 阶段 4：企业知识库 RAG 基础 + 向量数据库入门。当前优先看：
 
 1. 本仓库 `notes/rag-stage4-01-what-is-rag.md`
 2. 本仓库 `notes/rag-stage4-02-rag-pipeline.md`
-3. LangChain Retrieval，理解 RAG 的整体流程
-4. OpenAI Embeddings Guide，理解文本如何变成向量
-5. Qdrant 官方文档，理解 collection、point、vector、payload、search
-6. Qdrant Points，理解 chunk 入库时为什么要同时保存 vector 和 payload
-7. Qdrant Filtering，理解后续权限过滤和 metadata 过滤
-8. Milvus 官方文档，后半段用于向量数据库对比
-9. Milvus Basic Vector Search，后半段理解 ANN 搜索
-10. Milvus Index Explained，后半段理解索引和召回率取舍
-11. RAGFlow GitHub / 文档，只做产品化功能观察，不作为初学实现主线
+3. 本仓库 `notes/rag-stage4-03-documents-chunks-metadata.md`
+4. 本仓库 `notes/rag-stage4-04-what-is-embedding.md`
+5. 本仓库 `notes/rag-stage4-05-vector-similarity.md`
+6. 本仓库 `notes/rag-stage4-06-vector-database-qdrant.md`
+7. 本仓库 `notes/rag-stage4-07-qdrant-core-concepts.md`
+8. LangChain Retrieval，理解 RAG 的整体流程
+9. OpenAI Embeddings Guide，理解文本如何变成向量
+10. Qdrant 官方文档，理解 collection、point、vector、payload、search
+11. Qdrant Points，理解 chunk 入库时为什么要同时保存 vector 和 payload
+12. Qdrant Filtering，理解后续权限过滤和 metadata 过滤
+13. Milvus 官方文档，后半段用于向量数据库对比
+14. Milvus Basic Vector Search，后半段理解 ANN 搜索
+15. Milvus Index Explained，后半段理解索引和召回率取舍
+16. RAGFlow GitHub / 文档，只做产品化功能观察，不作为初学实现主线
 
 ## 阶段 3 复盘资料组合
 

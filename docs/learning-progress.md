@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 4 企业知识库 RAG 基础进行中，第 2 节 RAG 完整流程 已完成，下一步进入第 3 节。
+当前阶段：阶段 4 企业知识库 RAG 基础进行中，第 7 节 Qdrant 基础：collection、point、vector、payload 已完成，下一步进入第 8 节。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -120,6 +120,11 @@
 - [x] 完成阶段 3 第 22 节：阶段 3 项目整理
 - [x] 完成阶段 4 第 1 节：RAG 是什么，为什么大模型需要知识库
 - [x] 完成阶段 4 第 2 节：RAG 完整流程
+- [x] 完成阶段 4 第 3 节：文档、知识库、chunk、metadata 是什么
+- [x] 完成阶段 4 第 4 节：embedding 是什么：文本怎么变成向量
+- [x] 完成阶段 4 第 5 节：向量相似度：为什么能用向量找相似内容
+- [x] 完成阶段 4 第 6 节：向量数据库是什么，为什么先选 Qdrant
+- [x] 完成阶段 4 第 7 节：Qdrant 基础：collection、point、vector、payload
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -207,11 +212,11 @@
 | --- | --- | --- | --- |
 | 1 | RAG 是什么，为什么大模型需要知识库 | 已完成 | `notes/rag-stage4-01-what-is-rag.md`、RAG 概念、普通聊天/prompt/微调/Tool Calling/RAG 对比、阶段 4 学习地图 |
 | 2 | RAG 完整流程：load -> split -> embed -> store -> retrieve -> generate | 已完成 | `notes/rag-stage4-02-rag-pipeline.md`、文档入库流水线、用户问答流水线、每一步输入输出、失败后果、后续代码落点 |
-| 3 | 文档、知识库、chunk、metadata 是什么 | 未开始 | 待新增 |
-| 4 | embedding 是什么：文本怎么变成向量 | 未开始 | 待新增 |
-| 5 | 向量相似度：为什么能用向量找相似内容 | 未开始 | 待新增 |
-| 6 | 向量数据库是什么，为什么先选 Qdrant | 未开始 | 待新增 |
-| 7 | Qdrant 基础：collection、point、vector、payload | 未开始 | 待新增 |
+| 3 | 文档、知识库、chunk、metadata 是什么 | 已完成 | `notes/rag-stage4-03-documents-chunks-metadata.md`、document/knowledge base/chunk/metadata 概念、vector/content/metadata 职责、metadata 字段设计、chunk_id 设计 |
+| 4 | embedding 是什么：文本怎么变成向量 | 已完成 | `notes/rag-stage4-04-what-is-embedding.md`、embedding 概念、关键词匹配 vs 语义检索、chunk embedding、query embedding、embedding 维度、embedding 局限 |
+| 5 | 向量相似度：为什么能用向量找相似内容 | 已完成 | `notes/rag-stage4-05-vector-similarity.md`、similarity/distance、cosine similarity、dot product、top_k、score_threshold、相似度边界 |
+| 6 | 向量数据库是什么，为什么先选 Qdrant | 已完成 | `notes/rag-stage4-06-vector-database-qdrant.md`、向量数据库定位、collection/point/vector/payload/search/filter 基础、Qdrant 优先原因、Qdrant 与 Milvus 学习顺序 |
+| 7 | Qdrant 基础：collection、point、vector、payload | 已完成 | `notes/rag-stage4-07-qdrant-core-concepts.md`、collection/point/id/vector/payload、chunk 到 point 映射、payload 字段设计、score 查询语义 |
 | 8 | 本地启动 Qdrant | 未开始 | 待新增 |
 | 9 | RAG 项目结构设计 | 未开始 | 待新增 |
 | 10 | 准备第一批 Markdown/txt 知识文档 | 未开始 | 待新增 |

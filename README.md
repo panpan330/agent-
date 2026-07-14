@@ -139,6 +139,11 @@ projects/ 练习项目、Demo 和完整作品
 | --- | --- | --- | --- |
 | 1 | RAG 是什么，为什么大模型需要知识库 | [notes/rag-stage4-01-what-is-rag.md](notes/rag-stage4-01-what-is-rag.md) | 待新增 |
 | 2 | RAG 完整流程：load -> split -> embed -> store -> retrieve -> generate | [notes/rag-stage4-02-rag-pipeline.md](notes/rag-stage4-02-rag-pipeline.md) | 待新增 |
+| 3 | 文档、知识库、chunk、metadata 是什么 | [notes/rag-stage4-03-documents-chunks-metadata.md](notes/rag-stage4-03-documents-chunks-metadata.md) | 待新增 |
+| 4 | embedding 是什么：文本怎么变成向量 | [notes/rag-stage4-04-what-is-embedding.md](notes/rag-stage4-04-what-is-embedding.md) | 待新增 |
+| 5 | 向量相似度：为什么能用向量找相似内容 | [notes/rag-stage4-05-vector-similarity.md](notes/rag-stage4-05-vector-similarity.md) | 待新增 |
+| 6 | 向量数据库是什么，为什么先选 Qdrant | [notes/rag-stage4-06-vector-database-qdrant.md](notes/rag-stage4-06-vector-database-qdrant.md) | 待新增 |
+| 7 | Qdrant 基础：collection、point、vector、payload | [notes/rag-stage4-07-qdrant-core-concepts.md](notes/rag-stage4-07-qdrant-core-concepts.md) | 待新增 |
 
 ## 当前目标
 
