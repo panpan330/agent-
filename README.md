@@ -133,6 +133,13 @@ projects/ 练习项目、Demo 和完整作品
 | 21 | LangChain 结构化输出 | [notes/tool-calling-stage3-21-langchain-structured-output.md](notes/tool-calling-stage3-21-langchain-structured-output.md) | [projects/ai-service](projects/ai-service) |
 | 22 | 阶段 3 项目整理 | [notes/tool-calling-stage3-22-project-summary.md](notes/tool-calling-stage3-22-project-summary.md) | [projects/ai-service](projects/ai-service)、[projects/java-mock-service](projects/java-mock-service) |
 
+## 阶段 4：企业知识库 RAG 学习笔记索引
+
+| 顺序 | 主题 | 笔记路径 | 代码路径 |
+| --- | --- | --- | --- |
+| 1 | RAG 是什么，为什么大模型需要知识库 | [notes/rag-stage4-01-what-is-rag.md](notes/rag-stage4-01-what-is-rag.md) | 待新增 |
+| 2 | RAG 完整流程：load -> split -> embed -> store -> retrieve -> generate | [notes/rag-stage4-02-rag-pipeline.md](notes/rag-stage4-02-rag-pipeline.md) | 待新增 |
+
 ## 当前目标
 
 12 周内完成两个能展示的项目：

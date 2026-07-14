@@ -293,11 +293,38 @@
 
 ### 主资料
 
+- [LangChain Retrieval](https://docs.langchain.com/oss/python/langchain/retrieval)
+  - 用途：理解 RAG 的检索、文档索引、retriever 和把检索结果交给模型回答的整体方向。
+
+- [OpenAI Embeddings Guide](https://developers.openai.com/api/docs/guides/embeddings)
+  - 用途：理解 embedding 是什么，文本为什么可以变成向量，以及 embedding 在搜索、聚类、推荐和 RAG 里的作用。
+
 - [Qdrant 官方文档](https://qdrant.tech/documentation/)
   - 用途：理解向量库、collection、point、filter、search。
 
 - [Qdrant Local Quickstart](https://qdrant.tech/documentation/quickstart/)
   - 用途：后续本地跑 Qdrant 时使用。
+
+- [Qdrant Points](https://qdrant.tech/documentation/manage-data/points/)
+  - 用途：理解 Qdrant 的 point 是 vector + payload 的记录，是后续文档 chunk 入库的基础。
+
+- [Qdrant Filtering](https://qdrant.tech/documentation/search/filtering/)
+  - 用途：理解 payload filter，后续做文档类型、来源、权限过滤时会用到。
+
+- [Milvus 官方文档](https://milvus.io/docs)
+  - 用途：阶段 4 后半段理解 Milvus 的向量数据库定位、安装、collection、index 和搜索能力。
+
+- [Milvus Docker Compose 安装](https://milvus.io/docs/install_standalone-docker-compose.md)
+  - 用途：后续本地启动 Milvus Standalone 时使用。
+
+- [Milvus Basic Vector Search](https://milvus.io/docs/single-vector-search.md)
+  - 用途：理解 Milvus 基础 ANN 向量搜索流程。
+
+- [Milvus Index Explained](https://milvus.io/docs/index-explained.md)
+  - 用途：理解向量索引的作用、成本和召回率取舍。
+
+- [LangChain Milvus integration](https://docs.langchain.com/oss/python/integrations/vectorstores/milvus)
+  - 用途：理解 LangChain 如何接入 Milvus vector store。
 
 ### 辅助理解
 
@@ -535,6 +562,28 @@
 
 - [阶段 3 第 22 节：阶段 3 项目整理](../notes/tool-calling-stage3-22-project-summary.md)
   - 用途：复盘 Tool Calling、Java mock API、用户确认、trace_id、分层测试和 LangChain 封装，建立阶段 3 的完整项目地图，并衔接下一阶段 RAG。
+
+- [阶段 4 第 1 节：RAG 是什么，为什么大模型需要知识库](../notes/rag-stage4-01-what-is-rag.md)
+  - 用途：理解 RAG 的核心价值、普通聊天/prompt/微调/Tool Calling/RAG 的区别，以及阶段 4 的完整学习地图。
+
+- [阶段 4 第 2 节：RAG 完整流程](../notes/rag-stage4-02-rag-pipeline.md)
+  - 用途：理解文档入库流水线和用户问答流水线，明确 load、clean、split、embed、store、retrieve、generate、cite sources 每一步的职责。
+
+## 阶段 4 推荐资料组合
+
+阶段 4：企业知识库 RAG 基础 + 向量数据库入门。当前优先看：
+
+1. 本仓库 `notes/rag-stage4-01-what-is-rag.md`
+2. 本仓库 `notes/rag-stage4-02-rag-pipeline.md`
+3. LangChain Retrieval，理解 RAG 的整体流程
+4. OpenAI Embeddings Guide，理解文本如何变成向量
+5. Qdrant 官方文档，理解 collection、point、vector、payload、search
+6. Qdrant Points，理解 chunk 入库时为什么要同时保存 vector 和 payload
+7. Qdrant Filtering，理解后续权限过滤和 metadata 过滤
+8. Milvus 官方文档，后半段用于向量数据库对比
+9. Milvus Basic Vector Search，后半段理解 ANN 搜索
+10. Milvus Index Explained，后半段理解索引和召回率取舍
+11. RAGFlow GitHub / 文档，只做产品化功能观察，不作为初学实现主线
 
 ## 阶段 3 复盘资料组合
 

@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 3 LangChain + Java 工具调用基础已完成，第 22 节阶段 3 项目整理已完成，下一步进入阶段 4：企业知识库 RAG 基础。
+当前阶段：阶段 4 企业知识库 RAG 基础进行中，第 2 节 RAG 完整流程 已完成，下一步进入第 3 节。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -16,7 +16,7 @@
 | M0 | 第 0 周 | 环境与仓库 | 进行中 | README、上下文、路线图、进度表 |
 | M1 | 第 1-2 周 | Python AI 服务基础 | 已完成 | `projects/ai-service`、聊天接口、流式输出、结构化输出 |
 | M2 | 第 3-4 周 | LangChain + Java 工具调用 | 已完成 | 客服助手 v1、Java mock 业务服务 |
-| M3 | 第 5-7 周 | 企业知识库 RAG | 未开始 | 文档入库、检索问答、引用来源、权限过滤、初版评测 |
+| M3 | 第 5-7 周 | 企业知识库 RAG | 进行中 | 文档入库、检索问答、引用来源、权限过滤、初版评测 |
 | M4 | 第 8-9 周 | LangGraph 智能工单 | 未开始 | 工单 Agent v1 |
 | M5 | 第 10-11 周 | 生产化与评测 | 未开始 | trace、日志、限流、重试、eval、Docker Compose |
 | M6 | 第 12 周 | 作品整理 | 未开始 | README、架构图、截图、面试讲稿、简历描述 |
@@ -118,6 +118,8 @@
 - [x] 完成阶段 3 第 20 节：LangChain Tool 基础
 - [x] 完成阶段 3 第 21 节：LangChain 结构化输出
 - [x] 完成阶段 3 第 22 节：阶段 3 项目整理
+- [x] 完成阶段 4 第 1 节：RAG 是什么，为什么大模型需要知识库
+- [x] 完成阶段 4 第 2 节：RAG 完整流程
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -197,6 +199,49 @@
 | 21 | LangChain 结构化输出 | 已完成 | `notes/tool-calling-stage3-21-langchain-structured-output.md`、`app/services/langchain_structured_output_service.py`、`POST /langchain-extract-ticket`、`with_structured_output(TicketExtraction, method="json_mode")`、LangChain 结构化输出与原生 JSON Mode 对比 |
 | 22 | 阶段 3 项目整理 | 已完成 | `notes/tool-calling-stage3-22-project-summary.md`、阶段 3 总图、接口地图、核心调用链路、Python AI 服务和 Java mock 服务分工、原生 SDK 与 LangChain 对比、阶段验收清单、阶段 4 RAG 衔接 |
 
+## 阶段 4 细化学习清单
+
+阶段 4 目标：完成企业知识库 RAG 基础，理解文档如何变成可检索知识，先用 Qdrant 跑通主线，再补 RAG 工程优化和 Milvus 对比。
+
+| 节 | 主题 | 学习状态 | 对应产出 |
+| --- | --- | --- | --- |
+| 1 | RAG 是什么，为什么大模型需要知识库 | 已完成 | `notes/rag-stage4-01-what-is-rag.md`、RAG 概念、普通聊天/prompt/微调/Tool Calling/RAG 对比、阶段 4 学习地图 |
+| 2 | RAG 完整流程：load -> split -> embed -> store -> retrieve -> generate | 已完成 | `notes/rag-stage4-02-rag-pipeline.md`、文档入库流水线、用户问答流水线、每一步输入输出、失败后果、后续代码落点 |
+| 3 | 文档、知识库、chunk、metadata 是什么 | 未开始 | 待新增 |
+| 4 | embedding 是什么：文本怎么变成向量 | 未开始 | 待新增 |
+| 5 | 向量相似度：为什么能用向量找相似内容 | 未开始 | 待新增 |
+| 6 | 向量数据库是什么，为什么先选 Qdrant | 未开始 | 待新增 |
+| 7 | Qdrant 基础：collection、point、vector、payload | 未开始 | 待新增 |
+| 8 | 本地启动 Qdrant | 未开始 | 待新增 |
+| 9 | RAG 项目结构设计 | 未开始 | 待新增 |
+| 10 | 准备第一批 Markdown/txt 知识文档 | 未开始 | 待新增 |
+| 11 | 文档加载和文本清洗 | 未开始 | 待新增 |
+| 12 | chunk 切分策略：大小、重叠、标题、段落 | 未开始 | 待新增 |
+| 13 | 生成 embedding 并写入 Qdrant | 未开始 | 待新增 |
+| 14 | metadata 设计：source、title、section、权限字段 | 未开始 | 待新增 |
+| 15 | 基础 top_k 检索 | 未开始 | 待新增 |
+| 16 | payload filter：按文档类型、权限、来源过滤 | 未开始 | 待新增 |
+| 17 | score_threshold：低相关内容不回答 | 未开始 | 待新增 |
+| 18 | 把检索结果交给模型回答 | 未开始 | 待新增 |
+| 19 | 引用来源：回答必须带出处 | 未开始 | 待新增 |
+| 20 | 无检索结果时怎么处理 | 未开始 | 待新增 |
+| 21 | RAG 错误处理：embedding、向量库、模型调用异常 | 未开始 | 待新增 |
+| 22 | RAG 测试：fake embedding、fake vector store | 未开始 | 待新增 |
+| 23 | 文档更新、删除、重新入库 | 未开始 | 待新增 |
+| 24 | embedding 模型选择、维度、成本和批量处理 | 未开始 | 待新增 |
+| 25 | 检索质量调优：chunk size、overlap、top_k、score_threshold | 未开始 | 待新增 |
+| 26 | 混合检索：关键词检索 + 向量检索 | 未开始 | 待新增 |
+| 27 | rerank 重排序是什么 | 未开始 | 待新增 |
+| 28 | RAG 安全：文档权限、Prompt Injection、敏感信息 | 未开始 | 待新增 |
+| 29 | RAG 性能：缓存、批处理、超时、降级 | 未开始 | 待新增 |
+| 30 | 阶段 4 主线项目验收和复盘 | 未开始 | 待新增 |
+| 31 | Milvus 是什么，和 Qdrant 有什么区别 | 未开始 | 待新增 |
+| 32 | 本地 Docker 启动 Milvus Standalone | 未开始 | 待新增 |
+| 33 | Milvus 核心概念：collection、schema、field、entity、index | 未开始 | 待新增 |
+| 34 | 用同一批文档写入 Milvus 并做向量检索 | 未开始 | 待新增 |
+| 35 | Milvus metadata/scalar filter 和索引基础 | 未开始 | 待新增 |
+| 36 | Qdrant vs Milvus：什么时候选谁 | 未开始 | 待新增 |
+
 ## 当前 Sprint 验收标准
 
 M0/M1 第一阶段完成时，必须满足：
@@ -272,16 +317,17 @@ M0/M1 第一阶段完成时，必须满足：
 
 ### LangChain
 
-- [ ] ChatModel
+- [x] ChatModel
 - [ ] PromptTemplate
 - [ ] Runnable
-- [ ] tools
-- [ ] structured output
+- [x] tools
+- [x] structured output
 - [ ] callbacks
 - [ ] retriever
 
 ### RAG
 
+- [x] RAG 基础概念
 - [ ] 文档解析
 - [ ] chunk 切分
 - [ ] embedding
