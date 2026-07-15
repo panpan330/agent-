@@ -21,7 +21,7 @@ class RagDocument(BaseModel):
 class RagChunk(BaseModel):
     chunk_id: str = Field(
         min_length=1,
-        description="Stable chunk identifier used later as the Qdrant point id.",
+        description="Stable project chunk identifier stored in vector-store payloads.",
     )
     content: str = Field(
         min_length=1,

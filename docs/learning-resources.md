@@ -593,6 +593,18 @@
 - [阶段 4 第 10 节：准备第一批 Markdown/txt 知识文档](../notes/rag-stage4-10-first-knowledge-documents.md)
   - 用途：理解 RAG 为什么需要先准备可控知识文档，掌握 Markdown/txt 入门材料的组织方式、metadata 线索设计，以及 `data/knowledge_base` 示例知识库的后续用途。
 
+- [阶段 4 第 11 节：文档加载和文本清洗](../notes/rag-stage4-11-document-loading-cleaning.md)
+  - 用途：理解 loader 在 RAG 入库流程中的职责，掌握 Markdown/txt 文件读取、UTF-8 编码、基础文本清洗、标题提取、metadata 提取，以及为什么 loader 输出 `RagDocument`。
+
+- [阶段 4 第 12 节：chunk 切分策略：大小、重叠、标题、段落](../notes/rag-stage4-12-chunk-splitting.md)
+  - 用途：理解 chunk 在 RAG 检索中的作用，掌握 chunk_size、chunk_overlap、标题上下文、段落优先切分、稳定 chunk_id，以及 `RagDocument -> list[RagChunk]` 的实现边界。
+
+- [阶段 4 第 13 节：生成 embedding 并写入 Qdrant](../notes/rag-stage4-13-embedding-qdrant-ingestion.md)
+  - 用途：理解 chunk 如何变成向量并写入向量数据库，掌握 EmbeddedChunk、Qdrant point、vector、payload、collection 校验、upsert 和入库流程。
+
+- [阶段 4 第 14 节：metadata 设计：source、title、section、权限字段](../notes/rag-stage4-14-metadata-design.md)
+  - 用途：理解 metadata 在 RAG 中如何支撑引用来源、权限过滤、文档类型过滤、调试和重建入库，掌握必备字段、字段语义、payload 白名单和校验边界。
+
 ## 阶段 4 推荐资料组合
 
 阶段 4：企业知识库 RAG 基础 + 向量数据库入门。当前优先看：
@@ -607,16 +619,20 @@
 8. 本仓库 `notes/rag-stage4-08-start-qdrant-locally.md`
 9. 本仓库 `notes/rag-stage4-09-rag-project-structure.md`
 10. 本仓库 `notes/rag-stage4-10-first-knowledge-documents.md`
-11. LangChain Retrieval，理解 RAG 的整体流程
-12. OpenAI Embeddings Guide，理解文本如何变成向量
-13. Qdrant 官方文档，理解 collection、point、vector、payload、search
-14. Qdrant Local Quickstart，按官方方式用 Docker 启动 Qdrant
-15. Qdrant Points，理解 chunk 入库时为什么要同时保存 vector 和 payload
-16. Qdrant Filtering，理解后续权限过滤和 metadata 过滤
-17. Milvus 官方文档，后半段用于向量数据库对比
-18. Milvus Basic Vector Search，后半段理解 ANN 搜索
-19. Milvus Index Explained，后半段理解索引和召回率取舍
-20. RAGFlow GitHub / 文档，只做产品化功能观察，不作为初学实现主线
+11. 本仓库 `notes/rag-stage4-11-document-loading-cleaning.md`
+12. 本仓库 `notes/rag-stage4-12-chunk-splitting.md`
+13. 本仓库 `notes/rag-stage4-13-embedding-qdrant-ingestion.md`
+14. 本仓库 `notes/rag-stage4-14-metadata-design.md`
+15. LangChain Retrieval，理解 RAG 的整体流程
+16. OpenAI Embeddings Guide，理解文本如何变成向量
+17. Qdrant 官方文档，理解 collection、point、vector、payload、search
+18. Qdrant Local Quickstart，按官方方式用 Docker 启动 Qdrant
+19. Qdrant Points，理解 chunk 入库时为什么要同时保存 vector 和 payload
+20. Qdrant Filtering，理解后续权限过滤和 metadata 过滤
+21. Milvus 官方文档，后半段用于向量数据库对比
+22. Milvus Basic Vector Search，后半段理解 ANN 搜索
+23. Milvus Index Explained，后半段理解索引和召回率取舍
+22. RAGFlow GitHub / 文档，只做产品化功能观察，不作为初学实现主线
 
 ## 阶段 3 复盘资料组合
 

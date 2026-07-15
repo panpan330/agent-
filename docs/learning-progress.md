@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 4 企业知识库 RAG 基础进行中，第 10 节 准备第一批 Markdown/txt 知识文档 已完成，下一步进入第 11 节。
+当前阶段：阶段 4 企业知识库 RAG 基础进行中，第 14 节 metadata 设计 已完成，下一步进入第 15 节。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -128,6 +128,10 @@
 - [x] 完成阶段 4 第 8 节：本地启动 Qdrant 实机验证
 - [x] 完成阶段 4 第 9 节：RAG 项目结构设计
 - [x] 完成阶段 4 第 10 节：准备第一批 Markdown/txt 知识文档
+- [x] 完成阶段 4 第 11 节：文档加载和文本清洗
+- [x] 完成阶段 4 第 12 节：chunk 切分策略：大小、重叠、标题、段落
+- [x] 完成阶段 4 第 13 节：生成 embedding 并写入 Qdrant
+- [x] 完成阶段 4 第 14 节：metadata 设计：source、title、section、权限字段
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -223,10 +227,10 @@
 | 8 | 本地启动 Qdrant | 已完成 | `notes/rag-stage4-08-start-qdrant-locally.md`、VMware Ubuntu Docker、Qdrant 1.18.2、端口映射、数据持久化、Windows 访问 `http://192.168.88.10:6333` 已验证 |
 | 9 | RAG 项目结构设计 | 已完成 | `notes/rag-stage4-09-rag-project-structure.md`、`projects/ai-service/app/rag`、`RagDocument`、`RagChunk`、RAG 模块边界、入库流程和问答流程拆分 |
 | 10 | 准备第一批 Markdown/txt 知识文档 | 已完成 | `notes/rag-stage4-10-first-knowledge-documents.md`、`projects/ai-service/data/knowledge_base`、订单发货/退款退货/物流查询/账号安全示例文档、metadata 线索、示例文档存在性测试 |
-| 11 | 文档加载和文本清洗 | 未开始 | 待新增 |
-| 12 | chunk 切分策略：大小、重叠、标题、段落 | 未开始 | 待新增 |
-| 13 | 生成 embedding 并写入 Qdrant | 未开始 | 待新增 |
-| 14 | metadata 设计：source、title、section、权限字段 | 未开始 | 待新增 |
+| 11 | 文档加载和文本清洗 | 已完成 | `notes/rag-stage4-11-document-loading-cleaning.md`、`projects/ai-service/app/rag/loaders.py`、Markdown/txt 加载、UTF-8 读取、基础文本清洗、title/metadata 提取、目录批量加载、loader 测试 |
+| 12 | chunk 切分策略：大小、重叠、标题、段落 | 已完成 | `notes/rag-stage4-12-chunk-splitting.md`、`projects/ai-service/app/rag/splitters.py`、段落优先切分、标题感知、chunk_size、chunk_overlap、稳定 chunk_id、section metadata、splitter 测试 |
+| 13 | 生成 embedding 并写入 Qdrant | 已完成 | `notes/rag-stage4-13-embedding-qdrant-ingestion.md`、`app/rag/embeddings.py`、`app/rag/vector_store.py`、`app/rag/ingestion.py`、`scripts/rag_ingest_smoke.py` |
+| 14 | metadata 设计：source、title、section、权限字段 | 已完成 | `notes/rag-stage4-14-metadata-design.md`、`app/rag/metadata.py`、metadata 标准化、必备字段校验、Qdrant payload 白名单、权限字段边界、metadata 测试 |
 | 15 | 基础 top_k 检索 | 未开始 | 待新增 |
 | 16 | payload filter：按文档类型、权限、来源过滤 | 未开始 | 待新增 |
 | 17 | score_threshold：低相关内容不回答 | 未开始 | 待新增 |

@@ -147,6 +147,10 @@ projects/ 练习项目、Demo 和完整作品
 | 8 | 本地启动 Qdrant | [notes/rag-stage4-08-start-qdrant-locally.md](notes/rag-stage4-08-start-qdrant-locally.md) | VMware Ubuntu Docker 已验证 |
 | 9 | RAG 项目结构设计 | [notes/rag-stage4-09-rag-project-structure.md](notes/rag-stage4-09-rag-project-structure.md) | [projects/ai-service/app/rag](projects/ai-service/app/rag) |
 | 10 | 准备第一批 Markdown/txt 知识文档 | [notes/rag-stage4-10-first-knowledge-documents.md](notes/rag-stage4-10-first-knowledge-documents.md) | [projects/ai-service/data/knowledge_base](projects/ai-service/data/knowledge_base) |
+| 11 | 文档加载和文本清洗 | [notes/rag-stage4-11-document-loading-cleaning.md](notes/rag-stage4-11-document-loading-cleaning.md) | [projects/ai-service/app/rag/loaders.py](projects/ai-service/app/rag/loaders.py) |
+| 12 | chunk 切分策略：大小、重叠、标题、段落 | [notes/rag-stage4-12-chunk-splitting.md](notes/rag-stage4-12-chunk-splitting.md) | [projects/ai-service/app/rag/splitters.py](projects/ai-service/app/rag/splitters.py) |
+| 13 | 生成 embedding 并写入 Qdrant | [notes/rag-stage4-13-embedding-qdrant-ingestion.md](notes/rag-stage4-13-embedding-qdrant-ingestion.md) | [projects/ai-service/app/rag/embeddings.py](projects/ai-service/app/rag/embeddings.py)、[projects/ai-service/app/rag/vector_store.py](projects/ai-service/app/rag/vector_store.py)、[projects/ai-service/app/rag/ingestion.py](projects/ai-service/app/rag/ingestion.py) |
+| 14 | metadata 设计：source、title、section、权限字段 | [notes/rag-stage4-14-metadata-design.md](notes/rag-stage4-14-metadata-design.md) | [projects/ai-service/app/rag/metadata.py](projects/ai-service/app/rag/metadata.py) |
 
 ## 当前目标
 

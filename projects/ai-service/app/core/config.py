@@ -25,6 +25,11 @@ class Settings(BaseSettings):
     max_output_tokens: int = Field(default=1024, gt=0)
     java_mock_service_base_url: str = Field(default="http://127.0.0.1:8001")
     java_mock_service_timeout_seconds: float = Field(default=5.0, gt=0)
+    qdrant_base_url: str = Field(default="http://127.0.0.1:6333")
+    qdrant_collection_name: str = Field(default="learning_rag_chunks")
+    qdrant_timeout_seconds: float = Field(default=5.0, gt=0)
+    qdrant_vector_size: int = Field(default=8, gt=0)
+    qdrant_api_key: str | None = Field(default=None, repr=False)
     tool_confirmation_ttl_seconds: int = Field(default=300, ge=30, le=3600)
     log_level: str = Field(default="INFO")
     cors_allowed_origins: str = Field(
@@ -70,6 +75,10 @@ class Settings(BaseSettings):
     @property
     def resolved_java_mock_service_base_url(self) -> str:
         return self.java_mock_service_base_url.strip().rstrip("/")
+
+    @property
+    def resolved_qdrant_base_url(self) -> str:
+        return self.qdrant_base_url.strip().rstrip("/")
 
 
 @lru_cache

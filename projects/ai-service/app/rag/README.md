@@ -13,19 +13,22 @@ Current files:
 
 ```text
 documents.py  Internal RAG document and chunk models.
+loaders.py    Load Markdown/txt files into RagDocument objects.
+splitters.py  Split RagDocument objects into RagChunk objects.
+metadata.py   Normalize and validate RAG metadata before Qdrant payload writes.
+embeddings.py Convert chunks into deterministic placeholder vectors.
+vector_store.py Build Qdrant points and write embedded chunks through the REST API.
+ingestion.py  Orchestrate load -> split -> embed -> upsert for local ingestion.
 ```
 
 Planned files for later lessons:
 
 ```text
-loaders.py       Load Markdown/txt source documents.
-splitters.py     Split documents into chunks.
-embeddings.py    Convert chunk text and user queries into vectors.
-vector_store.py  Hide Qdrant-specific read/write details behind a project adapter.
 retriever.py     Retrieve top_k chunks with score and payload filtering.
 generator.py     Build prompts and generate answers from retrieved chunks.
 pipeline.py      Orchestrate ingestion and question-answering flows.
 ```
 
-Stage 4 lesson 9 only creates the package boundary and internal data contracts.
-It does not start Qdrant, create collections, write vectors, or expose a RAG API.
+Stage 4 lesson 14 adds metadata normalization, required field validation, and a
+Qdrant payload whitelist. It still does not perform retrieval, payload filtering,
+answer generation, or real embedding model calls.

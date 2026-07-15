@@ -16,9 +16,9 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：L
 
 当前阶段 3 第 1-22 节已完成 Tool Calling 概念、业务系统安全边界、工具参数和 JSON Schema、结构化输出与 Tool Calling 的边界、fake tool 模拟订单查询、工具调用结果 Pydantic 校验、工具调用错误处理、工具调用权限边界、工具调用幂等性、`projects/java-mock-service` 最小业务服务、Python AI 服务调用 Java mock API、让模型决定是否调用工具、工具调用结果再交给模型总结、敏感操作的用户确认机制、确认后创建工单的完整流程、工具调用日志和 `trace_id` 串联、fake Java API / fake tool 的分层测试策略、LangChain 的框架定位和引入时机、LangChain ChatModel 基础、LangChain Tool 基础、LangChain 结构化输出，以及阶段 3 项目整理。后续会进入企业知识库 RAG 基础。
 
-当前阶段 4 已开始企业知识库 RAG 基础，并新增 `app/rag` 内部包，用于承载 RAG 文档、chunk、加载、切分、embedding、向量库适配、检索和生成等后续能力。当前只完成 RAG 项目结构和内部 document/chunk 数据模型。
+当前阶段 4 已开始企业知识库 RAG 基础，并新增 `app/rag` 内部包，用于承载 RAG 文档、chunk、加载、切分、metadata、embedding、向量库适配、检索和生成等后续能力。当前已完成 RAG 项目结构、内部 document/chunk 数据模型、文档加载清洗、chunk 切分、metadata 标准化和校验、fake embedding 生成和 Qdrant 写入适配。
 
-当前已准备第一批 RAG 练习知识文档，位于 `data/knowledge_base`，后续会用于文档加载、chunk 切分、embedding 生成和 Qdrant 入库练习。
+当前已准备第一批 RAG 练习知识文档，位于 `data/knowledge_base`，并已支持把 Markdown/txt 文件加载和清洗为 `RagDocument`，再按段落和标题切分为 `RagChunk`，经过 metadata 必备字段校验和 Qdrant payload 白名单处理后，用确定性的 fake embedding 生成向量并通过 Qdrant REST API upsert 到本地向量库。真实 embedding API 会在后续小节单独接入。
 
 ## 当前能力
 
@@ -120,6 +120,12 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：L
 - `app/rag` RAG 内部包边界
 - `RagDocument` 和 `RagChunk` 内部数据模型
 - `data/knowledge_base` 第一批 Markdown/txt RAG 练习文档
+- Markdown/txt 文档加载和基础清洗
+- 段落优先、标题感知的基础 chunk 切分
+- metadata 标准化、必备字段校验和 Qdrant payload 白名单
+- deterministic fake embedding 生成
+- Qdrant collection 校验、point 组装和 upsert 写入
+- 最小 RAG 入库流程：load -> split -> embed -> store
 
 ## 项目结构
 
@@ -143,6 +149,12 @@ app/
   rag/
     README.md              RAG 内部包职责说明和后续模块规划
     documents.py           RAG 文档和 chunk 内部数据模型
+    loaders.py             Markdown/txt 文档加载和基础清洗
+    splitters.py           RagDocument 到 RagChunk 的基础切分
+    metadata.py            metadata 标准化、校验和 Qdrant payload 构造
+    embeddings.py          fake embedding 模型和 EmbeddedChunk
+    vector_store.py        Qdrant point 组装、collection 校验和 upsert 写入
+    ingestion.py           load -> split -> embed -> store 入库编排
   schemas/
     chat.py                聊天请求/响应模型
     error.py               统一错误响应模型
@@ -181,6 +193,7 @@ data/
     refund-return-policy.md 退款退货规则示例文档
 scripts/
   llm_compatible_smoke_test.py 手动检查或调用兼容模型
+  rag_ingest_smoke.py     手动执行 fake embedding 到 Qdrant 的入库烟测
 tests/
   conftest.py              pytest 共享夹具
   fakes.py                 OpenAI-compatible fake client 测试工具
@@ -205,6 +218,12 @@ tests/
   test_prompt_builder.py   prompt 分段构建测试
   test_rag_documents.py    RAG 文档和 chunk 内部模型测试
   test_knowledge_base_samples.py 示例知识库文件存在性测试
+  test_rag_loaders.py      RAG Markdown/txt 文档加载测试
+  test_rag_splitters.py    RAG chunk 切分测试
+  test_rag_metadata.py     RAG metadata 标准化、校验和 payload 白名单测试
+  test_rag_embeddings.py   RAG embedding 生成测试
+  test_rag_vector_store.py Qdrant point 组装和写入适配测试
+  test_rag_ingestion.py    RAG 入库编排测试
   test_structured_output_service.py 结构化输出服务测试
   test_structured_schema.py 结构化输出模型测试
   test_tool_idempotency.py 工具调用幂等性测试

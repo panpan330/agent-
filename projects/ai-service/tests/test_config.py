@@ -25,6 +25,12 @@ def test_settings_use_default_values() -> None:
     assert settings.java_mock_service_base_url == "http://127.0.0.1:8001"
     assert settings.resolved_java_mock_service_base_url == "http://127.0.0.1:8001"
     assert settings.java_mock_service_timeout_seconds == 5.0
+    assert settings.qdrant_base_url == "http://127.0.0.1:6333"
+    assert settings.resolved_qdrant_base_url == "http://127.0.0.1:6333"
+    assert settings.qdrant_collection_name == "learning_rag_chunks"
+    assert settings.qdrant_timeout_seconds == 5.0
+    assert settings.qdrant_vector_size == 8
+    assert settings.qdrant_api_key is None
     assert settings.tool_confirmation_ttl_seconds == 300
     assert settings.log_level == "INFO"
     assert settings.cors_allowed_origins == "http://localhost:5173,http://127.0.0.1:5173"
@@ -51,6 +57,11 @@ def test_settings_read_environment_variables(monkeypatch: pytest.MonkeyPatch) ->
     monkeypatch.setenv("MAX_OUTPUT_TOKENS", "256")
     monkeypatch.setenv("JAVA_MOCK_SERVICE_BASE_URL", " http://localhost:9001/ ")
     monkeypatch.setenv("JAVA_MOCK_SERVICE_TIMEOUT_SECONDS", "2.5")
+    monkeypatch.setenv("QDRANT_BASE_URL", " http://localhost:6333/ ")
+    monkeypatch.setenv("QDRANT_COLLECTION_NAME", "demo_chunks")
+    monkeypatch.setenv("QDRANT_TIMEOUT_SECONDS", "3.5")
+    monkeypatch.setenv("QDRANT_VECTOR_SIZE", "12")
+    monkeypatch.setenv("QDRANT_API_KEY", "qdrant-test-key")
     monkeypatch.setenv("TOOL_CONFIRMATION_TTL_SECONDS", "120")
     monkeypatch.setenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000")
 
@@ -71,6 +82,11 @@ def test_settings_read_environment_variables(monkeypatch: pytest.MonkeyPatch) ->
     assert settings.max_output_tokens == 256
     assert settings.resolved_java_mock_service_base_url == "http://localhost:9001"
     assert settings.java_mock_service_timeout_seconds == 2.5
+    assert settings.resolved_qdrant_base_url == "http://localhost:6333"
+    assert settings.qdrant_collection_name == "demo_chunks"
+    assert settings.qdrant_timeout_seconds == 3.5
+    assert settings.qdrant_vector_size == 12
+    assert settings.qdrant_api_key == "qdrant-test-key"
     assert settings.tool_confirmation_ttl_seconds == 120
     assert settings.cors_allowed_origin_list == ["http://localhost:3000"]
 
@@ -138,6 +154,11 @@ def test_settings_read_env_file(tmp_path: Path) -> None:
                 "MAX_OUTPUT_TOKENS=512",
                 'JAVA_MOCK_SERVICE_BASE_URL="http://localhost:9001/"',
                 "JAVA_MOCK_SERVICE_TIMEOUT_SECONDS=3",
+                'QDRANT_BASE_URL="http://localhost:6333/"',
+                'QDRANT_COLLECTION_NAME="file_chunks"',
+                "QDRANT_TIMEOUT_SECONDS=4",
+                "QDRANT_VECTOR_SIZE=16",
+                'QDRANT_API_KEY=""',
                 "TOOL_CONFIRMATION_TTL_SECONDS=240",
                 'CORS_ALLOWED_ORIGINS="http://localhost:5173, http://localhost:3000"',
                 'OPENAI_API_KEY=""',
@@ -162,6 +183,11 @@ def test_settings_read_env_file(tmp_path: Path) -> None:
     assert settings.max_output_tokens == 512
     assert settings.resolved_java_mock_service_base_url == "http://localhost:9001"
     assert settings.java_mock_service_timeout_seconds == 3.0
+    assert settings.resolved_qdrant_base_url == "http://localhost:6333"
+    assert settings.qdrant_collection_name == "file_chunks"
+    assert settings.qdrant_timeout_seconds == 4.0
+    assert settings.qdrant_vector_size == 16
+    assert settings.qdrant_api_key == ""
     assert settings.tool_confirmation_ttl_seconds == 240
     assert settings.cors_allowed_origin_list == [
         "http://localhost:5173",
@@ -206,6 +232,24 @@ def test_settings_reject_invalid_java_mock_service_timeout() -> None:
 
     error = exc_info.value.errors()[0]
     assert error["loc"] == ("java_mock_service_timeout_seconds",)
+    assert error["type"] == "greater_than"
+
+
+def test_settings_reject_invalid_qdrant_timeout() -> None:
+    with pytest.raises(ValidationError) as exc_info:
+        Settings(qdrant_timeout_seconds=0, _env_file=None)
+
+    error = exc_info.value.errors()[0]
+    assert error["loc"] == ("qdrant_timeout_seconds",)
+    assert error["type"] == "greater_than"
+
+
+def test_settings_reject_invalid_qdrant_vector_size() -> None:
+    with pytest.raises(ValidationError) as exc_info:
+        Settings(qdrant_vector_size=0, _env_file=None)
+
+    error = exc_info.value.errors()[0]
+    assert error["loc"] == ("qdrant_vector_size",)
     assert error["type"] == "greater_than"
 
 
