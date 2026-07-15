@@ -54,3 +54,7 @@ temp/
 !projects/python-basics/data/
 !projects/python-basics/data/*.json
 !projects/python-basics/data/*.txt
+!projects/ai-service/data/
+!projects/ai-service/data/knowledge_base/
+!projects/ai-service/data/knowledge_base/*.md
+!projects/ai-service/data/knowledge_base/*.txt

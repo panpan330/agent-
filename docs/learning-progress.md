@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 4 企业知识库 RAG 基础进行中，第 8 节 本地启动 Qdrant 已完成，下一步进入第 9 节。
+当前阶段：阶段 4 企业知识库 RAG 基础进行中，第 10 节 准备第一批 Markdown/txt 知识文档 已完成，下一步进入第 11 节。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -126,6 +126,8 @@
 - [x] 完成阶段 4 第 6 节：向量数据库是什么，为什么先选 Qdrant
 - [x] 完成阶段 4 第 7 节：Qdrant 基础：collection、point、vector、payload
 - [x] 完成阶段 4 第 8 节：本地启动 Qdrant 实机验证
+- [x] 完成阶段 4 第 9 节：RAG 项目结构设计
+- [x] 完成阶段 4 第 10 节：准备第一批 Markdown/txt 知识文档
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -219,8 +221,8 @@
 | 6 | 向量数据库是什么，为什么先选 Qdrant | 已完成 | `notes/rag-stage4-06-vector-database-qdrant.md`、向量数据库定位、collection/point/vector/payload/search/filter 基础、Qdrant 优先原因、Qdrant 与 Milvus 学习顺序 |
 | 7 | Qdrant 基础：collection、point、vector、payload | 已完成 | `notes/rag-stage4-07-qdrant-core-concepts.md`、collection/point/id/vector/payload、chunk 到 point 映射、payload 字段设计、score 查询语义 |
 | 8 | 本地启动 Qdrant | 已完成 | `notes/rag-stage4-08-start-qdrant-locally.md`、VMware Ubuntu Docker、Qdrant 1.18.2、端口映射、数据持久化、Windows 访问 `http://192.168.88.10:6333` 已验证 |
-| 9 | RAG 项目结构设计 | 未开始 | 待新增 |
-| 10 | 准备第一批 Markdown/txt 知识文档 | 未开始 | 待新增 |
+| 9 | RAG 项目结构设计 | 已完成 | `notes/rag-stage4-09-rag-project-structure.md`、`projects/ai-service/app/rag`、`RagDocument`、`RagChunk`、RAG 模块边界、入库流程和问答流程拆分 |
+| 10 | 准备第一批 Markdown/txt 知识文档 | 已完成 | `notes/rag-stage4-10-first-knowledge-documents.md`、`projects/ai-service/data/knowledge_base`、订单发货/退款退货/物流查询/账号安全示例文档、metadata 线索、示例文档存在性测试 |
 | 11 | 文档加载和文本清洗 | 未开始 | 待新增 |
 | 12 | chunk 切分策略：大小、重叠、标题、段落 | 未开始 | 待新增 |
 | 13 | 生成 embedding 并写入 Qdrant | 未开始 | 待新增 |

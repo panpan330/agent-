@@ -16,6 +16,10 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：L
 
 当前阶段 3 第 1-22 节已完成 Tool Calling 概念、业务系统安全边界、工具参数和 JSON Schema、结构化输出与 Tool Calling 的边界、fake tool 模拟订单查询、工具调用结果 Pydantic 校验、工具调用错误处理、工具调用权限边界、工具调用幂等性、`projects/java-mock-service` 最小业务服务、Python AI 服务调用 Java mock API、让模型决定是否调用工具、工具调用结果再交给模型总结、敏感操作的用户确认机制、确认后创建工单的完整流程、工具调用日志和 `trace_id` 串联、fake Java API / fake tool 的分层测试策略、LangChain 的框架定位和引入时机、LangChain ChatModel 基础、LangChain Tool 基础、LangChain 结构化输出，以及阶段 3 项目整理。后续会进入企业知识库 RAG 基础。
 
+当前阶段 4 已开始企业知识库 RAG 基础，并新增 `app/rag` 内部包，用于承载 RAG 文档、chunk、加载、切分、embedding、向量库适配、检索和生成等后续能力。当前只完成 RAG 项目结构和内部 document/chunk 数据模型。
+
+当前已准备第一批 RAG 练习知识文档，位于 `data/knowledge_base`，后续会用于文档加载、chunk 切分、embedding 生成和 Qdrant 入库练习。
+
 ## 当前能力
 
 - FastAPI 应用创建和启动
@@ -113,6 +117,9 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：L
 - CORS 基础配置
 - token 粗略估算和输出 token 上限配置
 - pytest 自动化测试
+- `app/rag` RAG 内部包边界
+- `RagDocument` 和 `RagChunk` 内部数据模型
+- `data/knowledge_base` 第一批 Markdown/txt RAG 练习文档
 
 ## 项目结构
 
@@ -133,6 +140,9 @@ app/
     health.py              /health 路由
     tickets.py             工单计划和已确认计划执行路由
     tools.py               工具调用学习接口
+  rag/
+    README.md              RAG 内部包职责说明和后续模块规划
+    documents.py           RAG 文档和 chunk 内部数据模型
   schemas/
     chat.py                聊天请求/响应模型
     error.py               统一错误响应模型
@@ -162,6 +172,13 @@ app/
     tool_registry.py       工具注册表和权限守卫
     tool_confirmation.py   内存确认计划存储与过期检查
   main.py                  FastAPI 应用入口
+data/
+  knowledge_base/
+    README.md              RAG 示例知识库说明
+    account-security-faq.md 账号安全 FAQ 示例文档
+    logistics-tracking-faq.txt 物流查询 FAQ 示例文档
+    order-shipping-policy.md 订单发货规则示例文档
+    refund-return-policy.md 退款退货规则示例文档
 scripts/
   llm_compatible_smoke_test.py 手动检查或调用兼容模型
 tests/
@@ -186,6 +203,8 @@ tests/
   test_logging.py          日志测试
   test_message_builder.py  聊天 messages 构建测试
   test_prompt_builder.py   prompt 分段构建测试
+  test_rag_documents.py    RAG 文档和 chunk 内部模型测试
+  test_knowledge_base_samples.py 示例知识库文件存在性测试
   test_structured_output_service.py 结构化输出服务测试
   test_structured_schema.py 结构化输出模型测试
   test_tool_idempotency.py 工具调用幂等性测试

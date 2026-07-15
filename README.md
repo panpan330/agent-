@@ -145,6 +145,8 @@ projects/ 练习项目、Demo 和完整作品
 | 6 | 向量数据库是什么，为什么先选 Qdrant | [notes/rag-stage4-06-vector-database-qdrant.md](notes/rag-stage4-06-vector-database-qdrant.md) | 待新增 |
 | 7 | Qdrant 基础：collection、point、vector、payload | [notes/rag-stage4-07-qdrant-core-concepts.md](notes/rag-stage4-07-qdrant-core-concepts.md) | 待新增 |
 | 8 | 本地启动 Qdrant | [notes/rag-stage4-08-start-qdrant-locally.md](notes/rag-stage4-08-start-qdrant-locally.md) | VMware Ubuntu Docker 已验证 |
+| 9 | RAG 项目结构设计 | [notes/rag-stage4-09-rag-project-structure.md](notes/rag-stage4-09-rag-project-structure.md) | [projects/ai-service/app/rag](projects/ai-service/app/rag) |
+| 10 | 准备第一批 Markdown/txt 知识文档 | [notes/rag-stage4-10-first-knowledge-documents.md](notes/rag-stage4-10-first-knowledge-documents.md) | [projects/ai-service/data/knowledge_base](projects/ai-service/data/knowledge_base) |
 
 ## 当前目标
 
