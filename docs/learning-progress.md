@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 4 企业知识库 RAG 基础进行中，第 7 节 Qdrant 基础：collection、point、vector、payload 已完成，下一步进入第 8 节。
+当前阶段：阶段 4 企业知识库 RAG 基础进行中，第 8 节 本地启动 Qdrant 已完成，下一步进入第 9 节。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -27,7 +27,7 @@
 - [x] 安装并配置 uv 到 D 盘
 - [x] 确认 Python 3.12.3 可用
 - [x] 确认 JDK 17 可用
-- [ ] 安装或配置 Docker
+- [x] 安装或配置 Docker（VMware Ubuntu）
 - [x] 完成第 1 层：Python 项目环境和 uv 基础练习
 - [x] 完成 Python 基础语法第 1 节：变量和基本类型
 - [x] 完成 Python 基础语法第 2 节：字符串
@@ -125,6 +125,7 @@
 - [x] 完成阶段 4 第 5 节：向量相似度：为什么能用向量找相似内容
 - [x] 完成阶段 4 第 6 节：向量数据库是什么，为什么先选 Qdrant
 - [x] 完成阶段 4 第 7 节：Qdrant 基础：collection、point、vector、payload
+- [x] 完成阶段 4 第 8 节：本地启动 Qdrant 实机验证
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -217,7 +218,7 @@
 | 5 | 向量相似度：为什么能用向量找相似内容 | 已完成 | `notes/rag-stage4-05-vector-similarity.md`、similarity/distance、cosine similarity、dot product、top_k、score_threshold、相似度边界 |
 | 6 | 向量数据库是什么，为什么先选 Qdrant | 已完成 | `notes/rag-stage4-06-vector-database-qdrant.md`、向量数据库定位、collection/point/vector/payload/search/filter 基础、Qdrant 优先原因、Qdrant 与 Milvus 学习顺序 |
 | 7 | Qdrant 基础：collection、point、vector、payload | 已完成 | `notes/rag-stage4-07-qdrant-core-concepts.md`、collection/point/id/vector/payload、chunk 到 point 映射、payload 字段设计、score 查询语义 |
-| 8 | 本地启动 Qdrant | 未开始 | 待新增 |
+| 8 | 本地启动 Qdrant | 已完成 | `notes/rag-stage4-08-start-qdrant-locally.md`、VMware Ubuntu Docker、Qdrant 1.18.2、端口映射、数据持久化、Windows 访问 `http://192.168.88.10:6333` 已验证 |
 | 9 | RAG 项目结构设计 | 未开始 | 待新增 |
 | 10 | 准备第一批 Markdown/txt 知识文档 | 未开始 | 待新增 |
 | 11 | 文档加载和文本清洗 | 未开始 | 待新增 |
@@ -251,10 +252,10 @@
 
 M0/M1 第一阶段完成时，必须满足：
 
-- [ ] 本地能运行 Python、Java、Docker。
+- [x] 本地能运行 Python、Java、Docker。
 - [x] 本地能运行 Python。
 - [x] 本地能运行 Java。
-- [ ] 本地能运行 Docker。
+- [x] 本地能运行 Docker（VMware Ubuntu）。
 - [x] uv 安装在 D 盘，缓存、Python 管理目录和工具目录都指向 D 盘。
 - [x] `projects/ai-service` 有清晰目录结构。
 - [x] FastAPI 服务能启动。
