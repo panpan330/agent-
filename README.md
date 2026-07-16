@@ -154,6 +154,11 @@ projects/ 练习项目、Demo 和完整作品
 | 15 | 基础 top_k 检索 | [notes/rag-stage4-15-basic-top-k-retrieval.md](notes/rag-stage4-15-basic-top-k-retrieval.md) | [projects/ai-service/app/rag/retriever.py](projects/ai-service/app/rag/retriever.py) |
 | 16 | payload filter：按文档类型、权限、来源过滤 | [notes/rag-stage4-16-payload-filter.md](notes/rag-stage4-16-payload-filter.md) | [projects/ai-service/app/rag/filters.py](projects/ai-service/app/rag/filters.py) |
 | 17 | score_threshold：低相关内容不回答 | [notes/rag-stage4-17-score-threshold.md](notes/rag-stage4-17-score-threshold.md) | [projects/ai-service/app/rag/retriever.py](projects/ai-service/app/rag/retriever.py)、[projects/ai-service/app/rag/vector_store.py](projects/ai-service/app/rag/vector_store.py) |
+| 18 | 把检索结果交给模型回答 | [notes/rag-stage4-18-retrieved-context-to-model-answer.md](notes/rag-stage4-18-retrieved-context-to-model-answer.md) | [projects/ai-service/app/rag/generator.py](projects/ai-service/app/rag/generator.py) |
+| 19 | 引用来源：回答必须带出处 | [notes/rag-stage4-19-citations.md](notes/rag-stage4-19-citations.md) | [projects/ai-service/app/rag/generator.py](projects/ai-service/app/rag/generator.py) |
+| 20 | 无检索结果时怎么处理 | [notes/rag-stage4-20-no-context-handling.md](notes/rag-stage4-20-no-context-handling.md) | [projects/ai-service/app/rag/generator.py](projects/ai-service/app/rag/generator.py) |
+| 21 | RAG 错误处理：embedding、向量库、模型调用异常 | [notes/rag-stage4-21-error-handling.md](notes/rag-stage4-21-error-handling.md) | [projects/ai-service/app/rag/errors.py](projects/ai-service/app/rag/errors.py)、[projects/ai-service/app/rag/retriever.py](projects/ai-service/app/rag/retriever.py)、[projects/ai-service/app/rag/ingestion.py](projects/ai-service/app/rag/ingestion.py) |
+| 22 | RAG 测试：fake embedding、fake vector store | [notes/rag-stage4-22-rag-testing-fakes.md](notes/rag-stage4-22-rag-testing-fakes.md) | [projects/ai-service/tests/rag_fakes.py](projects/ai-service/tests/rag_fakes.py) |
 
 ## 当前目标
 

@@ -4,6 +4,7 @@ from typing import Protocol
 from pydantic import BaseModel, Field
 
 from app.rag.embeddings import EmbeddingModel, embed_chunks
+from app.rag.errors import rag_embedding_failed, rag_vector_store_failed
 from app.rag.loaders import load_documents_from_directory
 from app.rag.splitters import (
     DEFAULT_CHUNK_OVERLAP,
@@ -47,13 +48,19 @@ def ingest_directory_to_vector_store(
         chunk_size=chunk_size,
         chunk_overlap=chunk_overlap,
     )
-    embedded_chunks = embed_chunks(chunks, embedding_model=embedding_model)
+    try:
+        embedded_chunks = embed_chunks(chunks, embedding_model=embedding_model)
+    except Exception as exc:
+        raise rag_embedding_failed(exc) from exc
 
-    vector_store.ensure_collection(
-        vector_size=embedding_model.dimension,
-        distance=distance,
-    )
-    vector_count = vector_store.upsert_embedded_chunks(embedded_chunks, wait=wait)
+    try:
+        vector_store.ensure_collection(
+            vector_size=embedding_model.dimension,
+            distance=distance,
+        )
+        vector_count = vector_store.upsert_embedded_chunks(embedded_chunks, wait=wait)
+    except Exception as exc:
+        raise rag_vector_store_failed(exc) from exc
 
     return RagIngestionResult(
         document_count=len(documents),

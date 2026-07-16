@@ -620,6 +620,21 @@
 - [阶段 4 第 17 节：score_threshold：低相关内容不回答](../notes/rag-stage4-17-score-threshold.md)
   - 用途：理解 `top_k` 不等于结果一定可用，掌握 `score_threshold` 如何拦截低相关 chunk，以及阈值为什么必须结合真实 embedding、距离函数和业务数据调优。
 
+- [阶段 4 第 18 节：把检索结果交给模型回答](../notes/rag-stage4-18-retrieved-context-to-model-answer.md)
+  - 用途：理解 RAG 的 generate 阶段，掌握如何把 `RetrievedChunk` 整理成模型上下文、构造 messages、约束模型只能根据资料回答，以及无检索资料时为什么不能硬答。
+
+- [阶段 4 第 19 节：引用来源：回答必须带出处](../notes/rag-stage4-19-citations.md)
+  - 用途：理解 citation 在企业 RAG 中的可信追溯作用，掌握 `answer` 和 `citations` 的结构化拆分、后端根据 retrieved chunks 生成来源列表，以及 chunk 级出处和逐句引用校验的边界。
+
+- [阶段 4 第 20 节：无检索结果时怎么处理](../notes/rag-stage4-20-no-context-handling.md)
+  - 用途：理解无检索结果是 RAG 的业务状态而不是系统异常，掌握 `no_context` 结构化返回、无资料不调用模型、不伪造 citations、用户建议和后续知识库运营之间的关系。
+
+- [阶段 4 第 21 节：RAG 错误处理：embedding、向量库、模型调用异常](../notes/rag-stage4-21-error-handling.md)
+  - 用途：理解 RAG 链路中 embedding、向量库和模型调用异常的分类，掌握 `no_context` 与系统错误的区别，以及 RAG 层如何把底层异常映射成稳定安全的应用错误码。
+
+- [阶段 4 第 22 节：RAG 测试：fake embedding、fake vector store](../notes/rag-stage4-22-rag-testing-fakes.md)
+  - 用途：理解 RAG 自动化测试为什么要隔离真实 embedding、向量库和模型，掌握 fake/stub/mock/spy 的基础区别，以及如何用 fake embedding、fake vector store 测试检索、入库、无资料和错误映射边界。
+
 ## 阶段 4 推荐资料组合
 
 阶段 4：企业知识库 RAG 基础 + 向量数据库入门。当前优先看：
@@ -641,18 +656,23 @@
 15. 本仓库 `notes/rag-stage4-15-basic-top-k-retrieval.md`
 16. 本仓库 `notes/rag-stage4-16-payload-filter.md`
 17. 本仓库 `notes/rag-stage4-17-score-threshold.md`
-18. LangChain Retrieval，理解 RAG 的整体流程
-19. OpenAI Embeddings Guide，理解文本如何变成向量
-20. Qdrant 官方文档，理解 collection、point、vector、payload、search
-21. Qdrant Local Quickstart，按官方方式用 Docker 启动 Qdrant
-22. Qdrant Points，理解 chunk 入库时为什么要同时保存 vector 和 payload
-23. Qdrant Filtering，理解权限过滤和 metadata 过滤
-24. Qdrant Query Points API，理解查询请求体里的 filter、score_threshold 如何和 query/top_k 一起工作
-25. Qdrant Search Points API，辅助理解 score_threshold 与距离函数的关系
-26. Milvus 官方文档，后半段用于向量数据库对比
-27. Milvus Basic Vector Search，后半段理解 ANN 搜索
-28. Milvus Index Explained，后半段理解索引和召回率取舍
-29. RAGFlow GitHub / 文档，只做产品化功能观察，不作为初学实现主线
+18. 本仓库 `notes/rag-stage4-18-retrieved-context-to-model-answer.md`
+19. 本仓库 `notes/rag-stage4-19-citations.md`
+20. 本仓库 `notes/rag-stage4-20-no-context-handling.md`
+21. 本仓库 `notes/rag-stage4-21-error-handling.md`
+22. 本仓库 `notes/rag-stage4-22-rag-testing-fakes.md`
+23. LangChain Retrieval，理解 RAG 的整体流程
+24. OpenAI Embeddings Guide，理解文本如何变成向量
+25. Qdrant 官方文档，理解 collection、point、vector、payload、search
+26. Qdrant Local Quickstart，按官方方式用 Docker 启动 Qdrant
+27. Qdrant Points，理解 chunk 入库时为什么要同时保存 vector 和 payload
+28. Qdrant Filtering，理解权限过滤和 metadata 过滤
+29. Qdrant Query Points API，理解查询请求体里的 filter、score_threshold 如何和 query/top_k 一起工作
+30. Qdrant Search Points API，辅助理解 score_threshold 与距离函数的关系
+31. Milvus 官方文档，后半段用于向量数据库对比
+32. Milvus Basic Vector Search，后半段理解 ANN 搜索
+33. Milvus Index Explained，后半段理解索引和召回率取舍
+34. RAGFlow GitHub / 文档，只做产品化功能观察，不作为初学实现主线
 
 ## 阶段 3 复盘资料组合
 

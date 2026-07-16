@@ -3,6 +3,11 @@ from typing import Protocol
 
 from app.rag.documents import RetrievedChunk
 from app.rag.embeddings import EmbeddingModel, Vector
+from app.rag.errors import (
+    rag_embedding_bad_response,
+    rag_embedding_failed,
+    rag_vector_store_failed,
+)
 from app.rag.filters import PayloadFilter, build_payload_filter
 
 
@@ -42,13 +47,17 @@ def retrieve_top_k(
         raise ValueError("top_k must be greater than 0")
     _validate_score_threshold(score_threshold)
 
-    vectors = embedding_model.embed_texts([normalized_query])
+    try:
+        vectors = embedding_model.embed_texts([normalized_query])
+    except Exception as exc:
+        raise rag_embedding_failed(exc) from exc
+
     if len(vectors) != 1:
-        raise ValueError("query embedding result count must be 1")
+        raise rag_embedding_bad_response()
 
     query_vector = vectors[0]
     if len(query_vector) != embedding_model.dimension:
-        raise ValueError("query embedding vector size must match model dimension")
+        raise rag_embedding_bad_response()
 
     payload_filter = build_payload_filter(
         permission_group=permission_group,
@@ -57,14 +66,17 @@ def retrieve_top_k(
         source=source,
     )
 
-    return vector_store.query_similar(
-        query_vector,
-        top_k=top_k,
-        payload_filter=payload_filter,
-        score_threshold=score_threshold,
-        with_payload=True,
-        with_vector=False,
-    )
+    try:
+        return vector_store.query_similar(
+            query_vector,
+            top_k=top_k,
+            payload_filter=payload_filter,
+            score_threshold=score_threshold,
+            with_payload=True,
+            with_vector=False,
+        )
+    except Exception as exc:
+        raise rag_vector_store_failed(exc) from exc
 
 
 def format_retrieved_chunks_for_debug(chunks: Sequence[RetrievedChunk]) -> list[str]:

@@ -1,37 +1,19 @@
 from pathlib import Path
 
-from app.rag.embeddings import DeterministicHashEmbeddingModel, EmbeddedChunk
+import pytest
+
+from app.core.exceptions import AppException
 from app.rag.ingestion import ingest_directory_to_vector_store
+from app.rag.vector_store import QdrantCollectionConfigError
+from tests.rag_fakes import FakeEmbeddingModel, FakeVectorStoreWriter
 
 
 KNOWLEDGE_BASE_DIR = Path(__file__).resolve().parents[1] / "data" / "knowledge_base"
 
 
-class FakeVectorStore:
-    collection_name = "fake_chunks"
-
-    def __init__(self) -> None:
-        self.vector_size: int | None = None
-        self.distance: str | None = None
-        self.embedded_chunks: list[EmbeddedChunk] = []
-
-    def ensure_collection(self, *, vector_size: int, distance: str = "Cosine") -> None:
-        self.vector_size = vector_size
-        self.distance = distance
-
-    def upsert_embedded_chunks(
-        self,
-        embedded_chunks,
-        *,
-        wait: bool = True,
-    ) -> int:
-        self.embedded_chunks = list(embedded_chunks)
-        return len(self.embedded_chunks)
-
-
 def test_ingest_directory_loads_splits_embeds_and_writes_chunks() -> None:
-    embedding_model = DeterministicHashEmbeddingModel(dimension=4)
-    vector_store = FakeVectorStore()
+    embedding_model = FakeEmbeddingModel(dimension=4)
+    vector_store = FakeVectorStoreWriter()
 
     result = ingest_directory_to_vector_store(
         KNOWLEDGE_BASE_DIR,
@@ -46,6 +28,39 @@ def test_ingest_directory_loads_splits_embeds_and_writes_chunks() -> None:
     assert result.vector_count == len(vector_store.embedded_chunks)
     assert result.vector_dimension == 4
     assert result.collection_name == "fake_chunks"
-    assert vector_store.vector_size == 4
-    assert vector_store.distance == "Cosine"
+    assert vector_store.last_ensure_call["vector_size"] == 4
+    assert vector_store.last_ensure_call["distance"] == "Cosine"
+    assert vector_store.last_upsert_call["wait"] is True
+    assert len(embedding_model.calls) == 1
     assert vector_store.embedded_chunks[0].metadata["chunk_id"]
+
+
+def test_ingest_directory_maps_embedding_failure() -> None:
+    with pytest.raises(AppException) as exc_info:
+        ingest_directory_to_vector_store(
+            KNOWLEDGE_BASE_DIR,
+            embedding_model=FakeEmbeddingModel(
+                dimension=4,
+                error=RuntimeError("embedding provider failed"),
+            ),
+            vector_store=FakeVectorStoreWriter(),
+            chunk_size=220,
+            chunk_overlap=40,
+        )
+
+    assert exc_info.value.code == "RAG_EMBEDDING_FAILED"
+
+
+def test_ingest_directory_maps_vector_store_config_error() -> None:
+    with pytest.raises(AppException) as exc_info:
+        ingest_directory_to_vector_store(
+            KNOWLEDGE_BASE_DIR,
+            embedding_model=FakeEmbeddingModel(dimension=4),
+            vector_store=FakeVectorStoreWriter(
+                ensure_error=QdrantCollectionConfigError("dimension mismatch"),
+            ),
+            chunk_size=220,
+            chunk_overlap=40,
+        )
+
+    assert exc_info.value.code == "RAG_VECTOR_STORE_CONFIG_ERROR"

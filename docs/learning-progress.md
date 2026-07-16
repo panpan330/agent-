@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 4 企业知识库 RAG 基础进行中，第 17 节 score_threshold 已完成，下一步进入第 18 节。
+当前阶段：阶段 4 企业知识库 RAG 基础进行中，第 22 节 RAG 测试：fake embedding、fake vector store 已完成，下一步进入第 23 节。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -135,6 +135,11 @@
 - [x] 完成阶段 4 第 15 节：基础 top_k 检索
 - [x] 完成阶段 4 第 16 节：payload filter：按文档类型、权限、来源过滤
 - [x] 完成阶段 4 第 17 节：score_threshold：低相关内容不回答
+- [x] 完成阶段 4 第 18 节：把检索结果交给模型回答
+- [x] 完成阶段 4 第 19 节：引用来源：回答必须带出处
+- [x] 完成阶段 4 第 20 节：无检索结果时怎么处理
+- [x] 完成阶段 4 第 21 节：RAG 错误处理：embedding、向量库、模型调用异常
+- [x] 完成阶段 4 第 22 节：RAG 测试：fake embedding、fake vector store
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -237,11 +242,11 @@
 | 15 | 基础 top_k 检索 | 已完成 | `notes/rag-stage4-15-basic-top-k-retrieval.md`、`app/rag/retriever.py`、`QdrantVectorStore.query_similar()`、`scripts/rag_retrieve_smoke.py`、query embedding、top_k、score、检索结果解析、retriever 测试 |
 | 16 | payload filter：按文档类型、权限、来源过滤 | 已完成 | `notes/rag-stage4-16-payload-filter.md`、`app/rag/filters.py`、`QdrantVectorStore.query_similar(payload_filter=...)`、`retrieve_top_k()` 过滤参数、`permission_group/business_domain/doc_type/source`、payload filter 测试 |
 | 17 | score_threshold：低相关内容不回答 | 已完成 | `notes/rag-stage4-17-score-threshold.md`、`retrieve_top_k(score_threshold=...)`、`QdrantVectorStore.query_similar(score_threshold=...)`、Qdrant Query API `score_threshold` 请求体、低相关结果过滤测试 |
-| 18 | 把检索结果交给模型回答 | 未开始 | 待新增 |
-| 19 | 引用来源：回答必须带出处 | 未开始 | 待新增 |
-| 20 | 无检索结果时怎么处理 | 未开始 | 待新增 |
-| 21 | RAG 错误处理：embedding、向量库、模型调用异常 | 未开始 | 待新增 |
-| 22 | RAG 测试：fake embedding、fake vector store | 未开始 | 待新增 |
+| 18 | 把检索结果交给模型回答 | 已完成 | `notes/rag-stage4-18-retrieved-context-to-model-answer.md`、`app/rag/generator.py`、`RagAnswerService`、`build_rag_messages()`、检索资料上下文构造、无资料不调用模型、fake LLM 测试 |
+| 19 | 引用来源：回答必须带出处 | 已完成 | `notes/rag-stage4-19-citations.md`、`RagCitation`、`RagAnswer`、`build_rag_citation()`、`build_rag_citations()`、后端根据 retrieved chunks 生成结构化 citations、空结果不伪造出处、fake LLM 测试 |
+| 20 | 无检索结果时怎么处理 | 已完成 | `notes/rag-stage4-20-no-context-handling.md`、`RagAnswerStatus`、`RagNoContextReason`、`build_no_context_rag_answer()`、`build_grounded_rag_answer()`、结构化 `no_context` 状态、无资料 suggestions、无资料不调用模型 |
+| 21 | RAG 错误处理：embedding、向量库、模型调用异常 | 已完成 | `notes/rag-stage4-21-error-handling.md`、`app/rag/errors.py`、`RAG_EMBEDDING_FAILED`、`RAG_EMBEDDING_BAD_RESPONSE`、`RAG_VECTOR_STORE_FAILED`、`RAG_VECTOR_STORE_CONFIG_ERROR`、retriever/ingestion 错误映射测试 |
+| 22 | RAG 测试：fake embedding、fake vector store | 已完成 | `notes/rag-stage4-22-rag-testing-fakes.md`、`tests/rag_fakes.py`、`FakeEmbeddingModel`、`FakeVectorStoreReader`、`FakeVectorStoreWriter`、`make_retrieved_chunk()`、RAG 测试分层、fake 工具测试 |
 | 23 | 文档更新、删除、重新入库 | 未开始 | 待新增 |
 | 24 | embedding 模型选择、维度、成本和批量处理 | 未开始 | 待新增 |
 | 25 | 检索质量调优：chunk size、overlap、top_k、score_threshold | 未开始 | 待新增 |
@@ -350,10 +355,13 @@ M0/M1 第一阶段完成时，必须满足：
 - [x] metadata
 - [x] similarity search
 - [x] score_threshold
+- [x] answer generation
 - [ ] hybrid search
 - [ ] rerank
-- [ ] citations
+- [x] citations
 - [x] 权限过滤
+- [x] 无资料拒答
+- [x] fake embedding / fake vector store 测试
 - [ ] 检索评测
 
 ### LangGraph

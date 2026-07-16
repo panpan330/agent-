@@ -16,9 +16,9 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：L
 
 当前阶段 3 第 1-22 节已完成 Tool Calling 概念、业务系统安全边界、工具参数和 JSON Schema、结构化输出与 Tool Calling 的边界、fake tool 模拟订单查询、工具调用结果 Pydantic 校验、工具调用错误处理、工具调用权限边界、工具调用幂等性、`projects/java-mock-service` 最小业务服务、Python AI 服务调用 Java mock API、让模型决定是否调用工具、工具调用结果再交给模型总结、敏感操作的用户确认机制、确认后创建工单的完整流程、工具调用日志和 `trace_id` 串联、fake Java API / fake tool 的分层测试策略、LangChain 的框架定位和引入时机、LangChain ChatModel 基础、LangChain Tool 基础、LangChain 结构化输出，以及阶段 3 项目整理。后续会进入企业知识库 RAG 基础。
 
-当前阶段 4 已开始企业知识库 RAG 基础，并新增 `app/rag` 内部包，用于承载 RAG 文档、chunk、加载、切分、metadata、embedding、向量库适配、检索和生成等后续能力。当前已完成 RAG 项目结构、内部 document/chunk 数据模型、文档加载清洗、chunk 切分、metadata 标准化和校验、fake embedding 生成、Qdrant 写入适配、基础 top_k 检索、payload filter 过滤和 score_threshold 低相关过滤。
+当前阶段 4 已开始企业知识库 RAG 基础，并新增 `app/rag` 内部包，用于承载 RAG 文档、chunk、加载、切分、metadata、embedding、向量库适配、检索和生成等后续能力。当前已完成 RAG 项目结构、内部 document/chunk 数据模型、文档加载清洗、chunk 切分、metadata 标准化和校验、fake embedding 生成、Qdrant 写入适配、基础 top_k 检索、payload filter 过滤、score_threshold 低相关过滤、把检索结果交给模型生成回答的最小链路、后端根据 retrieved chunks 生成结构化引用来源、无检索结果时的结构化 `no_context` 兜底、RAG embedding/向量库错误映射，以及可复用的 RAG fake 测试工具。
 
-当前已准备第一批 RAG 练习知识文档，位于 `data/knowledge_base`，并已支持把 Markdown/txt 文件加载和清洗为 `RagDocument`，再按段落和标题切分为 `RagChunk`，经过 metadata 必备字段校验和 Qdrant payload 白名单处理后，用确定性的 fake embedding 生成向量并通过 Qdrant REST API upsert 到本地向量库。现在也支持把用户问题转成 fake query embedding，并通过 Qdrant Query API 取回带 payload filter 和 score_threshold 的 top_k 检索结果。真实 embedding API 会在后续小节单独接入。
+当前已准备第一批 RAG 练习知识文档，位于 `data/knowledge_base`，并已支持把 Markdown/txt 文件加载和清洗为 `RagDocument`，再按段落和标题切分为 `RagChunk`，经过 metadata 必备字段校验和 Qdrant payload 白名单处理后，用确定性的 fake embedding 生成向量并通过 Qdrant REST API upsert 到本地向量库。现在也支持把用户问题转成 fake query embedding，并通过 Qdrant Query API 取回带 payload filter 和 score_threshold 的 top_k 检索结果，再把 `RetrievedChunk` 整理成模型上下文生成基于资料的回答，同时返回 `RagCitation` 组成的结构化来源列表；如果没有可用 retrieved chunks，则返回 `status=no_context`、空 citations 和固定 suggestions，不调用模型硬答。查询和入库链路现在会把 embedding 失败、embedding 返回结构异常、向量库调用失败和 collection 配置不匹配映射成统一 RAG 错误码。测试侧新增 `FakeEmbeddingModel`、`FakeVectorStoreReader`、`FakeVectorStoreWriter` 等复用工具，避免单元测试依赖真实 Qdrant、真实 embedding 或真实模型。真实 embedding API 会在后续小节单独接入。
 
 ## 当前能力
 
@@ -129,6 +129,11 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：L
 - 基础 top_k 检索：query -> fake query embedding -> Qdrant Query API -> RetrievedChunk
 - 基础 payload filter：按 `permission_group`、`business_domain`、`doc_type`、`source` 限定检索范围
 - 基础 score_threshold：过滤低相关检索结果，给后续“无资料不回答”打基础
+- 基础 RAG 生成：RetrievedChunk -> RAG context -> OpenAI-compatible model -> grounded answer
+- 基础 RAG 引用来源：RetrievedChunk -> backend-generated RagCitation -> RagAnswer(answer, citations)
+- 基础 RAG 无资料兜底：chunks=[] -> RagAnswer(status=no_context, citations=[], suggestions=[...])
+- 基础 RAG 错误处理：embedding/vector store failures -> AppException RAG_* 错误码
+- RAG fake 测试工具：FakeEmbeddingModel、FakeVectorStoreReader、FakeVectorStoreWriter、make_retrieved_chunk
 
 ## 项目结构
 
@@ -160,6 +165,8 @@ app/
     vector_store.py        Qdrant point 组装、collection 校验、upsert 写入和 query 检索
     ingestion.py           load -> split -> embed -> store 入库编排
     retriever.py           query embedding、payload filter、score_threshold 和 top_k 检索编排
+    generator.py           把检索结果整理成上下文，调用模型生成回答，构造结构化引用来源，并处理 no_context 兜底
+    errors.py              RAG embedding 和 vector store 错误映射
   schemas/
     chat.py                聊天请求/响应模型
     error.py               统一错误响应模型
@@ -203,6 +210,7 @@ scripts/
 tests/
   conftest.py              pytest 共享夹具
   fakes.py                 OpenAI-compatible fake client 测试工具
+  rag_fakes.py             RAG fake embedding、fake vector store 和 RetrievedChunk 构造工具
   tool_fakes.py            工具调用 fake 对象和测试数据构造工具
   test_chat_api.py         /chat 接口测试
   test_chat_schema.py      聊天模型测试
@@ -232,6 +240,9 @@ tests/
   test_rag_vector_store.py Qdrant point 组装、写入和 query 适配测试
   test_rag_ingestion.py    RAG 入库编排测试
   test_rag_retriever.py    RAG query embedding、payload filter、score_threshold 和 top_k 检索编排测试
+  test_rag_generator.py    RAG 上下文构造、模型生成、结构化引用来源和 no_context 兜底测试
+  test_rag_errors.py       RAG embedding 和 vector store 错误映射测试
+  test_rag_fakes.py        RAG fake 测试工具自身行为测试
   test_structured_output_service.py 结构化输出服务测试
   test_structured_schema.py 结构化输出模型测试
   test_tool_idempotency.py 工具调用幂等性测试
