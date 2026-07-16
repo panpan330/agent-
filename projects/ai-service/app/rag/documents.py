@@ -31,3 +31,25 @@ class RagChunk(BaseModel):
         default_factory=dict,
         description="Chunk-level metadata that will become Qdrant payload fields.",
     )
+
+
+class RetrievedChunk(BaseModel):
+    point_id: str = Field(
+        min_length=1,
+        description="Vector-store point id returned by retrieval.",
+    )
+    chunk_id: str = Field(
+        min_length=1,
+        description="Project chunk identifier stored in the point payload.",
+    )
+    content: str = Field(
+        min_length=1,
+        description="Retrieved chunk text that can later be passed to the model.",
+    )
+    metadata: Metadata = Field(
+        default_factory=dict,
+        description="Retrieved chunk metadata copied from the vector-store payload.",
+    )
+    score: float = Field(
+        description="Vector-store similarity score for this query.",
+    )

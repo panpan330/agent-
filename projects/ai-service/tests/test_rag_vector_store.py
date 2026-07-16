@@ -170,6 +170,212 @@ def test_qdrant_store_upserts_embedded_chunks() -> None:
     assert captured_body["points"][0]["payload"]["content"] == "Orders ship within 24 hours."
 
 
+def test_qdrant_store_queries_similar_points() -> None:
+    captured_body: dict | None = None
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal captured_body
+        assert request.method == "POST"
+        assert request.url.path == "/collections/learning_chunks/points/query"
+        captured_body = json.loads(request.content.decode("utf-8"))
+        return httpx.Response(
+            200,
+            json={
+                "status": "ok",
+                "result": {
+                    "points": [
+                        {
+                            "id": "point-1",
+                            "score": 0.87,
+                            "payload": {
+                                "chunk_id": "shipping_chunk_0001",
+                                "content": "Orders ship within 24 hours.",
+                                "source": "shipping.md",
+                                "section": "Shipping",
+                            },
+                        }
+                    ]
+                },
+            },
+            request=request,
+        )
+
+    store = make_store(handler)
+
+    chunks = store.query_similar([0.1, 0.2, 0.3, 0.4], top_k=3)
+
+    assert captured_body == {
+        "query": [0.1, 0.2, 0.3, 0.4],
+        "limit": 3,
+        "with_payload": True,
+        "with_vector": False,
+    }
+    assert len(chunks) == 1
+    assert chunks[0].point_id == "point-1"
+    assert chunks[0].chunk_id == "shipping_chunk_0001"
+    assert chunks[0].content == "Orders ship within 24 hours."
+    assert chunks[0].metadata["source"] == "shipping.md"
+    assert chunks[0].score == 0.87
+
+
+def test_qdrant_store_queries_similar_points_with_payload_filter() -> None:
+    captured_body: dict | None = None
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal captured_body
+        captured_body = json.loads(request.content.decode("utf-8"))
+        return httpx.Response(
+            200,
+            json={
+                "status": "ok",
+                "result": {
+                    "points": [
+                        {
+                            "id": "point-1",
+                            "score": 0.87,
+                            "payload": {
+                                "chunk_id": "shipping_chunk_0001",
+                                "content": "Orders ship within 24 hours.",
+                                "source": "shipping.md",
+                            },
+                        }
+                    ]
+                },
+            },
+            request=request,
+        )
+
+    store = make_store(handler)
+
+    store.query_similar(
+        [0.1, 0.2, 0.3, 0.4],
+        top_k=3,
+        payload_filter={
+            "must": [
+                {"key": "permission_group", "match": {"value": "customer_service"}},
+                {"key": "business_domain", "match": {"value": "order"}},
+            ]
+        },
+    )
+
+    assert captured_body is not None
+    assert captured_body["filter"] == {
+        "must": [
+            {"key": "permission_group", "match": {"value": "customer_service"}},
+            {"key": "business_domain", "match": {"value": "order"}},
+        ]
+    }
+
+
+def test_qdrant_store_queries_similar_points_with_score_threshold() -> None:
+    captured_body: dict | None = None
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal captured_body
+        captured_body = json.loads(request.content.decode("utf-8"))
+        return httpx.Response(
+            200,
+            json={
+                "status": "ok",
+                "result": {
+                    "points": [
+                        {
+                            "id": "point-1",
+                            "score": 0.92,
+                            "payload": {
+                                "chunk_id": "shipping_chunk_0001",
+                                "content": "Orders ship within 24 hours.",
+                            },
+                        }
+                    ]
+                },
+            },
+            request=request,
+        )
+
+    store = make_store(handler)
+
+    chunks = store.query_similar(
+        [0.1, 0.2, 0.3, 0.4],
+        top_k=3,
+        score_threshold=0.8,
+    )
+
+    assert captured_body is not None
+    assert captured_body["score_threshold"] == 0.8
+    assert chunks[0].score == 0.92
+
+
+def test_qdrant_store_accepts_legacy_query_result_list_shape() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={
+                "status": "ok",
+                "result": [
+                    {
+                        "id": "point-1",
+                        "score": 0.87,
+                        "payload": {
+                            "chunk_id": "shipping_chunk_0001",
+                            "content": "Orders ship within 24 hours.",
+                        },
+                    }
+                ],
+            },
+            request=request,
+        )
+
+    store = make_store(handler)
+
+    chunks = store.query_similar([0.1, 0.2, 0.3, 0.4], top_k=1)
+
+    assert chunks[0].chunk_id == "shipping_chunk_0001"
+
+
+def test_qdrant_store_rejects_invalid_query_options() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise AssertionError("invalid query should not call Qdrant")
+
+    store = make_store(handler)
+
+    with pytest.raises(ValueError, match="query_vector"):
+        store.query_similar([], top_k=3)
+
+    with pytest.raises(ValueError, match="top_k"):
+        store.query_similar([0.1, 0.2], top_k=0)
+
+    with pytest.raises(ValueError, match="score_threshold"):
+        store.query_similar([0.1, 0.2], top_k=3, score_threshold=True)
+
+
+def test_qdrant_store_rejects_query_result_without_payload_content() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={
+                "status": "ok",
+                "result": {
+                    "points": [
+                        {
+                            "id": "point-1",
+                            "score": 0.87,
+                            "payload": {
+                                "chunk_id": "shipping_chunk_0001",
+                            },
+                        }
+                    ]
+                },
+            },
+            request=request,
+        )
+
+    store = make_store(handler)
+
+    with pytest.raises(QdrantVectorStoreError, match="content"):
+        store.query_similar([0.1, 0.2], top_k=1)
+
+
 def test_qdrant_store_returns_zero_when_no_chunks_need_upsert() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         raise AssertionError("empty upsert should not call Qdrant")

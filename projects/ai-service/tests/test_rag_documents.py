@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from app.rag.documents import RagChunk, RagDocument
+from app.rag.documents import RagChunk, RagDocument, RetrievedChunk
 
 
 def test_rag_document_keeps_content_and_metadata() -> None:
@@ -32,3 +32,21 @@ def test_rag_chunk_uses_chunk_id_as_future_point_id() -> None:
 
     assert chunk.chunk_id == "order_policy_001_chunk_003"
     assert chunk.metadata["chunk_index"] == 3
+
+
+def test_retrieved_chunk_keeps_score_and_payload_metadata() -> None:
+    chunk = RetrievedChunk(
+        point_id="point-001",
+        chunk_id="order_policy_chunk_0001",
+        content="订单付款后 24 小时内发货。",
+        metadata={
+            "source": "order-shipping-policy.md",
+            "section": "正常发货时效",
+        },
+        score=0.87,
+    )
+
+    assert chunk.point_id == "point-001"
+    assert chunk.chunk_id == "order_policy_chunk_0001"
+    assert chunk.metadata["source"] == "order-shipping-policy.md"
+    assert chunk.score == 0.87

@@ -151,6 +151,9 @@ projects/ 练习项目、Demo 和完整作品
 | 12 | chunk 切分策略：大小、重叠、标题、段落 | [notes/rag-stage4-12-chunk-splitting.md](notes/rag-stage4-12-chunk-splitting.md) | [projects/ai-service/app/rag/splitters.py](projects/ai-service/app/rag/splitters.py) |
 | 13 | 生成 embedding 并写入 Qdrant | [notes/rag-stage4-13-embedding-qdrant-ingestion.md](notes/rag-stage4-13-embedding-qdrant-ingestion.md) | [projects/ai-service/app/rag/embeddings.py](projects/ai-service/app/rag/embeddings.py)、[projects/ai-service/app/rag/vector_store.py](projects/ai-service/app/rag/vector_store.py)、[projects/ai-service/app/rag/ingestion.py](projects/ai-service/app/rag/ingestion.py) |
 | 14 | metadata 设计：source、title、section、权限字段 | [notes/rag-stage4-14-metadata-design.md](notes/rag-stage4-14-metadata-design.md) | [projects/ai-service/app/rag/metadata.py](projects/ai-service/app/rag/metadata.py) |
+| 15 | 基础 top_k 检索 | [notes/rag-stage4-15-basic-top-k-retrieval.md](notes/rag-stage4-15-basic-top-k-retrieval.md) | [projects/ai-service/app/rag/retriever.py](projects/ai-service/app/rag/retriever.py) |
+| 16 | payload filter：按文档类型、权限、来源过滤 | [notes/rag-stage4-16-payload-filter.md](notes/rag-stage4-16-payload-filter.md) | [projects/ai-service/app/rag/filters.py](projects/ai-service/app/rag/filters.py) |
+| 17 | score_threshold：低相关内容不回答 | [notes/rag-stage4-17-score-threshold.md](notes/rag-stage4-17-score-threshold.md) | [projects/ai-service/app/rag/retriever.py](projects/ai-service/app/rag/retriever.py)、[projects/ai-service/app/rag/vector_store.py](projects/ai-service/app/rag/vector_store.py) |
 
 ## 当前目标
 

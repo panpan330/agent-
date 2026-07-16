@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 4 企业知识库 RAG 基础进行中，第 14 节 metadata 设计 已完成，下一步进入第 15 节。
+当前阶段：阶段 4 企业知识库 RAG 基础进行中，第 17 节 score_threshold 已完成，下一步进入第 18 节。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -132,6 +132,9 @@
 - [x] 完成阶段 4 第 12 节：chunk 切分策略：大小、重叠、标题、段落
 - [x] 完成阶段 4 第 13 节：生成 embedding 并写入 Qdrant
 - [x] 完成阶段 4 第 14 节：metadata 设计：source、title、section、权限字段
+- [x] 完成阶段 4 第 15 节：基础 top_k 检索
+- [x] 完成阶段 4 第 16 节：payload filter：按文档类型、权限、来源过滤
+- [x] 完成阶段 4 第 17 节：score_threshold：低相关内容不回答
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -231,9 +234,9 @@
 | 12 | chunk 切分策略：大小、重叠、标题、段落 | 已完成 | `notes/rag-stage4-12-chunk-splitting.md`、`projects/ai-service/app/rag/splitters.py`、段落优先切分、标题感知、chunk_size、chunk_overlap、稳定 chunk_id、section metadata、splitter 测试 |
 | 13 | 生成 embedding 并写入 Qdrant | 已完成 | `notes/rag-stage4-13-embedding-qdrant-ingestion.md`、`app/rag/embeddings.py`、`app/rag/vector_store.py`、`app/rag/ingestion.py`、`scripts/rag_ingest_smoke.py` |
 | 14 | metadata 设计：source、title、section、权限字段 | 已完成 | `notes/rag-stage4-14-metadata-design.md`、`app/rag/metadata.py`、metadata 标准化、必备字段校验、Qdrant payload 白名单、权限字段边界、metadata 测试 |
-| 15 | 基础 top_k 检索 | 未开始 | 待新增 |
-| 16 | payload filter：按文档类型、权限、来源过滤 | 未开始 | 待新增 |
-| 17 | score_threshold：低相关内容不回答 | 未开始 | 待新增 |
+| 15 | 基础 top_k 检索 | 已完成 | `notes/rag-stage4-15-basic-top-k-retrieval.md`、`app/rag/retriever.py`、`QdrantVectorStore.query_similar()`、`scripts/rag_retrieve_smoke.py`、query embedding、top_k、score、检索结果解析、retriever 测试 |
+| 16 | payload filter：按文档类型、权限、来源过滤 | 已完成 | `notes/rag-stage4-16-payload-filter.md`、`app/rag/filters.py`、`QdrantVectorStore.query_similar(payload_filter=...)`、`retrieve_top_k()` 过滤参数、`permission_group/business_domain/doc_type/source`、payload filter 测试 |
+| 17 | score_threshold：低相关内容不回答 | 已完成 | `notes/rag-stage4-17-score-threshold.md`、`retrieve_top_k(score_threshold=...)`、`QdrantVectorStore.query_similar(score_threshold=...)`、Qdrant Query API `score_threshold` 请求体、低相关结果过滤测试 |
 | 18 | 把检索结果交给模型回答 | 未开始 | 待新增 |
 | 19 | 引用来源：回答必须带出处 | 未开始 | 待新增 |
 | 20 | 无检索结果时怎么处理 | 未开始 | 待新增 |
@@ -340,16 +343,17 @@ M0/M1 第一阶段完成时，必须满足：
 ### RAG
 
 - [x] RAG 基础概念
-- [ ] 文档解析
-- [ ] chunk 切分
-- [ ] embedding
-- [ ] vector store
-- [ ] metadata
-- [ ] similarity search
+- [x] 文档解析
+- [x] chunk 切分
+- [x] embedding
+- [x] vector store
+- [x] metadata
+- [x] similarity search
+- [x] score_threshold
 - [ ] hybrid search
 - [ ] rerank
 - [ ] citations
-- [ ] 权限过滤
+- [x] 权限过滤
 - [ ] 检索评测
 
 ### LangGraph

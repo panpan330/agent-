@@ -309,7 +309,13 @@
   - 用途：理解 Qdrant 的 point 是 vector + payload 的记录，是后续文档 chunk 入库的基础。
 
 - [Qdrant Filtering](https://qdrant.tech/documentation/search/filtering/)
-  - 用途：理解 payload filter，后续做文档类型、来源、权限过滤时会用到。
+  - 用途：理解 payload filter，做文档类型、来源、权限过滤时会用到。
+
+- [Qdrant Query Points API](https://api.qdrant.tech/api-reference/search/query-points)
+  - 用途：理解 Qdrant 查询向量时如何同时传入 `query`、`limit`、`filter`、`score_threshold`、`with_payload` 和 `with_vector`。
+
+- [Qdrant Search Points API](https://api.qdrant.tech/api-reference/search/points)
+  - 用途：辅助理解 `score_threshold` 的官方含义：定义最低分数门槛，低相关结果不会返回；具体高于还是低于阈值取决于距离函数。
 
 - [Milvus 官方文档](https://milvus.io/docs)
   - 用途：阶段 4 后半段理解 Milvus 的向量数据库定位、安装、collection、index 和搜索能力。
@@ -605,6 +611,15 @@
 - [阶段 4 第 14 节：metadata 设计：source、title、section、权限字段](../notes/rag-stage4-14-metadata-design.md)
   - 用途：理解 metadata 在 RAG 中如何支撑引用来源、权限过滤、文档类型过滤、调试和重建入库，掌握必备字段、字段语义、payload 白名单和校验边界。
 
+- [阶段 4 第 15 节：基础 top_k 检索](../notes/rag-stage4-15-basic-top-k-retrieval.md)
+  - 用途：理解 retrieval、query embedding、top_k、score 和 Qdrant Query API，掌握从向量库取回最相似 chunk 的最小链路。
+
+- [阶段 4 第 16 节：payload filter：按文档类型、权限、来源过滤](../notes/rag-stage4-16-payload-filter.md)
+  - 用途：理解 payload filter、`must` 条件、`match.value` 精确匹配、filter 和 top_k 的关系，以及 metadata 如何支撑权限和业务范围过滤。
+
+- [阶段 4 第 17 节：score_threshold：低相关内容不回答](../notes/rag-stage4-17-score-threshold.md)
+  - 用途：理解 `top_k` 不等于结果一定可用，掌握 `score_threshold` 如何拦截低相关 chunk，以及阈值为什么必须结合真实 embedding、距离函数和业务数据调优。
+
 ## 阶段 4 推荐资料组合
 
 阶段 4：企业知识库 RAG 基础 + 向量数据库入门。当前优先看：
@@ -623,16 +638,21 @@
 12. 本仓库 `notes/rag-stage4-12-chunk-splitting.md`
 13. 本仓库 `notes/rag-stage4-13-embedding-qdrant-ingestion.md`
 14. 本仓库 `notes/rag-stage4-14-metadata-design.md`
-15. LangChain Retrieval，理解 RAG 的整体流程
-16. OpenAI Embeddings Guide，理解文本如何变成向量
-17. Qdrant 官方文档，理解 collection、point、vector、payload、search
-18. Qdrant Local Quickstart，按官方方式用 Docker 启动 Qdrant
-19. Qdrant Points，理解 chunk 入库时为什么要同时保存 vector 和 payload
-20. Qdrant Filtering，理解后续权限过滤和 metadata 过滤
-21. Milvus 官方文档，后半段用于向量数据库对比
-22. Milvus Basic Vector Search，后半段理解 ANN 搜索
-23. Milvus Index Explained，后半段理解索引和召回率取舍
-22. RAGFlow GitHub / 文档，只做产品化功能观察，不作为初学实现主线
+15. 本仓库 `notes/rag-stage4-15-basic-top-k-retrieval.md`
+16. 本仓库 `notes/rag-stage4-16-payload-filter.md`
+17. 本仓库 `notes/rag-stage4-17-score-threshold.md`
+18. LangChain Retrieval，理解 RAG 的整体流程
+19. OpenAI Embeddings Guide，理解文本如何变成向量
+20. Qdrant 官方文档，理解 collection、point、vector、payload、search
+21. Qdrant Local Quickstart，按官方方式用 Docker 启动 Qdrant
+22. Qdrant Points，理解 chunk 入库时为什么要同时保存 vector 和 payload
+23. Qdrant Filtering，理解权限过滤和 metadata 过滤
+24. Qdrant Query Points API，理解查询请求体里的 filter、score_threshold 如何和 query/top_k 一起工作
+25. Qdrant Search Points API，辅助理解 score_threshold 与距离函数的关系
+26. Milvus 官方文档，后半段用于向量数据库对比
+27. Milvus Basic Vector Search，后半段理解 ANN 搜索
+28. Milvus Index Explained，后半段理解索引和召回率取舍
+29. RAGFlow GitHub / 文档，只做产品化功能观察，不作为初学实现主线
 
 ## 阶段 3 复盘资料组合
 

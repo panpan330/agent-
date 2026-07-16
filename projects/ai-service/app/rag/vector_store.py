@@ -1,4 +1,4 @@
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 import logging
 from time import perf_counter
 from typing import Any
@@ -7,7 +7,9 @@ from uuid import UUID, uuid5
 import httpx
 
 from app.core.config import Settings
+from app.rag.documents import Metadata, RetrievedChunk
 from app.rag.embeddings import EmbeddedChunk
+from app.rag.filters import normalize_payload_filter
 from app.rag.metadata import build_qdrant_payload
 
 
@@ -140,6 +142,53 @@ class QdrantVectorStore:
         self._log_finished("qdrant_points_upserted", start_time, point_count=len(points))
         return len(points)
 
+    def query_similar(
+        self,
+        query_vector: list[float],
+        *,
+        top_k: int,
+        payload_filter: Mapping[str, Any] | None = None,
+        score_threshold: float | None = None,
+        with_payload: bool = True,
+        with_vector: bool = False,
+    ) -> list[RetrievedChunk]:
+        _validate_query_vector(query_vector)
+        _validate_top_k(top_k)
+        _validate_score_threshold(score_threshold)
+        normalized_filter = normalize_payload_filter(payload_filter)
+
+        path = f"/collections/{self.collection_name}/points/query"
+        request_body: dict[str, Any] = {
+            "query": query_vector,
+            "limit": top_k,
+            "with_payload": with_payload,
+            "with_vector": with_vector,
+        }
+        if normalized_filter is not None:
+            request_body["filter"] = normalized_filter
+        if score_threshold is not None:
+            request_body["score_threshold"] = score_threshold
+
+        start_time = perf_counter()
+        try:
+            with self._client() as client:
+                response = client.post(
+                    path,
+                    json=request_body,
+                )
+        except httpx.RequestError as exc:
+            raise QdrantVectorStoreError("failed to connect to Qdrant") from exc
+
+        self._raise_for_bad_response(response, "query points")
+        points = _extract_query_points(response)
+        retrieved_chunks = [_build_retrieved_chunk(point) for point in points]
+        self._log_finished(
+            "qdrant_points_queried",
+            start_time,
+            point_count=len(retrieved_chunks),
+        )
+        return retrieved_chunks
+
     def _client(self) -> httpx.Client:
         return httpx.Client(
             base_url=self.base_url,
@@ -228,3 +277,77 @@ def _validate_same_vector_size(embedded_chunks: Sequence[EmbeddedChunk]) -> None
     for embedded_chunk in embedded_chunks:
         if len(embedded_chunk.vector) != first_size:
             raise ValueError("all embedding vectors must have the same size")
+
+
+def _validate_query_vector(query_vector: Sequence[float]) -> None:
+    if not query_vector:
+        raise ValueError("query_vector must not be empty")
+    for value in query_vector:
+        if not isinstance(value, int | float) or isinstance(value, bool):
+            raise ValueError("query_vector must contain only numbers")
+
+
+def _validate_top_k(top_k: int) -> None:
+    if not isinstance(top_k, int) or isinstance(top_k, bool) or top_k <= 0:
+        raise ValueError("top_k must be a positive integer")
+
+
+def _validate_score_threshold(score_threshold: float | None) -> None:
+    if score_threshold is None:
+        return
+    if not isinstance(score_threshold, int | float) or isinstance(score_threshold, bool):
+        raise ValueError("score_threshold must be a number")
+
+
+def _extract_query_points(response: httpx.Response) -> list[dict[str, Any]]:
+    try:
+        data = response.json()
+    except ValueError as exc:
+        raise QdrantVectorStoreError("Qdrant query points returned invalid JSON") from exc
+
+    if data.get("status") != "ok":
+        raise QdrantVectorStoreError("Qdrant query points returned non-ok status")
+
+    result = data.get("result")
+    if isinstance(result, dict):
+        points = result.get("points")
+    else:
+        points = result
+
+    if not isinstance(points, list):
+        raise QdrantVectorStoreError("Qdrant query points returned invalid result")
+
+    return points
+
+
+def _build_retrieved_chunk(point: dict[str, Any]) -> RetrievedChunk:
+    payload = point.get("payload")
+    if not isinstance(payload, dict):
+        raise QdrantVectorStoreError("Qdrant query point is missing payload")
+
+    content = payload.get("content")
+    chunk_id = payload.get("chunk_id")
+    if not isinstance(content, str) or not content.strip():
+        raise QdrantVectorStoreError("Qdrant query payload is missing content")
+    if not isinstance(chunk_id, str) or not chunk_id.strip():
+        raise QdrantVectorStoreError("Qdrant query payload is missing chunk_id")
+
+    score = point.get("score")
+    if not isinstance(score, int | float) or isinstance(score, bool):
+        raise QdrantVectorStoreError("Qdrant query point is missing score")
+    point_id = point.get("id")
+    if point_id is None:
+        raise QdrantVectorStoreError("Qdrant query point is missing id")
+
+    metadata: Metadata = {
+        key: value
+        for key, value in payload.items()
+        if key != "content"
+    }
+    return RetrievedChunk(
+        point_id=str(point_id),
+        chunk_id=chunk_id,
+        content=content,
+        metadata=metadata,
+        score=float(score),
+    )
