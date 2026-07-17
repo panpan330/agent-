@@ -299,14 +299,26 @@
 - [OpenAI Embeddings Guide](https://developers.openai.com/api/docs/guides/embeddings)
   - 用途：理解 embedding 是什么，文本为什么可以变成向量，以及 embedding 在搜索、聚类、推荐和 RAG 里的作用。
 
+- [Alibaba Cloud Model Studio Embedding](https://www.alibabacloud.com/help/en/model-studio/embedding)
+  - 用途：理解阿里云 Model Studio embedding 模型、batch size、文本限制和 embedding 模型选择基础。
+
+- [Alibaba Cloud Model Studio Text Embedding Synchronous API](https://www.alibabacloud.com/help/en/model-studio/text-embedding-synchronous-api)
+  - 用途：理解 `text-embedding-v4` 等模型的输出维度、同步调用参数和 batch 限制。
+
 - [Qdrant 官方文档](https://qdrant.tech/documentation/)
   - 用途：理解向量库、collection、point、filter、search。
 
 - [Qdrant Local Quickstart](https://qdrant.tech/documentation/quickstart/)
   - 用途：后续本地跑 Qdrant 时使用。
 
+- [Qdrant Collections](https://qdrant.tech/documentation/manage-data/collections/)
+  - 用途：理解同一个 collection 里的向量必须维度一致，并根据 embedding 模型选择合适的 vector size 和 distance。
+
 - [Qdrant Points](https://qdrant.tech/documentation/manage-data/points/)
   - 用途：理解 Qdrant 的 point 是 vector + payload 的记录，是后续文档 chunk 入库的基础。
+
+- [Qdrant Delete Points API](https://api.qdrant.tech/api-reference/points/delete-points)
+  - 用途：理解如何按 point id 或 payload filter 删除 Qdrant points，是文档删除、文档更新和重新入库的基础。
 
 - [Qdrant Filtering](https://qdrant.tech/documentation/search/filtering/)
   - 用途：理解 payload filter，做文档类型、来源、权限过滤时会用到。
@@ -635,6 +647,12 @@
 - [阶段 4 第 22 节：RAG 测试：fake embedding、fake vector store](../notes/rag-stage4-22-rag-testing-fakes.md)
   - 用途：理解 RAG 自动化测试为什么要隔离真实 embedding、向量库和模型，掌握 fake/stub/mock/spy 的基础区别，以及如何用 fake embedding、fake vector store 测试检索、入库、无资料和错误映射边界。
 
+- [阶段 4 第 23 节：文档更新、删除、重新入库](../notes/rag-stage4-23-document-update-delete-reingest.md)
+  - 用途：理解 RAG 知识库为什么不能只新增入库，掌握按 `source` 删除旧 chunks、重新入库前清理旧 points、`upsert` 的作用和局限，以及 fake vector store 如何测试删除和刷新编排。
+
+- [阶段 4 第 24 节：embedding 模型选择、维度、成本和批量处理](../notes/rag-stage4-24-embedding-model-dimension-cost-batch.md)
+  - 用途：理解真实 embedding 模型和聊天模型的区别、维度和 Qdrant collection 的关系、模型选择标准、batch size、成本估算，以及如何用 OpenAI-compatible embedding adapter 接入真实模型。
+
 ## 阶段 4 推荐资料组合
 
 阶段 4：企业知识库 RAG 基础 + 向量数据库入门。当前优先看：
@@ -661,17 +679,23 @@
 20. 本仓库 `notes/rag-stage4-20-no-context-handling.md`
 21. 本仓库 `notes/rag-stage4-21-error-handling.md`
 22. 本仓库 `notes/rag-stage4-22-rag-testing-fakes.md`
-23. LangChain Retrieval，理解 RAG 的整体流程
-24. OpenAI Embeddings Guide，理解文本如何变成向量
-25. Qdrant 官方文档，理解 collection、point、vector、payload、search
-26. Qdrant Local Quickstart，按官方方式用 Docker 启动 Qdrant
-27. Qdrant Points，理解 chunk 入库时为什么要同时保存 vector 和 payload
-28. Qdrant Filtering，理解权限过滤和 metadata 过滤
-29. Qdrant Query Points API，理解查询请求体里的 filter、score_threshold 如何和 query/top_k 一起工作
-30. Qdrant Search Points API，辅助理解 score_threshold 与距离函数的关系
-31. Milvus 官方文档，后半段用于向量数据库对比
-32. Milvus Basic Vector Search，后半段理解 ANN 搜索
-33. Milvus Index Explained，后半段理解索引和召回率取舍
+23. 本仓库 `notes/rag-stage4-23-document-update-delete-reingest.md`
+24. 本仓库 `notes/rag-stage4-24-embedding-model-dimension-cost-batch.md`
+25. LangChain Retrieval，理解 RAG 的整体流程
+26. OpenAI Embeddings Guide，理解文本如何变成向量
+27. Alibaba Cloud Model Studio Embedding，理解阿里云 embedding 模型和 batch 限制
+28. Alibaba Cloud Text Embedding Synchronous API，理解 `text-embedding-v4` 维度参数
+29. Qdrant 官方文档，理解 collection、point、vector、payload、search
+30. Qdrant Local Quickstart，按官方方式用 Docker 启动 Qdrant
+31. Qdrant Collections，理解同一 collection 内向量维度必须一致
+32. Qdrant Points，理解 chunk 入库时为什么要同时保存 vector 和 payload
+33. Qdrant Delete Points API，理解文档删除、重新入库和旧 chunk 清理
+34. Qdrant Filtering，理解权限过滤和 metadata 过滤
+35. Qdrant Query Points API，理解查询请求体里的 filter、score_threshold 如何和 query/top_k 一起工作
+36. Qdrant Search Points API，辅助理解 score_threshold 与距离函数的关系
+37. Milvus 官方文档，后半段用于向量数据库对比
+38. Milvus Basic Vector Search，后半段理解 ANN 搜索
+39. Milvus Index Explained，后半段理解索引和召回率取舍
 34. RAGFlow GitHub / 文档，只做产品化功能观察，不作为初学实现主线
 
 ## 阶段 3 复盘资料组合

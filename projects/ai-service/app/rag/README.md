@@ -16,10 +16,10 @@ documents.py  Internal RAG document and chunk models.
 loaders.py    Load Markdown/txt files into RagDocument objects.
 splitters.py  Split RagDocument objects into RagChunk objects.
 metadata.py   Normalize and validate RAG metadata before Qdrant payload writes.
-embeddings.py Convert chunks into deterministic placeholder vectors.
+embeddings.py Convert texts into deterministic placeholder vectors or OpenAI-compatible real embedding vectors, with batch helpers and storage estimation.
 filters.py    Build Qdrant payload filters from supported metadata fields.
-vector_store.py Build Qdrant points and write embedded chunks through the REST API.
-ingestion.py  Orchestrate load -> split -> embed -> upsert for local ingestion.
+vector_store.py Build Qdrant points, upsert embedded chunks, delete points by filter, and query through the REST API.
+ingestion.py  Orchestrate load -> split -> embed -> upsert, document deletion, and directory refresh flows.
 retriever.py  Convert a user query into a vector and retrieve filtered top_k chunks above an optional score threshold.
 generator.py  Build RAG context from retrieved chunks, ask the model for a grounded answer, return backend-generated citations, and handle no-context fallbacks.
 errors.py     Map embedding and vector-store failures to stable application errors.
@@ -48,3 +48,11 @@ automatic query rewriting, retry policies, or real embedding model calls. Stage 
 lesson 22 adds reusable RAG test fakes in `tests/rag_fakes.py` so retrieval,
 ingestion, no-context handling, and error mapping can be tested without real
 embedding providers, Qdrant, or LLM calls.
+Stage 4 lesson 23 adds document deletion and refresh ingestion basics: Qdrant
+points can be deleted by payload filter, documents can be deleted by `source`,
+and directory refresh can remove old chunks for each source before upserting the
+new chunks.
+Stage 4 lesson 24 adds real embedding preparation: independent embedding settings,
+an OpenAI-compatible embedding model adapter, text batching helpers, and dense
+vector storage estimation. It does not switch existing fake smoke tests to real
+embedding calls.

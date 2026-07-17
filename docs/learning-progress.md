@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 4 企业知识库 RAG 基础进行中，第 22 节 RAG 测试：fake embedding、fake vector store 已完成，下一步进入第 23 节。
+当前阶段：阶段 4 企业知识库 RAG 基础进行中，第 24 节 embedding 模型选择、维度、成本和批量处理已完成，下一步进入第 25 节。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -140,6 +140,8 @@
 - [x] 完成阶段 4 第 20 节：无检索结果时怎么处理
 - [x] 完成阶段 4 第 21 节：RAG 错误处理：embedding、向量库、模型调用异常
 - [x] 完成阶段 4 第 22 节：RAG 测试：fake embedding、fake vector store
+- [x] 完成阶段 4 第 23 节：文档更新、删除、重新入库
+- [x] 完成阶段 4 第 24 节：embedding 模型选择、维度、成本和批量处理
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -247,8 +249,8 @@
 | 20 | 无检索结果时怎么处理 | 已完成 | `notes/rag-stage4-20-no-context-handling.md`、`RagAnswerStatus`、`RagNoContextReason`、`build_no_context_rag_answer()`、`build_grounded_rag_answer()`、结构化 `no_context` 状态、无资料 suggestions、无资料不调用模型 |
 | 21 | RAG 错误处理：embedding、向量库、模型调用异常 | 已完成 | `notes/rag-stage4-21-error-handling.md`、`app/rag/errors.py`、`RAG_EMBEDDING_FAILED`、`RAG_EMBEDDING_BAD_RESPONSE`、`RAG_VECTOR_STORE_FAILED`、`RAG_VECTOR_STORE_CONFIG_ERROR`、retriever/ingestion 错误映射测试 |
 | 22 | RAG 测试：fake embedding、fake vector store | 已完成 | `notes/rag-stage4-22-rag-testing-fakes.md`、`tests/rag_fakes.py`、`FakeEmbeddingModel`、`FakeVectorStoreReader`、`FakeVectorStoreWriter`、`make_retrieved_chunk()`、RAG 测试分层、fake 工具测试 |
-| 23 | 文档更新、删除、重新入库 | 未开始 | 待新增 |
-| 24 | embedding 模型选择、维度、成本和批量处理 | 未开始 | 待新增 |
+| 23 | 文档更新、删除、重新入库 | 已完成 | `notes/rag-stage4-23-document-update-delete-reingest.md`、`QdrantVectorStore.delete_points_by_filter()`、`VectorStoreUpdater`、`delete_document_from_vector_store()`、`refresh_directory_in_vector_store()`、按 `source` 删除旧 chunks、重新入库前清理旧 points、fake 删除测试 |
+| 24 | embedding 模型选择、维度、成本和批量处理 | 已完成 | `notes/rag-stage4-24-embedding-model-dimension-cost-batch.md`、`OpenAICompatibleEmbeddingModel`、独立 embedding 配置、`EMBEDDING_MODEL`、`EMBEDDING_DIMENSION`、`EMBEDDING_BATCH_SIZE`、`split_texts_into_batches()`、`estimate_dense_vector_storage_bytes()`、真实 embedding 适配器测试 |
 | 25 | 检索质量调优：chunk size、overlap、top_k、score_threshold | 未开始 | 待新增 |
 | 26 | 混合检索：关键词检索 + 向量检索 | 未开始 | 待新增 |
 | 27 | rerank 重排序是什么 | 未开始 | 待新增 |
@@ -362,6 +364,8 @@ M0/M1 第一阶段完成时，必须满足：
 - [x] 权限过滤
 - [x] 无资料拒答
 - [x] fake embedding / fake vector store 测试
+- [x] 文档删除 / 重新入库
+- [x] 真实 embedding 适配器 / 批量 embedding 基础
 - [ ] 检索评测
 
 ### LangGraph

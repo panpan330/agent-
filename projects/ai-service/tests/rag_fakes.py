@@ -103,11 +103,14 @@ class FakeVectorStoreWriter:
         *,
         ensure_error: Exception | None = None,
         upsert_error: Exception | None = None,
+        delete_error: Exception | None = None,
     ) -> None:
         self.ensure_error = ensure_error
         self.upsert_error = upsert_error
+        self.delete_error = delete_error
         self.ensure_calls: list[dict[str, Any]] = []
         self.upsert_calls: list[dict[str, Any]] = []
+        self.delete_calls: list[dict[str, Any]] = []
         self.embedded_chunks: list[EmbeddedChunk] = []
 
     @property
@@ -123,6 +126,12 @@ class FakeVectorStoreWriter:
                 "FakeVectorStoreWriter.upsert_embedded_chunks was not called"
             )
         return self.upsert_calls[-1]
+
+    @property
+    def last_delete_call(self) -> dict[str, Any]:
+        if not self.delete_calls:
+            raise AssertionError("FakeVectorStoreWriter.delete_points_by_filter was not called")
+        return self.delete_calls[-1]
 
     def ensure_collection(self, *, vector_size: int, distance: str = "Cosine") -> None:
         self.ensure_calls.append(
@@ -150,3 +159,18 @@ class FakeVectorStoreWriter:
         if self.upsert_error is not None:
             raise self.upsert_error
         return len(self.embedded_chunks)
+
+    def delete_points_by_filter(
+        self,
+        payload_filter: Mapping[str, Any],
+        *,
+        wait: bool = True,
+    ) -> None:
+        self.delete_calls.append(
+            {
+                "payload_filter": dict(payload_filter),
+                "wait": wait,
+            }
+        )
+        if self.delete_error is not None:
+            raise self.delete_error

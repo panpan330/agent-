@@ -94,14 +94,37 @@ def test_fake_vector_store_writer_records_collection_and_upsert_arguments() -> N
     assert store.last_upsert_call["wait"] is False
 
 
+def test_fake_vector_store_writer_records_delete_arguments() -> None:
+    store = FakeVectorStoreWriter()
+
+    store.delete_points_by_filter(
+        {"must": [{"key": "source", "match": {"value": "shipping.md"}}]},
+        wait=False,
+    )
+
+    assert store.last_delete_call == {
+        "payload_filter": {
+            "must": [{"key": "source", "match": {"value": "shipping.md"}}]
+        },
+        "wait": False,
+    }
+
+
 def test_fake_vector_store_writer_can_raise_configured_errors() -> None:
     ensure_error = RuntimeError("ensure failed")
     upsert_error = RuntimeError("upsert failed")
+    delete_error = RuntimeError("delete failed")
     ensure_store = FakeVectorStoreWriter(ensure_error=ensure_error)
     upsert_store = FakeVectorStoreWriter(upsert_error=upsert_error)
+    delete_store = FakeVectorStoreWriter(delete_error=delete_error)
 
     with pytest.raises(RuntimeError, match="ensure failed"):
         ensure_store.ensure_collection(vector_size=2)
 
     with pytest.raises(RuntimeError, match="upsert failed"):
         upsert_store.upsert_embedded_chunks([], wait=True)
+
+    with pytest.raises(RuntimeError, match="delete failed"):
+        delete_store.delete_points_by_filter(
+            {"must": [{"key": "source", "match": {"value": "shipping.md"}}]}
+        )

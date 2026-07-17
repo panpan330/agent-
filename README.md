@@ -159,6 +159,8 @@ projects/ 练习项目、Demo 和完整作品
 | 20 | 无检索结果时怎么处理 | [notes/rag-stage4-20-no-context-handling.md](notes/rag-stage4-20-no-context-handling.md) | [projects/ai-service/app/rag/generator.py](projects/ai-service/app/rag/generator.py) |
 | 21 | RAG 错误处理：embedding、向量库、模型调用异常 | [notes/rag-stage4-21-error-handling.md](notes/rag-stage4-21-error-handling.md) | [projects/ai-service/app/rag/errors.py](projects/ai-service/app/rag/errors.py)、[projects/ai-service/app/rag/retriever.py](projects/ai-service/app/rag/retriever.py)、[projects/ai-service/app/rag/ingestion.py](projects/ai-service/app/rag/ingestion.py) |
 | 22 | RAG 测试：fake embedding、fake vector store | [notes/rag-stage4-22-rag-testing-fakes.md](notes/rag-stage4-22-rag-testing-fakes.md) | [projects/ai-service/tests/rag_fakes.py](projects/ai-service/tests/rag_fakes.py) |
+| 23 | 文档更新、删除、重新入库 | [notes/rag-stage4-23-document-update-delete-reingest.md](notes/rag-stage4-23-document-update-delete-reingest.md) | [projects/ai-service/app/rag/ingestion.py](projects/ai-service/app/rag/ingestion.py)、[projects/ai-service/app/rag/vector_store.py](projects/ai-service/app/rag/vector_store.py) |
+| 24 | embedding 模型选择、维度、成本和批量处理 | [notes/rag-stage4-24-embedding-model-dimension-cost-batch.md](notes/rag-stage4-24-embedding-model-dimension-cost-batch.md) | [projects/ai-service/app/rag/embeddings.py](projects/ai-service/app/rag/embeddings.py)、[projects/ai-service/app/core/config.py](projects/ai-service/app/core/config.py) |
 
 ## 当前目标
 

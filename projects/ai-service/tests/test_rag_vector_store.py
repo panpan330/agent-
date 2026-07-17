@@ -170,6 +170,40 @@ def test_qdrant_store_upserts_embedded_chunks() -> None:
     assert captured_body["points"][0]["payload"]["content"] == "Orders ship within 24 hours."
 
 
+def test_qdrant_store_deletes_points_by_payload_filter() -> None:
+    captured_body: dict | None = None
+    captured_url: httpx.URL | None = None
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal captured_body, captured_url
+        captured_url = request.url
+        captured_body = json.loads(request.content.decode("utf-8"))
+        return httpx.Response(
+            200,
+            json={
+                "status": "ok",
+                "result": {"status": "acknowledged", "operation_id": 2},
+            },
+            request=request,
+        )
+
+    store = make_store(handler)
+
+    store.delete_points_by_filter(
+        {"must": [{"key": "source", "match": {"value": "shipping.md"}}]},
+        wait=False,
+    )
+
+    assert captured_url is not None
+    assert captured_url.path == "/collections/learning_chunks/points/delete"
+    assert captured_url.params["wait"] == "false"
+    assert captured_body == {
+        "filter": {
+            "must": [{"key": "source", "match": {"value": "shipping.md"}}]
+        }
+    }
+
+
 def test_qdrant_store_queries_similar_points() -> None:
     captured_body: dict | None = None
 
@@ -383,6 +417,16 @@ def test_qdrant_store_returns_zero_when_no_chunks_need_upsert() -> None:
     store = make_store(handler)
 
     assert store.upsert_embedded_chunks([]) == 0
+
+
+def test_qdrant_store_rejects_empty_delete_filter_before_http_call() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise AssertionError("invalid delete should not call Qdrant")
+
+    store = make_store(handler)
+
+    with pytest.raises(ValueError, match="payload_filter"):
+        store.delete_points_by_filter({})
 
 
 def test_qdrant_store_rejects_mismatched_vector_sizes_before_upsert() -> None:

@@ -31,6 +31,16 @@ def test_settings_use_default_values() -> None:
     assert settings.qdrant_timeout_seconds == 5.0
     assert settings.qdrant_vector_size == 8
     assert settings.qdrant_api_key is None
+    assert settings.embedding_provider == "openai-compatible"
+    assert settings.embedding_model == "text-embedding-3-small"
+    assert settings.embedding_base_url is None
+    assert settings.embedding_api_key is None
+    assert settings.resolved_embedding_api_key is None
+    assert settings.has_embedding_api_key is False
+    assert settings.resolved_embedding_base_url is None
+    assert settings.embedding_dimension == 1536
+    assert settings.embedding_batch_size == 64
+    assert settings.embedding_request_dimensions is False
     assert settings.tool_confirmation_ttl_seconds == 300
     assert settings.log_level == "INFO"
     assert settings.cors_allowed_origins == "http://localhost:5173,http://127.0.0.1:5173"
@@ -62,6 +72,16 @@ def test_settings_read_environment_variables(monkeypatch: pytest.MonkeyPatch) ->
     monkeypatch.setenv("QDRANT_TIMEOUT_SECONDS", "3.5")
     monkeypatch.setenv("QDRANT_VECTOR_SIZE", "12")
     monkeypatch.setenv("QDRANT_API_KEY", "qdrant-test-key")
+    monkeypatch.setenv("EMBEDDING_PROVIDER", "aliyun-compatible")
+    monkeypatch.setenv("EMBEDDING_MODEL", "text-embedding-v4")
+    monkeypatch.setenv(
+        "EMBEDDING_BASE_URL",
+        " https://embedding.example.com/compatible-mode/v1/ ",
+    )
+    monkeypatch.setenv("EMBEDDING_API_KEY", "embedding-test-key")
+    monkeypatch.setenv("EMBEDDING_DIMENSION", "1024")
+    monkeypatch.setenv("EMBEDDING_BATCH_SIZE", "10")
+    monkeypatch.setenv("EMBEDDING_REQUEST_DIMENSIONS", "true")
     monkeypatch.setenv("TOOL_CONFIRMATION_TTL_SECONDS", "120")
     monkeypatch.setenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000")
 
@@ -87,6 +107,17 @@ def test_settings_read_environment_variables(monkeypatch: pytest.MonkeyPatch) ->
     assert settings.qdrant_timeout_seconds == 3.5
     assert settings.qdrant_vector_size == 12
     assert settings.qdrant_api_key == "qdrant-test-key"
+    assert settings.embedding_provider == "aliyun-compatible"
+    assert settings.embedding_model == "text-embedding-v4"
+    assert (
+        settings.resolved_embedding_base_url
+        == "https://embedding.example.com/compatible-mode/v1"
+    )
+    assert settings.resolved_embedding_api_key == "embedding-test-key"
+    assert settings.has_embedding_api_key is True
+    assert settings.embedding_dimension == 1024
+    assert settings.embedding_batch_size == 10
+    assert settings.embedding_request_dimensions is True
     assert settings.tool_confirmation_ttl_seconds == 120
     assert settings.cors_allowed_origin_list == ["http://localhost:3000"]
 
@@ -100,6 +131,8 @@ def test_settings_detect_openai_api_key(monkeypatch: pytest.MonkeyPatch) -> None
     assert settings.has_openai_api_key is True
     assert settings.resolved_llm_api_key == "sk-test-for-local-config"
     assert settings.has_llm_api_key is True
+    assert settings.resolved_embedding_api_key == "sk-test-for-local-config"
+    assert settings.has_embedding_api_key is True
 
 
 def test_settings_prefer_llm_api_key_over_legacy_openai_api_key(
@@ -122,6 +155,30 @@ def test_settings_fall_back_to_legacy_openai_api_key_when_llm_key_is_blank(
     settings = Settings(_env_file=None)
 
     assert settings.resolved_llm_api_key == "legacy-openai-test-key"
+
+
+def test_settings_prefer_embedding_api_key_over_llm_api_key(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("EMBEDDING_API_KEY", "embedding-test-key")
+    monkeypatch.setenv("LLM_API_KEY", "llm-test-key")
+
+    settings = Settings(_env_file=None)
+
+    assert settings.resolved_embedding_api_key == "embedding-test-key"
+
+
+def test_settings_fall_back_to_llm_base_url_for_embedding_base_url() -> None:
+    settings = Settings(
+        llm_base_url=" https://example.cn-beijing.maas.aliyuncs.com/compatible-mode/v1/ ",
+        embedding_base_url=None,
+        _env_file=None,
+    )
+
+    assert (
+        settings.resolved_embedding_base_url
+        == "https://example.cn-beijing.maas.aliyuncs.com/compatible-mode/v1"
+    )
 
 
 def test_settings_treat_blank_openai_api_key_as_missing() -> None:
@@ -159,6 +216,13 @@ def test_settings_read_env_file(tmp_path: Path) -> None:
                 "QDRANT_TIMEOUT_SECONDS=4",
                 "QDRANT_VECTOR_SIZE=16",
                 'QDRANT_API_KEY=""',
+                'EMBEDDING_PROVIDER="aliyun-compatible"',
+                'EMBEDDING_MODEL="text-embedding-v4"',
+                'EMBEDDING_BASE_URL="https://embedding.example.com/compatible-mode/v1/"',
+                'EMBEDDING_API_KEY=""',
+                "EMBEDDING_DIMENSION=1024",
+                "EMBEDDING_BATCH_SIZE=10",
+                "EMBEDDING_REQUEST_DIMENSIONS=true",
                 "TOOL_CONFIRMATION_TTL_SECONDS=240",
                 'CORS_ALLOWED_ORIGINS="http://localhost:5173, http://localhost:3000"',
                 'OPENAI_API_KEY=""',
@@ -188,6 +252,16 @@ def test_settings_read_env_file(tmp_path: Path) -> None:
     assert settings.qdrant_timeout_seconds == 4.0
     assert settings.qdrant_vector_size == 16
     assert settings.qdrant_api_key == ""
+    assert settings.embedding_provider == "aliyun-compatible"
+    assert settings.embedding_model == "text-embedding-v4"
+    assert (
+        settings.resolved_embedding_base_url
+        == "https://embedding.example.com/compatible-mode/v1"
+    )
+    assert settings.has_embedding_api_key is False
+    assert settings.embedding_dimension == 1024
+    assert settings.embedding_batch_size == 10
+    assert settings.embedding_request_dimensions is True
     assert settings.tool_confirmation_ttl_seconds == 240
     assert settings.cors_allowed_origin_list == [
         "http://localhost:5173",
@@ -251,6 +325,31 @@ def test_settings_reject_invalid_qdrant_vector_size() -> None:
     error = exc_info.value.errors()[0]
     assert error["loc"] == ("qdrant_vector_size",)
     assert error["type"] == "greater_than"
+
+
+def test_settings_reject_invalid_embedding_dimension() -> None:
+    with pytest.raises(ValidationError) as exc_info:
+        Settings(embedding_dimension=0, _env_file=None)
+
+    error = exc_info.value.errors()[0]
+    assert error["loc"] == ("embedding_dimension",)
+    assert error["type"] == "greater_than"
+
+
+def test_settings_reject_invalid_embedding_batch_size() -> None:
+    with pytest.raises(ValidationError) as exc_info:
+        Settings(embedding_batch_size=0, _env_file=None)
+
+    error = exc_info.value.errors()[0]
+    assert error["loc"] == ("embedding_batch_size",)
+    assert error["type"] == "greater_than_equal"
+
+    with pytest.raises(ValidationError) as exc_info:
+        Settings(embedding_batch_size=257, _env_file=None)
+
+    error = exc_info.value.errors()[0]
+    assert error["loc"] == ("embedding_batch_size",)
+    assert error["type"] == "less_than_equal"
 
 
 def test_settings_reject_tool_confirmation_ttl_outside_allowed_range() -> None:

@@ -142,6 +142,32 @@ class QdrantVectorStore:
         self._log_finished("qdrant_points_upserted", start_time, point_count=len(points))
         return len(points)
 
+    def delete_points_by_filter(
+        self,
+        payload_filter: Mapping[str, Any],
+        *,
+        wait: bool = True,
+    ) -> None:
+        normalized_filter = normalize_payload_filter(payload_filter)
+        if normalized_filter is None:
+            raise ValueError("payload_filter must not be empty")
+
+        path = f"/collections/{self.collection_name}/points/delete"
+        start_time = perf_counter()
+        try:
+            with self._client() as client:
+                response = client.post(
+                    path,
+                    params={"wait": str(wait).lower()},
+                    json={"filter": normalized_filter},
+                )
+        except httpx.RequestError as exc:
+            raise QdrantVectorStoreError("failed to connect to Qdrant") from exc
+
+        self._raise_for_bad_response(response, "delete points")
+        self._assert_qdrant_ok(response, "delete points")
+        self._log_finished("qdrant_points_deleted", start_time)
+
     def query_similar(
         self,
         query_vector: list[float],
