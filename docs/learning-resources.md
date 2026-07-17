@@ -653,6 +653,24 @@
 - [阶段 4 第 24 节：embedding 模型选择、维度、成本和批量处理](../notes/rag-stage4-24-embedding-model-dimension-cost-batch.md)
   - 用途：理解真实 embedding 模型和聊天模型的区别、维度和 Qdrant collection 的关系、模型选择标准、batch size、成本估算，以及如何用 OpenAI-compatible embedding adapter 接入真实模型。
 
+- [阶段 4 第 25 节：检索质量调优：chunk size、overlap、top_k、score_threshold](../notes/rag-stage4-25-retrieval-quality-tuning.md)
+  - 用途：理解 chunk 切分参数和检索参数如何影响召回质量，掌握 `chunk_size`、`chunk_overlap`、`top_k`、`score_threshold` 的边界和调优观察方法。
+
+- [阶段 4 第 26 节：混合检索：关键词检索 + 向量检索](../notes/rag-stage4-26-hybrid-search.md)
+  - 用途：理解为什么企业 RAG 不能只依赖向量检索，掌握关键词召回、向量召回、候选去重、分数归一化、加权融合和 metadata filter 在混合检索里的作用。
+
+- [阶段 4 第 27 节：rerank 重排序是什么](../notes/rag-stage4-27-rerank.md)
+  - 用途：理解 rerank 在召回之后、生成之前的位置，掌握 recall/precision、规则 reranker、cross-encoder reranker、LLM reranker、原始排名、重排排名和分数拆解。
+
+- [阶段 4 第 28 节：RAG 安全：文档权限、Prompt Injection、敏感信息](../notes/rag-stage4-28-rag-security.md)
+  - 用途：理解 RAG 安全为什么要在资料进入模型前处理，掌握权限复查、Prompt Injection 风险、敏感信息识别、脱敏 evidence、safe chunks 和安全报告。
+
+- [阶段 4 第 29 节：RAG 性能：缓存、批处理、超时、降级](../notes/rag-stage4-29-rag-performance.md)
+  - 用途：理解 RAG 工程性能不是单纯追求快，掌握检索缓存 key、TTL 缓存、embedding 批处理、near_timeout、timeout 和降级决策。
+
+- [阶段 4 第 30 节：阶段 4 主线项目验收和复盘](../notes/rag-stage4-30-project-summary.md)
+  - 用途：把第 1-29 节 RAG 主线串成完整项目地图，复盘入库流水线、问答流水线、模块职责、学习版/生产级差距、验收清单和面试口述版。
+
 ## 阶段 4 推荐资料组合
 
 阶段 4：企业知识库 RAG 基础 + 向量数据库入门。当前优先看：
@@ -681,22 +699,28 @@
 22. 本仓库 `notes/rag-stage4-22-rag-testing-fakes.md`
 23. 本仓库 `notes/rag-stage4-23-document-update-delete-reingest.md`
 24. 本仓库 `notes/rag-stage4-24-embedding-model-dimension-cost-batch.md`
-25. LangChain Retrieval，理解 RAG 的整体流程
-26. OpenAI Embeddings Guide，理解文本如何变成向量
-27. Alibaba Cloud Model Studio Embedding，理解阿里云 embedding 模型和 batch 限制
-28. Alibaba Cloud Text Embedding Synchronous API，理解 `text-embedding-v4` 维度参数
-29. Qdrant 官方文档，理解 collection、point、vector、payload、search
-30. Qdrant Local Quickstart，按官方方式用 Docker 启动 Qdrant
-31. Qdrant Collections，理解同一 collection 内向量维度必须一致
-32. Qdrant Points，理解 chunk 入库时为什么要同时保存 vector 和 payload
-33. Qdrant Delete Points API，理解文档删除、重新入库和旧 chunk 清理
-34. Qdrant Filtering，理解权限过滤和 metadata 过滤
-35. Qdrant Query Points API，理解查询请求体里的 filter、score_threshold 如何和 query/top_k 一起工作
-36. Qdrant Search Points API，辅助理解 score_threshold 与距离函数的关系
-37. Milvus 官方文档，后半段用于向量数据库对比
-38. Milvus Basic Vector Search，后半段理解 ANN 搜索
-39. Milvus Index Explained，后半段理解索引和召回率取舍
-34. RAGFlow GitHub / 文档，只做产品化功能观察，不作为初学实现主线
+25. 本仓库 `notes/rag-stage4-25-retrieval-quality-tuning.md`
+26. 本仓库 `notes/rag-stage4-26-hybrid-search.md`
+27. 本仓库 `notes/rag-stage4-27-rerank.md`
+28. 本仓库 `notes/rag-stage4-28-rag-security.md`
+29. 本仓库 `notes/rag-stage4-29-rag-performance.md`
+30. 本仓库 `notes/rag-stage4-30-project-summary.md`
+31. LangChain Retrieval，理解 RAG 的整体流程
+32. OpenAI Embeddings Guide，理解文本如何变成向量
+33. Alibaba Cloud Model Studio Embedding，理解阿里云 embedding 模型和 batch 限制
+34. Alibaba Cloud Text Embedding Synchronous API，理解 `text-embedding-v4` 维度参数
+35. Qdrant 官方文档，理解 collection、point、vector、payload、search
+36. Qdrant Local Quickstart，按官方方式用 Docker 启动 Qdrant
+37. Qdrant Collections，理解同一 collection 内向量维度必须一致
+38. Qdrant Points，理解 chunk 入库时为什么要同时保存 vector 和 payload
+39. Qdrant Delete Points API，理解文档删除、重新入库和旧 chunk 清理
+40. Qdrant Filtering，理解权限过滤和 metadata 过滤
+41. Qdrant Query Points API，理解查询请求体里的 filter、score_threshold 如何和 query/top_k 一起工作
+42. Qdrant Search Points API，辅助理解 score_threshold 与距离函数的关系
+43. Milvus 官方文档，后半段用于向量数据库对比
+44. Milvus Basic Vector Search，后半段理解 ANN 搜索
+45. Milvus Index Explained，后半段理解索引和召回率取舍
+46. RAGFlow GitHub / 文档，只做产品化功能观察，不作为初学实现主线
 
 ## 阶段 3 复盘资料组合
 

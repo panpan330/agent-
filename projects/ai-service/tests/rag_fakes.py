@@ -92,7 +92,14 @@ class FakeVectorStoreReader:
         )
         if self.error is not None:
             raise self.error
-        return list(self.chunks)
+        chunks = sorted(self.chunks, key=lambda chunk: chunk.score, reverse=True)
+        if score_threshold is not None:
+            chunks = [
+                chunk
+                for chunk in chunks
+                if chunk.score >= score_threshold
+            ]
+        return chunks[:top_k]
 
 
 class FakeVectorStoreWriter:

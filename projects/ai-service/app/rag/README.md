@@ -22,6 +22,11 @@ vector_store.py Build Qdrant points, upsert embedded chunks, delete points by fi
 ingestion.py  Orchestrate load -> split -> embed -> upsert, document deletion, and directory refresh flows.
 retriever.py  Convert a user query into a vector and retrieve filtered top_k chunks above an optional score threshold.
 generator.py  Build RAG context from retrieved chunks, ask the model for a grounded answer, return backend-generated citations, and handle no-context fallbacks.
+tuning.py     Build chunk and retrieval tuning reports for observing chunk_size, chunk_overlap, top_k, and score_threshold effects.
+hybrid.py     Provide simple keyword retrieval and vector + keyword result fusion.
+rerank.py     Rerank retrieved candidates with explainable rule-based scores.
+security.py   Inspect retrieved chunks for permission, prompt-injection, and sensitive-data risks before model context construction.
+performance.py Build learning utilities for retrieval cache keys, TTL caching, batch planning, timing classification, and degradation decisions.
 errors.py     Map embedding and vector-store failures to stable application errors.
 ```
 
@@ -56,3 +61,28 @@ Stage 4 lesson 24 adds real embedding preparation: independent embedding setting
 an OpenAI-compatible embedding model adapter, text batching helpers, and dense
 vector storage estimation. It does not switch existing fake smoke tests to real
 embedding calls.
+Stage 4 lesson 25 adds retrieval tuning helpers for comparing chunk splitting
+parameters and query-time retrieval parameters, plus a local chunk tuning preview
+script that does not require Qdrant.
+Stage 4 lesson 26 adds hybrid retrieval basics: simple keyword matching over local
+chunks, metadata filtering for keyword retrieval, score normalization, vector +
+keyword result de-duplication by chunk ID, weighted fusion, and a keyword search
+preview script that does not require Qdrant.
+Stage 4 lesson 27 adds rerank basics: retrieved candidates can be converted into a
+common rerank input model, scored with an explainable rule-based reranker, and
+returned with original rank, rerank rank, score breakdown, and debug lines. It
+does not call a real rerank model or an LLM reranker.
+Stage 4 lesson 28 adds RAG security basics: retrieved chunks can be checked against
+an allowed permission group policy, scanned for prompt-injection signals and
+sensitive-data patterns, filtered into safe chunks, and summarized with structured
+findings. It does not replace a real permission system, DLP product, or output
+guardrail.
+Stage 4 lesson 29 adds RAG performance basics: retrieval cache keys include query
+hashes and retrieval scope, an in-memory TTL cache demonstrates hit/miss/eviction,
+batch plans show how embedding work can be grouped, operation timing can be marked
+as ok/near-timeout/timed-out, and degradation decisions are represented explicitly.
+It does not replace Redis, production monitoring, hard request cancellation, or a
+real circuit breaker.
+Stage 4 lesson 30 summarizes the Qdrant-based RAG mainline: ingestion flow,
+question-answering flow, module ownership, validation checklist, learning-version
+limits, production gaps, and the transition into Milvus comparison lessons.

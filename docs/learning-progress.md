@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 4 企业知识库 RAG 基础进行中，第 24 节 embedding 模型选择、维度、成本和批量处理已完成，下一步进入第 25 节。
+当前阶段：阶段 4 企业知识库 RAG 基础进行中，第 30 节 阶段 4 主线项目验收和复盘 已完成，下一步进入第 31 节 Milvus 是什么，和 Qdrant 有什么区别。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -142,6 +142,12 @@
 - [x] 完成阶段 4 第 22 节：RAG 测试：fake embedding、fake vector store
 - [x] 完成阶段 4 第 23 节：文档更新、删除、重新入库
 - [x] 完成阶段 4 第 24 节：embedding 模型选择、维度、成本和批量处理
+- [x] 完成阶段 4 第 25 节：检索质量调优：chunk size、overlap、top_k、score_threshold
+- [x] 完成阶段 4 第 26 节：混合检索：关键词检索 + 向量检索
+- [x] 完成阶段 4 第 27 节：rerank 重排序是什么
+- [x] 完成阶段 4 第 28 节：RAG 安全：文档权限、Prompt Injection、敏感信息
+- [x] 完成阶段 4 第 29 节：RAG 性能：缓存、批处理、超时、降级
+- [x] 完成阶段 4 第 30 节：阶段 4 主线项目验收和复盘
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -251,12 +257,12 @@
 | 22 | RAG 测试：fake embedding、fake vector store | 已完成 | `notes/rag-stage4-22-rag-testing-fakes.md`、`tests/rag_fakes.py`、`FakeEmbeddingModel`、`FakeVectorStoreReader`、`FakeVectorStoreWriter`、`make_retrieved_chunk()`、RAG 测试分层、fake 工具测试 |
 | 23 | 文档更新、删除、重新入库 | 已完成 | `notes/rag-stage4-23-document-update-delete-reingest.md`、`QdrantVectorStore.delete_points_by_filter()`、`VectorStoreUpdater`、`delete_document_from_vector_store()`、`refresh_directory_in_vector_store()`、按 `source` 删除旧 chunks、重新入库前清理旧 points、fake 删除测试 |
 | 24 | embedding 模型选择、维度、成本和批量处理 | 已完成 | `notes/rag-stage4-24-embedding-model-dimension-cost-batch.md`、`OpenAICompatibleEmbeddingModel`、独立 embedding 配置、`EMBEDDING_MODEL`、`EMBEDDING_DIMENSION`、`EMBEDDING_BATCH_SIZE`、`split_texts_into_batches()`、`estimate_dense_vector_storage_bytes()`、真实 embedding 适配器测试 |
-| 25 | 检索质量调优：chunk size、overlap、top_k、score_threshold | 未开始 | 待新增 |
-| 26 | 混合检索：关键词检索 + 向量检索 | 未开始 | 待新增 |
-| 27 | rerank 重排序是什么 | 未开始 | 待新增 |
-| 28 | RAG 安全：文档权限、Prompt Injection、敏感信息 | 未开始 | 待新增 |
-| 29 | RAG 性能：缓存、批处理、超时、降级 | 未开始 | 待新增 |
-| 30 | 阶段 4 主线项目验收和复盘 | 未开始 | 待新增 |
+| 25 | 检索质量调优：chunk size、overlap、top_k、score_threshold | 已完成 | `notes/rag-stage4-25-retrieval-quality-tuning.md`、`app/rag/tuning.py`、`ChunkTuningCase`、`ChunkTuningReport`、`RetrievalTuningCase`、`RetrievalTuningReport`、`rag_chunk_tuning_preview.py`、chunk 分布观察、top_k/score_threshold 调优报告 |
+| 26 | 混合检索：关键词检索 + 向量检索 | 已完成 | `notes/rag-stage4-26-hybrid-search.md`、`app/rag/hybrid.py`、`SimpleKeywordRetriever`、`KeywordSearchResult`、`HybridSearchResult`、`HybridSearchWeights`、`extract_keyword_terms()`、`fuse_hybrid_results()`、`hybrid_retrieve()`、`rag_keyword_search_preview.py`、关键词召回、向量召回、去重、分数归一化和加权融合 |
+| 27 | rerank 重排序是什么 | 已完成 | `notes/rag-stage4-27-rerank.md`、`app/rag/rerank.py`、`RerankCandidate`、`RerankedChunk`、`RerankScoreBreakdown`、`RuleBasedReranker`、`rerank_candidates()`、`reranked_chunks_to_retrieved_chunks()`、`rag_rerank_preview.py`、召回后重排序、原始排名/重排排名、分数拆解、规则 reranker |
+| 28 | RAG 安全：文档权限、Prompt Injection、敏感信息 | 已完成 | `notes/rag-stage4-28-rag-security.md`、`app/rag/security.py`、`RagSecurityPolicy`、`RagSecurityFinding`、`RagSecurityReport`、`inspect_retrieved_chunks()`、`inspect_chunk_security()`、`rag_security_preview.py`、权限复查、Prompt Injection 检测、敏感信息识别、safe chunks 过滤和 findings 报告 |
+| 29 | RAG 性能：缓存、批处理、超时、降级 | 已完成 | `notes/rag-stage4-29-rag-performance.md`、`app/rag/performance.py`、`RagCacheKey`、`InMemoryTtlCache`、`RagBatchPlan`、`RagOperationTiming`、`RagDegradationDecision`、`build_retrieval_cache_key()`、`build_batch_plan()`、`assess_operation_timing()`、`choose_degradation_decision()`、`rag_performance_preview.py`、缓存 key、TTL、batch、near_timeout、降级决策 |
+| 30 | 阶段 4 主线项目验收和复盘 | 已完成 | `notes/rag-stage4-30-project-summary.md`、阶段 4 RAG 主线地图、入库流水线、问答流水线、模块职责、学习版/生产级差距、验收清单、面试口述版、Milvus 衔接 |
 | 31 | Milvus 是什么，和 Qdrant 有什么区别 | 未开始 | 待新增 |
 | 32 | 本地 Docker 启动 Milvus Standalone | 未开始 | 待新增 |
 | 33 | Milvus 核心概念：collection、schema、field、entity、index | 未开始 | 待新增 |
@@ -358,14 +364,18 @@ M0/M1 第一阶段完成时，必须满足：
 - [x] similarity search
 - [x] score_threshold
 - [x] answer generation
-- [ ] hybrid search
-- [ ] rerank
+- [x] hybrid search
+- [x] rerank
 - [x] citations
 - [x] 权限过滤
 - [x] 无资料拒答
 - [x] fake embedding / fake vector store 测试
 - [x] 文档删除 / 重新入库
 - [x] 真实 embedding 适配器 / 批量 embedding 基础
+- [x] 检索参数调优基础
+- [x] RAG 安全基础 / 检索结果安全检查
+- [x] RAG 性能基础 / 缓存、批处理、超时、降级
+- [x] RAG 主线项目验收 / 阶段复盘
 - [ ] 检索评测
 
 ### LangGraph

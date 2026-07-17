@@ -76,6 +76,24 @@ def test_fake_vector_store_reader_can_raise_configured_error() -> None:
         store.query_similar([0.1, 0.2], top_k=1)
 
 
+def test_fake_vector_store_reader_applies_top_k_and_score_threshold() -> None:
+    store = FakeVectorStoreReader(
+        chunks=[
+            make_retrieved_chunk(chunk_id="chunk-low", score=0.42),
+            make_retrieved_chunk(chunk_id="chunk-high", score=0.95),
+            make_retrieved_chunk(chunk_id="chunk-mid", score=0.81),
+        ]
+    )
+
+    chunks = store.query_similar(
+        [0.1, 0.2],
+        top_k=2,
+        score_threshold=0.8,
+    )
+
+    assert [chunk.chunk_id for chunk in chunks] == ["chunk-high", "chunk-mid"]
+
+
 def test_fake_vector_store_writer_records_collection_and_upsert_arguments() -> None:
     embedded = EmbeddedChunk(
         chunk_id="chunk-1",
