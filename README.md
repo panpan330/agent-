@@ -167,6 +167,15 @@ projects/ 练习项目、Demo 和完整作品
 | 28 | RAG 安全：文档权限、Prompt Injection、敏感信息 | [notes/rag-stage4-28-rag-security.md](notes/rag-stage4-28-rag-security.md) | [projects/ai-service/app/rag/security.py](projects/ai-service/app/rag/security.py)、[projects/ai-service/scripts/rag_security_preview.py](projects/ai-service/scripts/rag_security_preview.py) |
 | 29 | RAG 性能：缓存、批处理、超时、降级 | [notes/rag-stage4-29-rag-performance.md](notes/rag-stage4-29-rag-performance.md) | [projects/ai-service/app/rag/performance.py](projects/ai-service/app/rag/performance.py)、[projects/ai-service/scripts/rag_performance_preview.py](projects/ai-service/scripts/rag_performance_preview.py) |
 | 30 | 阶段 4 主线项目验收和复盘 | [notes/rag-stage4-30-project-summary.md](notes/rag-stage4-30-project-summary.md) | [projects/ai-service/app/rag](projects/ai-service/app/rag)、[projects/ai-service/tests](projects/ai-service/tests) |
+| 31 | Milvus 是什么，和 Qdrant 有什么区别 | [notes/rag-stage4-31-milvus-vs-qdrant.md](notes/rag-stage4-31-milvus-vs-qdrant.md) | 概念对比，无代码改动 |
+| 32 | 本地 Docker 启动 Milvus Standalone | [notes/rag-stage4-32-start-milvus-standalone-locally.md](notes/rag-stage4-32-start-milvus-standalone-locally.md) | VMware Ubuntu Docker 已验证 |
+| 33 | Milvus 核心概念：collection、schema、field、entity、index | [notes/rag-stage4-33-milvus-core-concepts.md](notes/rag-stage4-33-milvus-core-concepts.md) | 概念讲解，无代码改动 |
+| 34 | 用同一批文档写入 Milvus 并做向量检索 | [notes/rag-stage4-34-milvus-ingestion-search.md](notes/rag-stage4-34-milvus-ingestion-search.md) | [projects/ai-service/app/rag/milvus_store.py](projects/ai-service/app/rag/milvus_store.py)、[projects/ai-service/scripts/rag_milvus_smoke.py](projects/ai-service/scripts/rag_milvus_smoke.py) |
+| 35 | Milvus metadata/scalar filter 和索引基础 | [notes/rag-stage4-35-milvus-metadata-scalar-filter-index.md](notes/rag-stage4-35-milvus-metadata-scalar-filter-index.md) | [projects/ai-service/app/rag/milvus_store.py](projects/ai-service/app/rag/milvus_store.py)、[projects/ai-service/scripts/rag_milvus_filter_smoke.py](projects/ai-service/scripts/rag_milvus_filter_smoke.py) |
+| 36 | Qdrant vs Milvus：什么时候选谁 | [notes/rag-stage4-36-qdrant-vs-milvus-selection.md](notes/rag-stage4-36-qdrant-vs-milvus-selection.md) | 选型讲解，无代码改动 |
+| 37 | RAG 检索评测基础 | [notes/rag-stage4-37-rag-retrieval-evaluation-basics.md](notes/rag-stage4-37-rag-retrieval-evaluation-basics.md) | 概念讲解，无代码改动 |
+| 38 | 给当前 RAG 项目做一个最小检索评测脚本 | [notes/rag-stage4-38-rag-retrieval-evaluation-script.md](notes/rag-stage4-38-rag-retrieval-evaluation-script.md) | [projects/ai-service/app/rag/evaluation.py](projects/ai-service/app/rag/evaluation.py)、[projects/ai-service/data/rag_eval/retrieval_cases.json](projects/ai-service/data/rag_eval/retrieval_cases.json)、[projects/ai-service/scripts/rag_retrieval_eval.py](projects/ai-service/scripts/rag_retrieval_eval.py) |
+| 39 | 企业知识库 RAG 最终收尾复盘 | [notes/rag-stage4-39-final-review.md](notes/rag-stage4-39-final-review.md) | 阶段 4 总复盘，无代码改动 |
 
 ## 当前目标
 

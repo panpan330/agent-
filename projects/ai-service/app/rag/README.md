@@ -19,6 +19,7 @@ metadata.py   Normalize and validate RAG metadata before Qdrant payload writes.
 embeddings.py Convert texts into deterministic placeholder vectors or OpenAI-compatible real embedding vectors, with batch helpers and storage estimation.
 filters.py    Build Qdrant payload filters from supported metadata fields.
 vector_store.py Build Qdrant points, upsert embedded chunks, delete points by filter, and query through the REST API.
+milvus_store.py Build Milvus entities, create schema/index, upsert embedded chunks, and search through PyMilvus.
 ingestion.py  Orchestrate load -> split -> embed -> upsert, document deletion, and directory refresh flows.
 retriever.py  Convert a user query into a vector and retrieve filtered top_k chunks above an optional score threshold.
 generator.py  Build RAG context from retrieved chunks, ask the model for a grounded answer, return backend-generated citations, and handle no-context fallbacks.
@@ -27,6 +28,7 @@ hybrid.py     Provide simple keyword retrieval and vector + keyword result fusio
 rerank.py     Rerank retrieved candidates with explainable rule-based scores.
 security.py   Inspect retrieved chunks for permission, prompt-injection, and sensitive-data risks before model context construction.
 performance.py Build learning utilities for retrieval cache keys, TTL caching, batch planning, timing classification, and degradation decisions.
+evaluation.py Build retrieval evaluation cases, Hit Rate@K, Recall@K, Precision@K, MRR@K, and bad case reports.
 errors.py     Map embedding and vector-store failures to stable application errors.
 ```
 
@@ -86,3 +88,20 @@ real circuit breaker.
 Stage 4 lesson 30 summarizes the Qdrant-based RAG mainline: ingestion flow,
 question-answering flow, module ownership, validation checklist, learning-version
 limits, production gaps, and the transition into Milvus comparison lessons.
+Stage 4 lesson 34 adds a Milvus vector store adapter for the same local
+knowledge-base chunks: schema creation, vector index creation, entity upsert,
+flush-on-wait behavior for stable smoke tests, scalar-filter expression
+conversion, and top_k vector search through PyMilvus.
+Stage 4 lesson 35 expands the Milvus adapter with metadata/scalar filtering and
+scalar index basics: high-frequency metadata fields get `INVERTED` scalar
+indexes, existing collections can be checked and backfilled with missing scalar
+indexes, and Milvus boolean expressions now support exact match, `in`, integer
+range, `should`, and `must_not` conditions for learning-focused RAG filters.
+Stage 4 lesson 38 adds minimal retrieval evaluation: versioned local retrieval
+cases, reusable metric calculation for Hit Rate@K, Recall@K, Precision@K, and
+MRR@K, plus a local keyword-based smoke script for reading summary metrics and
+bad cases without requiring Qdrant, Milvus, or a real embedding model.
+Stage 4 lesson 39 closes the RAG phase with a final review of the ingestion
+chain, question-answering chain, module ownership, Qdrant/Milvus selection,
+retrieval quality, security, performance, evaluation, and the transition into
+LangGraph-based agent orchestration. It does not add new runtime code.

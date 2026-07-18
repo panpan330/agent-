@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 4 企业知识库 RAG 基础进行中，第 30 节 阶段 4 主线项目验收和复盘 已完成，下一步进入第 31 节 Milvus 是什么，和 Qdrant 有什么区别。
+当前阶段：阶段 4 企业知识库 RAG 基础已完成，第 39 节 企业知识库 RAG 最终收尾复盘已完成，下一步进入阶段 5 LangGraph 智能工单 Agent。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -16,7 +16,7 @@
 | M0 | 第 0 周 | 环境与仓库 | 进行中 | README、上下文、路线图、进度表 |
 | M1 | 第 1-2 周 | Python AI 服务基础 | 已完成 | `projects/ai-service`、聊天接口、流式输出、结构化输出 |
 | M2 | 第 3-4 周 | LangChain + Java 工具调用 | 已完成 | 客服助手 v1、Java mock 业务服务 |
-| M3 | 第 5-7 周 | 企业知识库 RAG | 进行中 | 文档入库、检索问答、引用来源、权限过滤、初版评测 |
+| M3 | 第 5-7 周 | 企业知识库 RAG | 已完成 | 文档入库、检索问答、引用来源、权限过滤、Milvus 对比、初版评测 |
 | M4 | 第 8-9 周 | LangGraph 智能工单 | 未开始 | 工单 Agent v1 |
 | M5 | 第 10-11 周 | 生产化与评测 | 未开始 | trace、日志、限流、重试、eval、Docker Compose |
 | M6 | 第 12 周 | 作品整理 | 未开始 | README、架构图、截图、面试讲稿、简历描述 |
@@ -148,6 +148,15 @@
 - [x] 完成阶段 4 第 28 节：RAG 安全：文档权限、Prompt Injection、敏感信息
 - [x] 完成阶段 4 第 29 节：RAG 性能：缓存、批处理、超时、降级
 - [x] 完成阶段 4 第 30 节：阶段 4 主线项目验收和复盘
+- [x] 完成阶段 4 第 31 节：Milvus 是什么，和 Qdrant 有什么区别
+- [x] 完成阶段 4 第 32 节：本地 Docker 启动 Milvus Standalone
+- [x] 完成阶段 4 第 33 节：Milvus 核心概念：collection、schema、field、entity、index
+- [x] 完成阶段 4 第 34 节：用同一批文档写入 Milvus 并做向量检索
+- [x] 完成阶段 4 第 35 节：Milvus metadata/scalar filter 和索引基础
+- [x] 完成阶段 4 第 36 节：Qdrant vs Milvus：什么时候选谁
+- [x] 完成阶段 4 第 37 节：RAG 检索评测基础
+- [x] 完成阶段 4 第 38 节：给当前 RAG 项目做一个最小检索评测脚本
+- [x] 完成阶段 4 第 39 节：企业知识库 RAG 最终收尾复盘
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -229,7 +238,7 @@
 
 ## 阶段 4 细化学习清单
 
-阶段 4 目标：完成企业知识库 RAG 基础，理解文档如何变成可检索知识，先用 Qdrant 跑通主线，再补 RAG 工程优化和 Milvus 对比。
+阶段 4 目标：完成企业知识库 RAG 基础，理解文档如何变成可检索知识，先用 Qdrant 跑通主线，再补 RAG 工程优化、Milvus 对比和检索评测。当前阶段 4 已完成，后续进入阶段 5 LangGraph 智能工单 Agent。
 
 | 节 | 主题 | 学习状态 | 对应产出 |
 | --- | --- | --- | --- |
@@ -263,12 +272,15 @@
 | 28 | RAG 安全：文档权限、Prompt Injection、敏感信息 | 已完成 | `notes/rag-stage4-28-rag-security.md`、`app/rag/security.py`、`RagSecurityPolicy`、`RagSecurityFinding`、`RagSecurityReport`、`inspect_retrieved_chunks()`、`inspect_chunk_security()`、`rag_security_preview.py`、权限复查、Prompt Injection 检测、敏感信息识别、safe chunks 过滤和 findings 报告 |
 | 29 | RAG 性能：缓存、批处理、超时、降级 | 已完成 | `notes/rag-stage4-29-rag-performance.md`、`app/rag/performance.py`、`RagCacheKey`、`InMemoryTtlCache`、`RagBatchPlan`、`RagOperationTiming`、`RagDegradationDecision`、`build_retrieval_cache_key()`、`build_batch_plan()`、`assess_operation_timing()`、`choose_degradation_decision()`、`rag_performance_preview.py`、缓存 key、TTL、batch、near_timeout、降级决策 |
 | 30 | 阶段 4 主线项目验收和复盘 | 已完成 | `notes/rag-stage4-30-project-summary.md`、阶段 4 RAG 主线地图、入库流水线、问答流水线、模块职责、学习版/生产级差距、验收清单、面试口述版、Milvus 衔接 |
-| 31 | Milvus 是什么，和 Qdrant 有什么区别 | 未开始 | 待新增 |
-| 32 | 本地 Docker 启动 Milvus Standalone | 未开始 | 待新增 |
-| 33 | Milvus 核心概念：collection、schema、field、entity、index | 未开始 | 待新增 |
-| 34 | 用同一批文档写入 Milvus 并做向量检索 | 未开始 | 待新增 |
-| 35 | Milvus metadata/scalar filter 和索引基础 | 未开始 | 待新增 |
-| 36 | Qdrant vs Milvus：什么时候选谁 | 未开始 | 待新增 |
+| 31 | Milvus 是什么，和 Qdrant 有什么区别 | 已完成 | `notes/rag-stage4-31-milvus-vs-qdrant.md`、Milvus/Qdrant 概念对比、collection/point/entity/schema/field/payload/scalar field 映射、向量库选型问题、误区、面试表达 |
+| 32 | 本地 Docker 启动 Milvus Standalone | 已完成 | `notes/rag-stage4-32-start-milvus-standalone-locally.md`、Docker Compose 基础、Milvus Standalone/etcd/MinIO 职责、端口 `19530/9091`、启动/停止/删除数据区别、`volumes/milvus` 权限问题排查、VMware Ubuntu Docker 实机验证、Windows 访问 WebUI 已验证 |
+| 33 | Milvus 核心概念：collection、schema、field、entity、index | 已完成 | `notes/rag-stage4-33-milvus-core-concepts.md`、collection/schema/field/entity/index 概念、primary key/vector field/scalar field、RAG chunk 到 Milvus schema 映射、Qdrant/Milvus 概念对照、练习和自测 |
+| 34 | 用同一批文档写入 Milvus 并做向量检索 | 已完成 | `notes/rag-stage4-34-milvus-ingestion-search.md`、`app/rag/milvus_store.py`、`scripts/rag_milvus_smoke.py`、Milvus schema/index 创建、entity upsert、flush-on-wait、filter expression、PyMilvus search、VMware Milvus 实机 smoke |
+| 35 | Milvus metadata/scalar filter 和索引基础 | 已完成 | `notes/rag-stage4-35-milvus-metadata-scalar-filter-index.md`、`MilvusVectorStore.ensure_scalar_indexes()`、`INVERTED` scalar index、`match.any`、`range`、`should`、`must_not`、`scripts/rag_milvus_filter_smoke.py`、VMware Milvus 实机 filter/index smoke |
+| 36 | Qdrant vs Milvus：什么时候选谁 | 已完成 | `notes/rag-stage4-36-qdrant-vs-milvus-selection.md`、Qdrant/Milvus 数据模型对照、部署复杂度、filter/index、规模、运维、成本、团队能力和项目阶段选型框架 |
+| 37 | RAG 检索评测基础 | 已完成 | `notes/rag-stage4-37-rag-retrieval-evaluation-basics.md`、评测集、query/expected source/section/chunk、Hit Rate@K、Recall@K、Precision@K、MRR、bad case 分析、当前项目最小评测集设计 |
+| 38 | 给当前 RAG 项目做一个最小检索评测脚本 | 已完成 | `notes/rag-stage4-38-rag-retrieval-evaluation-script.md`、`app/rag/evaluation.py`、`data/rag_eval/retrieval_cases.json`、`scripts/rag_retrieval_eval.py`、固定评测样本、match_level、Hit Rate@K、Recall@K、Precision@K、MRR、no-result case、bad case 报告 |
+| 39 | 企业知识库 RAG 最终收尾复盘 | 已完成 | `notes/rag-stage4-39-final-review.md`、阶段 4 总学习地图、入库链路、问答链路、模块职责、Qdrant/Milvus 选型、检索质量、安全、性能、评测、生产级差距、阶段 5 LangGraph 衔接 |
 
 ## 当前 Sprint 验收标准
 
@@ -376,7 +388,15 @@ M0/M1 第一阶段完成时，必须满足：
 - [x] RAG 安全基础 / 检索结果安全检查
 - [x] RAG 性能基础 / 缓存、批处理、超时、降级
 - [x] RAG 主线项目验收 / 阶段复盘
-- [ ] 检索评测
+- [x] Milvus vs Qdrant 概念对比 / 向量数据库选型基础
+- [x] Milvus Standalone 本地 Docker 启动实机验证
+- [x] Milvus collection / schema / field / entity / index 核心概念
+- [x] Milvus 文档入库 / entity upsert / 向量检索 smoke
+- [x] Milvus metadata filter / scalar index / filter expression smoke
+- [x] Qdrant vs Milvus 选型判断 / 项目阶段选择 / 面试表达
+- [x] RAG 检索评测基础 / Hit Rate@K / Recall@K / Precision@K / MRR / bad case 分析
+- [x] 检索评测脚本 / 固定样本 / no-result case / bad case 报告
+- [x] 阶段 4 最终收尾复盘 / RAG 知识地图 / 阶段 5 衔接
 
 ### LangGraph
 

@@ -16,9 +16,11 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：L
 
 当前阶段 3 第 1-22 节已完成 Tool Calling 概念、业务系统安全边界、工具参数和 JSON Schema、结构化输出与 Tool Calling 的边界、fake tool 模拟订单查询、工具调用结果 Pydantic 校验、工具调用错误处理、工具调用权限边界、工具调用幂等性、`projects/java-mock-service` 最小业务服务、Python AI 服务调用 Java mock API、让模型决定是否调用工具、工具调用结果再交给模型总结、敏感操作的用户确认机制、确认后创建工单的完整流程、工具调用日志和 `trace_id` 串联、fake Java API / fake tool 的分层测试策略、LangChain 的框架定位和引入时机、LangChain ChatModel 基础、LangChain Tool 基础、LangChain 结构化输出，以及阶段 3 项目整理。后续会进入企业知识库 RAG 基础。
 
-当前阶段 4 已开始企业知识库 RAG 基础，并新增 `app/rag` 内部包，用于承载 RAG 文档、chunk、加载、切分、metadata、embedding、向量库适配、检索和生成等后续能力。当前已完成 RAG 项目结构、内部 document/chunk 数据模型、文档加载清洗、chunk 切分、metadata 标准化和校验、fake embedding 生成、OpenAI-compatible 真实 embedding 适配器、embedding 独立配置和批量辅助、Qdrant 写入适配、基础 top_k 检索、payload filter 过滤、score_threshold 低相关过滤、把检索结果交给模型生成回答的最小链路、后端根据 retrieved chunks 生成结构化引用来源、无检索结果时的结构化 `no_context` 兜底、RAG embedding/向量库错误映射、可复用的 RAG fake 测试工具、按 `source` 删除旧 chunks 后重新入库的基础文档维护能力、chunk/retrieval 参数调优报告、关键词检索 + 向量检索的混合检索基础、召回结果的学习版 rerank 重排序、检索结果进入模型前的学习版安全检查、缓存/批处理/超时/降级的学习版性能工具，以及阶段 4 RAG 主线项目验收复盘。
+当前阶段 4 企业知识库 RAG 基础已完成，并新增 `app/rag` 内部包，用于承载 RAG 文档、chunk、加载、切分、metadata、embedding、向量库适配、检索和生成等能力。当前已完成 RAG 项目结构、内部 document/chunk 数据模型、文档加载清洗、chunk 切分、metadata 标准化和校验、fake embedding 生成、OpenAI-compatible 真实 embedding 适配器、embedding 独立配置和批量辅助、Qdrant 写入适配、基础 top_k 检索、payload filter 过滤、score_threshold 低相关过滤、把检索结果交给模型生成回答的最小链路、后端根据 retrieved chunks 生成结构化引用来源、无检索结果时的结构化 `no_context` 兜底、RAG embedding/向量库错误映射、可复用的 RAG fake 测试工具、按 `source` 删除旧 chunks 后重新入库的基础文档维护能力、chunk/retrieval 参数调优报告、关键词检索 + 向量检索的混合检索基础、召回结果的学习版 rerank 重排序、检索结果进入模型前的学习版安全检查、缓存/批处理/超时/降级的学习版性能工具、RAG 检索评测样本和 Hit Rate/Recall/Precision/MRR 指标计算、Qdrant/Milvus 选型对比，以及阶段 4 最终收尾复盘。
 
-当前已准备第一批 RAG 练习知识文档，位于 `data/knowledge_base`，并已支持把 Markdown/txt 文件加载和清洗为 `RagDocument`，再按段落和标题切分为 `RagChunk`，经过 metadata 必备字段校验和 Qdrant payload 白名单处理后，用确定性的 fake embedding 生成向量并通过 Qdrant REST API upsert 到本地向量库。现在也支持把用户问题转成 fake query embedding，并通过 Qdrant Query API 取回带 payload filter 和 score_threshold 的 top_k 检索结果，再把关键词检索结果和向量检索结果按 `chunk_id` 去重、分数归一化和加权融合，得到混合检索候选结果；候选结果还能经过规则 reranker 生成 `rerank_score`、`original_rank`、`rerank_rank` 和 `score_breakdown`。检索结果进入模型前可以经过 `RagSecurityPolicy` 安全检查，识别不允许的 `permission_group`、Prompt Injection 风险和敏感信息风险，只把 `safe_chunks` 交给后续生成链路。RAG 性能学习工具现在能构造不暴露原始 query 的检索缓存 key，演示内存 TTL 缓存、batch plan、near_timeout 判断和降级决策。检索结果可以整理成模型上下文生成基于资料的回答，同时返回 `RagCitation` 组成的结构化来源列表；如果没有可用 retrieved chunks，则返回 `status=no_context`、空 citations 和固定 suggestions，不调用模型硬答。查询和入库链路现在会把 embedding 失败、embedding 返回结构异常、向量库调用失败和 collection 配置不匹配映射成统一 RAG 错误码。测试侧新增 `FakeEmbeddingModel`、`FakeVectorStoreReader`、`FakeVectorStoreWriter` 等复用工具，避免单元测试依赖真实 Qdrant、真实 embedding 或真实模型。
+当前已准备第一批 RAG 练习知识文档，位于 `data/knowledge_base`，并已支持把 Markdown/txt 文件加载和清洗为 `RagDocument`，再按段落和标题切分为 `RagChunk`，经过 metadata 必备字段校验和 Qdrant payload 白名单处理后，用确定性的 fake embedding 生成向量并通过 Qdrant REST API upsert 到本地向量库。现在也支持把用户问题转成 fake query embedding，并通过 Qdrant Query API 取回带 payload filter 和 score_threshold 的 top_k 检索结果，再把关键词检索结果和向量检索结果按 `chunk_id` 去重、分数归一化和加权融合，得到混合检索候选结果；候选结果还能经过规则 reranker 生成 `rerank_score`、`original_rank`、`rerank_rank` 和 `score_breakdown`。检索结果进入模型前可以经过 `RagSecurityPolicy` 安全检查，识别不允许的 `permission_group`、Prompt Injection 风险和敏感信息风险，只把 `safe_chunks` 交给后续生成链路。RAG 性能学习工具现在能构造不暴露原始 query 的检索缓存 key，演示内存 TTL 缓存、batch plan、near_timeout 判断和降级决策。检索结果可以整理成模型上下文生成基于资料的回答，同时返回 `RagCitation` 组成的结构化来源列表；如果没有可用 retrieved chunks，则返回 `status=no_context`、空 citations 和固定 suggestions，不调用模型硬答。查询和入库链路现在会把 embedding 失败、embedding 返回结构异常、向量库调用失败和 collection 配置不匹配映射成统一 RAG 错误码。测试侧新增 `FakeEmbeddingModel`、`FakeVectorStoreReader`、`FakeVectorStoreWriter` 等复用工具，避免单元测试依赖真实 Qdrant、真实 embedding 或真实模型。现在还提供固定评测样本和本地关键词检索评测脚本，用 Hit Rate@K、Recall@K、Precision@K、MRR 和 bad case 报告判断检索质量。
+
+Milvus 对比学习已进入代码阶段：现在新增 `MilvusVectorStore`，能用同一批知识库文档创建 Milvus schema、向量索引和常用 metadata scalar index，把 `EmbeddedChunk` 写成 Milvus entity，并通过 PyMilvus `search` 查回统一的 `RetrievedChunk`。Milvus 适配器已支持 exact match、`in`、整数范围、`should` 和 `must_not` 过滤表达式，并能给已有 collection 补齐缺失的 `INVERTED` scalar index。这条链路已在 VMware Ubuntu Docker 里的 Milvus Standalone 上完成入库、检索和 filter/index smoke 验证。当前选型结论是：Qdrant 继续作为 RAG 主线 vector store，Milvus 作为可切换 adapter、工程扩展和大规模场景对比能力保留。
 
 ## 当前能力
 
@@ -126,6 +128,8 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：L
 - deterministic fake embedding 生成
 - OpenAI-compatible 真实 embedding 适配器、独立配置和 batch helper
 - Qdrant collection 校验、point 组装、upsert 写入和按 payload filter 删除 points
+- Milvus schema 创建、向量索引创建、常用 metadata scalar index 创建、entity upsert、flush-on-wait 和 PyMilvus search 检索
+- Milvus metadata filter：exact match、`in`、整数范围、`should`、`must_not` 转换为 Milvus boolean expression
 - 最小 RAG 入库流程：load -> split -> embed -> store
 - 文档删除和重新入库：按 `source` 删除旧 chunks，再 upsert 新 chunks
 - 基础 top_k 检索：query -> fake query embedding -> Qdrant Query API -> RetrievedChunk
@@ -136,6 +140,8 @@ Python AI 服务项目。阶段 1：FastAPI 服务基础已完成；阶段 2：L
 - RAG rerank 重排序：召回候选 -> 规则打分 -> 保留原始排名、重排排名和分数拆解
 - RAG 安全检查：permission_group 复查、Prompt Injection 检测、敏感信息识别、safe chunks 过滤
 - RAG 性能基础：检索缓存 key、内存 TTL cache、batch plan、near_timeout、降级决策
+- RAG 检索评测：固定评测样本、Hit Rate@K、Recall@K、Precision@K、MRR@K 和 bad case 报告
+- RAG 阶段复盘：入库链路、问答链路、模块职责、Qdrant/Milvus 选型、评测和生产级差距
 - RAG 主线项目复盘：入库流水线、问答流水线、模块职责、学习版/生产级差距和验收清单
 - 基础 RAG 生成：RetrievedChunk -> RAG context -> OpenAI-compatible model -> grounded answer
 - 基础 RAG 引用来源：RetrievedChunk -> backend-generated RagCitation -> RagAnswer(answer, citations)
@@ -171,6 +177,7 @@ app/
     embeddings.py          fake embedding 模型、OpenAI-compatible embedding 适配器、batch helper 和 EmbeddedChunk
     filters.py             Qdrant payload filter 构造
     vector_store.py        Qdrant point 组装、collection 校验、upsert 写入、按 filter 删除 points 和 query 检索
+    milvus_store.py        Milvus entity 组装、schema/index 创建、scalar filter、upsert 写入和 search 检索
     ingestion.py           load -> split -> embed -> store 入库编排、文档删除和目录刷新
     retriever.py           query embedding、payload filter、score_threshold 和 top_k 检索编排
     generator.py           把检索结果整理成上下文，调用模型生成回答，构造结构化引用来源，并处理 no_context 兜底
@@ -179,6 +186,7 @@ app/
     rerank.py              召回候选的学习版规则重排序
     security.py            检索结果进入模型前的学习版安全检查
     performance.py         缓存、批处理、超时和降级的学习版性能工具
+    evaluation.py          检索评测样本、指标计算和 bad case 报告
     errors.py              RAG embedding 和 vector store 错误映射
   schemas/
     chat.py                聊天请求/响应模型
@@ -216,15 +224,21 @@ data/
     logistics-tracking-faq.txt 物流查询 FAQ 示例文档
     order-shipping-policy.md 订单发货规则示例文档
     refund-return-policy.md 退款退货规则示例文档
+  rag_eval/
+    README.md              RAG 检索评测样本说明
+    retrieval_cases.json   固定检索评测样本
 scripts/
   llm_compatible_smoke_test.py 手动检查或调用兼容模型
   rag_ingest_smoke.py     手动执行 fake embedding 到 Qdrant 的入库烟测
   rag_retrieve_smoke.py   手动执行 fake query embedding 的过滤检索烟测
+  rag_milvus_smoke.py     手动执行 fake embedding 到 Milvus 的入库和检索烟测
+  rag_milvus_filter_smoke.py 手动执行 Milvus metadata filter 和 scalar index 烟测
   rag_chunk_tuning_preview.py 不连接 Qdrant 的 chunk 切分参数预览
   rag_keyword_search_preview.py 不连接 Qdrant 的关键词检索预览
   rag_rerank_preview.py   不连接 Qdrant 的 rerank 重排序预览
   rag_security_preview.py 不连接 Qdrant 的 RAG 安全检查预览
   rag_performance_preview.py 不连接 Qdrant 的 RAG 性能工具预览
+  rag_retrieval_eval.py   手动执行本地关键词检索评测烟测
 tests/
   conftest.py              pytest 共享夹具
   fakes.py                 OpenAI-compatible fake client 测试工具
@@ -256,6 +270,7 @@ tests/
   test_rag_embeddings.py   RAG embedding 生成测试
   test_rag_filters.py      RAG payload filter 构造测试
   test_rag_vector_store.py Qdrant point 组装、写入、删除和 query 适配测试
+  test_rag_milvus_store.py Milvus entity、schema/index、scalar filter、upsert 和 search 适配测试
   test_rag_ingestion.py    RAG 入库、文档删除和重新入库编排测试
   test_rag_retriever.py    RAG query embedding、payload filter、score_threshold 和 top_k 检索编排测试
   test_rag_generator.py    RAG 上下文构造、模型生成、结构化引用来源和 no_context 兜底测试
@@ -264,6 +279,7 @@ tests/
   test_rag_rerank.py       RAG 召回结果重排序测试
   test_rag_security.py     RAG 权限、Prompt Injection 和敏感信息安全检查测试
   test_rag_performance.py  RAG 缓存、批处理、超时和降级决策测试
+  test_rag_evaluation.py   RAG 检索评测样本、指标计算和 bad case 报告测试
   test_rag_errors.py       RAG embedding 和 vector store 错误映射测试
   test_rag_fakes.py        RAG fake 测试工具自身行为测试
   test_structured_output_service.py 结构化输出服务测试
@@ -1337,5 +1353,5 @@ app/core/exception_handlers.py
 - 当前已经完成 LangChain Tool 基础，把已有 `query_order` 包装成 `StructuredTool`，并保留项目工具注册表、权限和参数校验边界。
 - 当前已经完成 LangChain 结构化输出，新增 `/langchain-extract-ticket` 对比原生 JSON Mode + Pydantic 和 LangChain `with_structured_output()`。
 - 当前已经完成阶段 3 项目整理，形成 Tool Calling、Java mock API、确认机制、trace_id、分层测试和 LangChain 封装的完整知识地图。
-- 下一步进入企业知识库 RAG 基础。
+- 当前正在阶段 4 Milvus 对比学习，已跑通同一批知识文档写入 Milvus、按 metadata 过滤检索，并为常用过滤字段创建 scalar index。
 - 后续会把业务工具调用能力和企业知识检索能力一起作为智能工单 Agent 的基础。

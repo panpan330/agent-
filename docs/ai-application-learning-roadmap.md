@@ -35,7 +35,7 @@ Java 后端能力
 | 数据校验 | Pydantic | 请求、响应、结构化输出、tool 入参校验 |
 | LLM 编排 | LangChain | 模型调用、prompt、tool calling、structured output、retriever |
 | 流程编排 | LangGraph | 多步骤、有状态、可恢复、可人工确认的 Agent 流程 |
-| 向量库 | Qdrant 优先 | RAG 初期上手快，后续再补 pgvector |
+| 向量库 | Qdrant 主线 + Milvus 对比扩展 | Qdrant 上手快，适合作为 RAG 主线；Milvus 用于理解 schema/index 和大规模向量库选型 |
 | 部署 | Docker Compose | 本地和演示环境一键启动 |
 | 测试评估 | pytest + eval 脚本 | 单元测试、接口测试、RAG/Agent 效果评测 |
 
@@ -43,7 +43,7 @@ Java 后端能力
 
 - Spring AI：当前目标环境不流行，先不作为主线。
 - PyTorch / 模型训练 / 微调：以后要转算法或模型方向再补。
-- Milvus / Elasticsearch / 多向量库横向对比：先用一个向量库做透。
+- Elasticsearch / pgvector / 更多向量库横向对比：先把 Qdrant 主线和 Milvus 对比学透，后续按项目需要再补。
 - 全自动 Agent：先做可控流程，再逐步增加智能决策。
 - Kubernetes：项目能 Docker Compose 跑通后再考虑。
 

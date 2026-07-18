@@ -30,6 +30,11 @@ class Settings(BaseSettings):
     qdrant_timeout_seconds: float = Field(default=5.0, gt=0)
     qdrant_vector_size: int = Field(default=8, gt=0)
     qdrant_api_key: str | None = Field(default=None, repr=False)
+    milvus_uri: str = Field(default="http://127.0.0.1:19530")
+    milvus_collection_name: str = Field(default="learning_rag_chunks_milvus")
+    milvus_timeout_seconds: float = Field(default=5.0, gt=0)
+    milvus_vector_size: int = Field(default=8, gt=0)
+    milvus_token: str | None = Field(default=None, repr=False)
     embedding_provider: str = Field(default="openai-compatible")
     embedding_model: str = Field(default="text-embedding-3-small")
     embedding_base_url: str | None = Field(default=None)
@@ -86,6 +91,10 @@ class Settings(BaseSettings):
     @property
     def resolved_qdrant_base_url(self) -> str:
         return self.qdrant_base_url.strip().rstrip("/")
+
+    @property
+    def resolved_milvus_uri(self) -> str:
+        return self.milvus_uri.strip().rstrip("/")
 
     @property
     def resolved_embedding_api_key(self) -> str | None:

@@ -338,6 +338,39 @@
 - [Milvus Basic Vector Search](https://milvus.io/docs/single-vector-search.md)
   - 用途：理解 Milvus 基础 ANN 向量搜索流程。
 
+- [Milvus Create Collection](https://milvus.io/docs/create-collection.md)
+  - 用途：理解 Milvus collection 创建时为什么需要 schema、vector field、index params 和 metric type。
+
+- [PyMilvus create_collection API](https://milvus.io/api-reference/pymilvus/v3.0.x/MilvusClient/Collections/create_collection.md)
+  - 用途：确认 Python 代码里 `MilvusClient.create_collection(...)` 的参数含义，尤其是 custom schema 和 index params。
+
+- [PyMilvus upsert API](https://milvus.io/api-reference/pymilvus/v3.0.x/MilvusClient/Vector/upsert.md)
+  - 用途：理解把 chunk entity 写入或更新到 Milvus collection 时，`data` 必须匹配 schema。
+
+- [PyMilvus search API](https://milvus.io/api-reference/pymilvus/v3.0.x/MilvusClient/Vector/search.md)
+  - 用途：理解 PyMilvus 向量检索的 `data`、`anns_field`、`filter`、`limit`、`output_fields` 和 `search_params`。
+
+- [Milvus Scalar Index](https://milvus.io/docs/scalar_index.md)
+  - 用途：理解 scalar index 如何加速 metadata filter，以及 Milvus 如何把过滤条件用于缩小向量检索候选范围。
+
+- [Milvus Boolean Expression Rules](https://milvus.io/docs/boolean.md)
+  - 用途：理解 Milvus filter 表达式里的 `and`、`or`、`not`、比较运算、`in` 和 `like` 等基础语法。
+
+- [Milvus Inverted Index](https://milvus.io/docs/inverted.md)
+  - 用途：理解 `INVERTED` 索引为什么适合分类字段、权限字段、文档类型和来源字段的 exact/in 查询。
+
+- [Milvus STL_SORT Index](https://milvus.io/docs/stl-sort.md)
+  - 用途：理解范围查询和有序字段为什么可能使用排序类 scalar index，和本节默认 `INVERTED` 的边界做对比。
+
+- [PyMilvus create_index API](https://milvus.io/api-reference/pymilvus/v3.0.x/MilvusClient/Management/create_index.md)
+  - 用途：确认 Python 代码里如何给已有 collection 创建 scalar index，以及 `sync=True` 的等待语义。
+
+- [PyMilvus list_indexes API](https://milvus.io/api-reference/pymilvus/v3.0.x/MilvusClient/Management/list_indexes.md)
+  - 用途：理解为什么要先列出现有索引，再只补建缺失索引，避免重复创建。
+
+- [PyMilvus describe_index API](https://milvus.io/api-reference/pymilvus/v3.0.x/MilvusClient/Management/describe_index.md)
+  - 用途：后续排查索引字段、索引类型和索引参数时使用。
+
 - [Milvus Index Explained](https://milvus.io/docs/index-explained.md)
   - 用途：理解向量索引的作用、成本和召回率取舍。
 
@@ -671,6 +704,51 @@
 - [阶段 4 第 30 节：阶段 4 主线项目验收和复盘](../notes/rag-stage4-30-project-summary.md)
   - 用途：把第 1-29 节 RAG 主线串成完整项目地图，复盘入库流水线、问答流水线、模块职责、学习版/生产级差距、验收清单和面试口述版。
 
+- [阶段 4 第 31 节：Milvus 是什么，和 Qdrant 有什么区别](../notes/rag-stage4-31-milvus-vs-qdrant.md)
+  - 用途：理解 Milvus 和 Qdrant 都在 RAG 中承担 vector store 角色，掌握 Qdrant `collection/point/vector/payload` 与 Milvus `collection/schema/field/entity` 的概念映射，并建立向量数据库选型基础。
+
+- [阶段 4 第 32 节：本地 Docker 启动 Milvus Standalone](../notes/rag-stage4-32-start-milvus-standalone-locally.md)
+  - 用途：理解 Docker Compose、Milvus Standalone、etcd、MinIO、`19530/9091` 端口、数据目录和启动/停止/删除数据的区别；记录 VMware Ubuntu Docker 实机启动、权限问题排查和 Windows WebUI 访问验证。
+
+- [阶段 4 第 33 节：Milvus 核心概念：collection、schema、field、entity、index](../notes/rag-stage4-33-milvus-core-concepts.md)
+  - 用途：理解 Milvus collection/schema/field/entity/index 的数据模型，掌握 primary key、vector field、scalar field 和 RAG chunk schema 设计，为后续写入 Milvus 做准备。
+
+- [阶段 4 第 34 节：用同一批文档写入 Milvus 并做向量检索](../notes/rag-stage4-34-milvus-ingestion-search.md)
+  - 用途：理解同一套 RAG chunk 如何映射成 Milvus entity，掌握 PyMilvus schema/index/upsert/flush/search 的最小完整链路，并和 Qdrant 入库检索流程做对照。
+
+- [阶段 4 第 35 节：Milvus metadata/scalar filter 和索引基础](../notes/rag-stage4-35-milvus-metadata-scalar-filter-index.md)
+  - 用途：理解 metadata filter、scalar field、scalar index 的关系，掌握 Milvus boolean expression、`INVERTED` scalar index、已有 collection 补索引、filter 不应后置到 Python 的原因，以及 VMware Milvus 上的 filter/index smoke 验证。
+
+- [阶段 4 第 36 节：Qdrant vs Milvus：什么时候选谁](../notes/rag-stage4-36-qdrant-vs-milvus-selection.md)
+  - 用途：把 Qdrant 和 Milvus 放到同一个选型框架里比较，理解 point/payload 与 entity/schema 的数据模型差异，掌握部署、filter/index、规模、团队运维能力、成本和项目阶段如何影响向量数据库选择。
+
+- [阶段 4 第 37 节：RAG 检索评测基础](../notes/rag-stage4-37-rag-retrieval-evaluation-basics.md)
+  - 用途：理解为什么 RAG 不能只靠感觉判断效果，掌握评测集、query、expected source/section/chunk、Hit Rate@K、Recall@K、Precision@K、MRR 和 bad case 分析，为下一节实现最小检索评测脚本做准备。
+
+- [阶段 4 第 38 节：给当前 RAG 项目做一个最小检索评测脚本](../notes/rag-stage4-38-rag-retrieval-evaluation-script.md)
+  - 用途：把检索评测基础落到当前项目，掌握固定评测样本、match_level、no-result case、Hit Rate@K、Recall@K、Precision@K、MRR 和 bad case 报告如何写成可重复运行的本地脚本。
+
+- [阶段 4 第 39 节：企业知识库 RAG 最终收尾复盘](../notes/rag-stage4-39-final-review.md)
+  - 用途：把阶段 4 的 RAG 概念、入库链路、问答链路、Qdrant/Milvus 选型、检索质量、安全、性能、评测和生产级差距串成完整知识体系，并衔接阶段 5 LangGraph。
+
+- [Stanford IR Book: Evaluation in information retrieval](https://nlp.stanford.edu/IR-book/pdf/08eval.pdf)
+  - 用途：理解信息检索评测里的 precision、recall、ranked retrieval、Precision@K、MAP、NDCG 和用户效用等基础思想。
+
+- [Stanford CS276 Evaluation handout](https://web.stanford.edu/class/cs276/handouts/EvaluationNew-handout-1-per.pdf)
+  - 用途：辅助理解 Precision@K、MRR、MAP、NDCG 等 rank-based measures 的直观含义。
+
+- [LangSmith: Evaluate a RAG application](https://docs.langchain.com/langsmith/evaluate-rag-tutorial)
+  - 用途：理解 RAG 评测通常要创建测试数据集、运行应用、再用不同 evaluator 衡量回答相关性、正确性、groundedness 和 retrieval quality。
+
+- [Ragas Metrics](https://docs.ragas.io/en/v0.1.21/concepts/metrics/)
+  - 用途：理解 RAG pipeline 可以按组件拆开评测，包括 faithfulness、answer relevancy、context recall、context precision 等。
+
+- [Ragas Context Precision](https://docs.ragas.io/en/stable/concepts/metrics/available_metrics/context_precision/)
+  - 用途：理解 context precision 如何衡量 retriever 是否把相关 chunks 排在更靠前的位置。
+
+- [Ragas Context Recall](https://docs.ragas.io/en/latest/concepts/metrics/available_metrics/context_recall/)
+  - 用途：理解 context recall 如何衡量相关资料或信息是否被成功找回。
+
 ## 阶段 4 推荐资料组合
 
 阶段 4：企业知识库 RAG 基础 + 向量数据库入门。当前优先看：
@@ -705,22 +783,44 @@
 28. 本仓库 `notes/rag-stage4-28-rag-security.md`
 29. 本仓库 `notes/rag-stage4-29-rag-performance.md`
 30. 本仓库 `notes/rag-stage4-30-project-summary.md`
-31. LangChain Retrieval，理解 RAG 的整体流程
-32. OpenAI Embeddings Guide，理解文本如何变成向量
-33. Alibaba Cloud Model Studio Embedding，理解阿里云 embedding 模型和 batch 限制
-34. Alibaba Cloud Text Embedding Synchronous API，理解 `text-embedding-v4` 维度参数
-35. Qdrant 官方文档，理解 collection、point、vector、payload、search
-36. Qdrant Local Quickstart，按官方方式用 Docker 启动 Qdrant
-37. Qdrant Collections，理解同一 collection 内向量维度必须一致
-38. Qdrant Points，理解 chunk 入库时为什么要同时保存 vector 和 payload
-39. Qdrant Delete Points API，理解文档删除、重新入库和旧 chunk 清理
-40. Qdrant Filtering，理解权限过滤和 metadata 过滤
-41. Qdrant Query Points API，理解查询请求体里的 filter、score_threshold 如何和 query/top_k 一起工作
-42. Qdrant Search Points API，辅助理解 score_threshold 与距离函数的关系
-43. Milvus 官方文档，后半段用于向量数据库对比
-44. Milvus Basic Vector Search，后半段理解 ANN 搜索
-45. Milvus Index Explained，后半段理解索引和召回率取舍
-46. RAGFlow GitHub / 文档，只做产品化功能观察，不作为初学实现主线
+31. 本仓库 `notes/rag-stage4-31-milvus-vs-qdrant.md`
+32. 本仓库 `notes/rag-stage4-32-start-milvus-standalone-locally.md`
+33. 本仓库 `notes/rag-stage4-33-milvus-core-concepts.md`
+34. 本仓库 `notes/rag-stage4-34-milvus-ingestion-search.md`
+35. 本仓库 `notes/rag-stage4-35-milvus-metadata-scalar-filter-index.md`
+36. 本仓库 `notes/rag-stage4-36-qdrant-vs-milvus-selection.md`
+37. 本仓库 `notes/rag-stage4-37-rag-retrieval-evaluation-basics.md`
+38. 本仓库 `notes/rag-stage4-38-rag-retrieval-evaluation-script.md`
+39. 本仓库 `notes/rag-stage4-39-final-review.md`
+40. Stanford IR Book Evaluation，理解 precision、recall、ranked retrieval 和检索评测基本思想
+41. Stanford CS276 Evaluation handout，复习 Precision@K、MRR、MAP、NDCG 等排序评测指标
+42. LangSmith RAG Evaluation，理解 RAG 评测数据集、evaluator 和 retrieval/generation 分层评测
+43. Ragas Metrics / Context Precision / Context Recall，理解 RAG 组件级评测指标
+44. LangChain Retrieval，理解 RAG 的整体流程
+45. OpenAI Embeddings Guide，理解文本如何变成向量
+46. Alibaba Cloud Model Studio Embedding，理解阿里云 embedding 模型和 batch 限制
+47. Alibaba Cloud Text Embedding Synchronous API，理解 `text-embedding-v4` 维度参数
+48. Qdrant 官方文档，理解 collection、point、vector、payload、search
+49. Qdrant Local Quickstart，按官方方式用 Docker 启动 Qdrant
+50. Qdrant Collections，理解同一 collection 内向量维度必须一致
+51. Qdrant Points，理解 chunk 入库时为什么要同时保存 vector 和 payload
+52. Qdrant Delete Points API，理解文档删除、重新入库和旧 chunk 清理
+53. Qdrant Filtering，理解权限过滤和 metadata 过滤
+54. Qdrant Query Points API，理解查询请求体里的 filter、score_threshold 如何和 query/top_k 一起工作
+55. Qdrant Search Points API，辅助理解 score_threshold 与距离函数的关系
+56. Qdrant Installation / API & SDKs / Web UI，理解本节 Qdrant 部署、接口和调试路径
+57. Milvus 官方文档，后半段用于向量数据库对比
+58. Milvus Docker Compose 安装，按官方方式在本地 Docker 启动 Milvus Standalone
+59. Milvus Collection Explained，理解 collection、field、entity 和 load/release
+60. Milvus Schema Explained，理解 vector field、scalar field、metadata filtering 和字段类型
+61. Milvus Primary Field & AutoID，理解 primary key 的唯一定位作用
+62. Milvus Insert Entities，理解 entity 必须满足 schema 才能写入
+63. Milvus Index Explained，后半段理解索引和召回率取舍
+64. Milvus Basic Vector Search，后半段理解 ANN 搜索
+65. Milvus Scalar Index / Boolean Expression / Inverted Index，理解本节 metadata filter 和 scalar index 的官方语义
+66. Milvus Deployment Options / Main Components，理解 Milvus Lite、Standalone、Distributed 的适用规模和组件化部署能力
+67. PyMilvus create_collection / upsert / search / create_index / list_indexes API，理解本节代码直接调用的 Python SDK 参数
+68. RAGFlow GitHub / 文档，只做产品化功能观察，不作为初学实现主线
 
 ## 阶段 3 复盘资料组合
 

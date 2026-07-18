@@ -31,6 +31,12 @@ def test_settings_use_default_values() -> None:
     assert settings.qdrant_timeout_seconds == 5.0
     assert settings.qdrant_vector_size == 8
     assert settings.qdrant_api_key is None
+    assert settings.milvus_uri == "http://127.0.0.1:19530"
+    assert settings.resolved_milvus_uri == "http://127.0.0.1:19530"
+    assert settings.milvus_collection_name == "learning_rag_chunks_milvus"
+    assert settings.milvus_timeout_seconds == 5.0
+    assert settings.milvus_vector_size == 8
+    assert settings.milvus_token is None
     assert settings.embedding_provider == "openai-compatible"
     assert settings.embedding_model == "text-embedding-3-small"
     assert settings.embedding_base_url is None
@@ -72,6 +78,11 @@ def test_settings_read_environment_variables(monkeypatch: pytest.MonkeyPatch) ->
     monkeypatch.setenv("QDRANT_TIMEOUT_SECONDS", "3.5")
     monkeypatch.setenv("QDRANT_VECTOR_SIZE", "12")
     monkeypatch.setenv("QDRANT_API_KEY", "qdrant-test-key")
+    monkeypatch.setenv("MILVUS_URI", " http://localhost:19530/ ")
+    monkeypatch.setenv("MILVUS_COLLECTION_NAME", "demo_milvus_chunks")
+    monkeypatch.setenv("MILVUS_TIMEOUT_SECONDS", "4.5")
+    monkeypatch.setenv("MILVUS_VECTOR_SIZE", "10")
+    monkeypatch.setenv("MILVUS_TOKEN", "milvus-test-token")
     monkeypatch.setenv("EMBEDDING_PROVIDER", "aliyun-compatible")
     monkeypatch.setenv("EMBEDDING_MODEL", "text-embedding-v4")
     monkeypatch.setenv(
@@ -107,6 +118,11 @@ def test_settings_read_environment_variables(monkeypatch: pytest.MonkeyPatch) ->
     assert settings.qdrant_timeout_seconds == 3.5
     assert settings.qdrant_vector_size == 12
     assert settings.qdrant_api_key == "qdrant-test-key"
+    assert settings.resolved_milvus_uri == "http://localhost:19530"
+    assert settings.milvus_collection_name == "demo_milvus_chunks"
+    assert settings.milvus_timeout_seconds == 4.5
+    assert settings.milvus_vector_size == 10
+    assert settings.milvus_token == "milvus-test-token"
     assert settings.embedding_provider == "aliyun-compatible"
     assert settings.embedding_model == "text-embedding-v4"
     assert (
@@ -216,6 +232,11 @@ def test_settings_read_env_file(tmp_path: Path) -> None:
                 "QDRANT_TIMEOUT_SECONDS=4",
                 "QDRANT_VECTOR_SIZE=16",
                 'QDRANT_API_KEY=""',
+                'MILVUS_URI="http://localhost:19530/"',
+                'MILVUS_COLLECTION_NAME="file_milvus_chunks"',
+                "MILVUS_TIMEOUT_SECONDS=6",
+                "MILVUS_VECTOR_SIZE=24",
+                'MILVUS_TOKEN=""',
                 'EMBEDDING_PROVIDER="aliyun-compatible"',
                 'EMBEDDING_MODEL="text-embedding-v4"',
                 'EMBEDDING_BASE_URL="https://embedding.example.com/compatible-mode/v1/"',
@@ -252,6 +273,11 @@ def test_settings_read_env_file(tmp_path: Path) -> None:
     assert settings.qdrant_timeout_seconds == 4.0
     assert settings.qdrant_vector_size == 16
     assert settings.qdrant_api_key == ""
+    assert settings.resolved_milvus_uri == "http://localhost:19530"
+    assert settings.milvus_collection_name == "file_milvus_chunks"
+    assert settings.milvus_timeout_seconds == 6.0
+    assert settings.milvus_vector_size == 24
+    assert settings.milvus_token == ""
     assert settings.embedding_provider == "aliyun-compatible"
     assert settings.embedding_model == "text-embedding-v4"
     assert (
@@ -324,6 +350,24 @@ def test_settings_reject_invalid_qdrant_vector_size() -> None:
 
     error = exc_info.value.errors()[0]
     assert error["loc"] == ("qdrant_vector_size",)
+    assert error["type"] == "greater_than"
+
+
+def test_settings_reject_invalid_milvus_timeout() -> None:
+    with pytest.raises(ValidationError) as exc_info:
+        Settings(milvus_timeout_seconds=0, _env_file=None)
+
+    error = exc_info.value.errors()[0]
+    assert error["loc"] == ("milvus_timeout_seconds",)
+    assert error["type"] == "greater_than"
+
+
+def test_settings_reject_invalid_milvus_vector_size() -> None:
+    with pytest.raises(ValidationError) as exc_info:
+        Settings(milvus_vector_size=0, _env_file=None)
+
+    error = exc_info.value.errors()[0]
+    assert error["loc"] == ("milvus_vector_size",)
     assert error["type"] == "greater_than"
 
 
