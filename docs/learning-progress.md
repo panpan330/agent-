@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 5 LangGraph 智能工单 Agent 进行中，第 5 节 Reducer 是什么：状态字段怎么合并已完成，下一步进入阶段 5 第 6 节 MessagesState：多轮对话消息怎么保存。
+当前阶段：阶段 5 LangGraph 智能工单 Agent 进行中，第 10 节 conditional edge 条件分支已完成，下一步进入阶段 5 第 11 节 START / END 和流程结束。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -162,6 +162,11 @@
 - [x] 完成阶段 5 第 3 节：Agent 流程和状态机基础
 - [x] 完成阶段 5 第 4 节：State 是什么：Agent 为什么需要状态
 - [x] 完成阶段 5 第 5 节：Reducer 是什么：状态字段怎么合并
+- [x] 完成阶段 5 第 6 节：MessagesState：多轮对话消息怎么保存
+- [x] 完成阶段 5 第 7 节：StateGraph 最小图
+- [x] 完成阶段 5 第 8 节：node 节点是什么
+- [x] 完成阶段 5 第 9 节：edge 边是什么
+- [x] 完成阶段 5 第 10 节：conditional edge 条件分支
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -298,11 +303,11 @@
 | 3 | Agent 流程和状态机基础 | 已完成 | `notes/langgraph-stage5-03-agent-flow-state-machine-basics.md`、流程、状态、状态机、事件、转移、动作、守卫条件、副作用、HTTP 无状态与 Agent 有状态、智能工单 Agent 初版状态机 |
 | 4 | State 是什么：Agent 为什么需要状态 | 已完成 | `notes/langgraph-stage5-04-state-agent-needs-state.md`、State 定义、State 与变量/messages/请求体/响应体区别、State schema、TypedDict/Pydantic/dataclass 选择、智能工单 Agent 初版 State 设计 |
 | 5 | Reducer 是什么：状态字段怎么合并 | 已完成 | `notes/langgraph-stage5-05-reducer-state-merge.md`、默认覆盖、自定义 reducer、left/right、Annotated、operator.add、messages 追加、ticket_fields 字典合并、并行更新冲突 |
-| 6 | MessagesState：多轮对话消息怎么保存 | 未开始 | 待新增 |
-| 7 | StateGraph 最小图 | 未开始 | 待新增 |
-| 8 | node 节点是什么 | 未开始 | 待新增 |
-| 9 | edge 边是什么 | 未开始 | 待新增 |
-| 10 | conditional edge 条件分支 | 未开始 | 待新增 |
+| 6 | MessagesState：多轮对话消息怎么保存 | 已完成 | `notes/langgraph-stage5-06-messages-state.md`、messages、SystemMessage/HumanMessage/AIMessage/ToolMessage、user_message 与 messages 区别、add_messages、MessagesState、消息历史与结构化 State 分工 |
+| 7 | StateGraph 最小图 | 已完成 | `notes/langgraph-stage5-07-stategraph-minimal-graph.md`、`app/agents/minimal_graph.py`、`scripts/langgraph_minimal_graph_smoke.py`、`tests/test_langgraph_minimal_graph.py`、langgraph 依赖、START/END、add_node、add_edge、compile、invoke |
+| 8 | node 节点是什么 | 已完成 | `notes/langgraph-stage5-08-what-is-node.md`、`classify_message_node`、node 单一职责、局部 State 更新、node 命名、node 粒度、node 测试、副作用和幂等性 |
+| 9 | edge 边是什么 | 已完成 | `notes/langgraph-stage5-09-what-is-edge.md`、`MINIMAL_GRAPH_EDGES`、固定 edge、START/END 入口出口、add_edge、edge 和 node 区别、固定边适用场景 |
+| 10 | conditional edge 条件分支 | 已完成 | `notes/langgraph-stage5-10-conditional-edge.md`、`MessageRoute`、`MINIMAL_GRAPH_CONDITIONAL_ROUTES`、`route_by_message_status`、`add_conditional_edges`、path map、ready/blank 分支、条件边测试 |
 | 11 | START / END 和流程结束 | 未开始 | 待新增 |
 | 12 | graph.invoke / graph.stream：普通执行和流式执行 | 未开始 | 待新增 |
 | 13 | 智能工单 Agent 总流程设计 | 未开始 | 待新增 |
@@ -438,13 +443,13 @@ M0/M1 第一阶段完成时，必须满足：
 
 ### LangGraph
 
-- [ ] StateGraph
-- [ ] state schema
-- [ ] reducer
-- [ ] MessagesState
-- [ ] node
-- [ ] edge
-- [ ] conditional edge
+- [x] StateGraph
+- [x] state schema
+- [x] reducer
+- [x] MessagesState
+- [x] node
+- [x] edge
+- [x] conditional edge
 - [ ] START / END
 - [ ] graph.invoke / graph.stream
 - [ ] checkpoint

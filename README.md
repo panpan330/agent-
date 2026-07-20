@@ -188,11 +188,11 @@ projects/ 练习项目、Demo 和完整作品
 | 3 | Agent 流程和状态机基础 | [notes/langgraph-stage5-03-agent-flow-state-machine-basics.md](notes/langgraph-stage5-03-agent-flow-state-machine-basics.md) | 概念讲解，无代码改动 |
 | 4 | State 是什么：Agent 为什么需要状态 | [notes/langgraph-stage5-04-state-agent-needs-state.md](notes/langgraph-stage5-04-state-agent-needs-state.md) | 概念讲解，无代码改动 |
 | 5 | Reducer 是什么：状态字段怎么合并 | [notes/langgraph-stage5-05-reducer-state-merge.md](notes/langgraph-stage5-05-reducer-state-merge.md) | 概念讲解，无代码改动 |
-| 6 | MessagesState：多轮对话消息怎么保存 | 待新增 | 待新增 |
-| 7 | StateGraph 最小图 | 待新增 | 待新增 |
-| 8 | node 节点是什么 | 待新增 | 待新增 |
-| 9 | edge 边是什么 | 待新增 | 待新增 |
-| 10 | conditional edge 条件分支 | 待新增 | 待新增 |
+| 6 | MessagesState：多轮对话消息怎么保存 | [notes/langgraph-stage5-06-messages-state.md](notes/langgraph-stage5-06-messages-state.md) | 概念讲解，无代码改动 |
+| 7 | StateGraph 最小图 | [notes/langgraph-stage5-07-stategraph-minimal-graph.md](notes/langgraph-stage5-07-stategraph-minimal-graph.md) | [projects/ai-service/app/agents/minimal_graph.py](projects/ai-service/app/agents/minimal_graph.py)、[projects/ai-service/scripts/langgraph_minimal_graph_smoke.py](projects/ai-service/scripts/langgraph_minimal_graph_smoke.py)、[projects/ai-service/tests/test_langgraph_minimal_graph.py](projects/ai-service/tests/test_langgraph_minimal_graph.py) |
+| 8 | node 节点是什么 | [notes/langgraph-stage5-08-what-is-node.md](notes/langgraph-stage5-08-what-is-node.md) | [projects/ai-service/app/agents/minimal_graph.py](projects/ai-service/app/agents/minimal_graph.py)、[projects/ai-service/tests/test_langgraph_minimal_graph.py](projects/ai-service/tests/test_langgraph_minimal_graph.py) |
+| 9 | edge 边是什么 | [notes/langgraph-stage5-09-what-is-edge.md](notes/langgraph-stage5-09-what-is-edge.md) | [projects/ai-service/app/agents/minimal_graph.py](projects/ai-service/app/agents/minimal_graph.py)、[projects/ai-service/tests/test_langgraph_minimal_graph.py](projects/ai-service/tests/test_langgraph_minimal_graph.py) |
+| 10 | conditional edge 条件分支 | [notes/langgraph-stage5-10-conditional-edge.md](notes/langgraph-stage5-10-conditional-edge.md) | [projects/ai-service/app/agents/minimal_graph.py](projects/ai-service/app/agents/minimal_graph.py)、[projects/ai-service/tests/test_langgraph_minimal_graph.py](projects/ai-service/tests/test_langgraph_minimal_graph.py) |
 | 11 | START / END 和流程结束 | 待新增 | 待新增 |
 | 12 | graph.invoke / graph.stream：普通执行和流式执行 | 待新增 | 待新增 |
 | 13 | 智能工单 Agent 总流程设计 | 待新增 | 待新增 |

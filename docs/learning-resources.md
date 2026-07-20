@@ -315,6 +315,21 @@
 - [阶段 5 第 5 节：Reducer 是什么：状态字段怎么合并](../notes/langgraph-stage5-05-reducer-state-merge.md)
   - 用途：理解 State 字段的新旧值如何合并，掌握默认覆盖、自定义 reducer、`Annotated`、`operator.add`、messages 追加、ticket_fields 字典合并和并行节点更新冲突等基础。
 
+- [阶段 5 第 6 节：MessagesState：多轮对话消息怎么保存](../notes/langgraph-stage5-06-messages-state.md)
+  - 用途：理解 messages 是模型多轮上下文，掌握 `SystemMessage`、`HumanMessage`、`AIMessage`、`ToolMessage`、`add_messages`、`MessagesState`，以及 messages 与结构化业务 State 的分工。
+
+- [阶段 5 第 7 节：StateGraph 最小图](../notes/langgraph-stage5-07-stategraph-minimal-graph.md)
+  - 用途：第一次真正运行 LangGraph，理解 `StateGraph`、State schema、node、edge、`START`、`END`、`compile()`、`invoke()` 和节点返回局部 State 更新的完整最小链路。
+
+- [阶段 5 第 8 节：node 节点是什么](../notes/langgraph-stage5-08-what-is-node.md)
+  - 用途：理解 node 是图里的单一职责处理步骤，掌握 node 的输入 State、局部 State 更新、命名、粒度、测试方式，以及调用 service、模型、外部 API 和处理副作用时的边界。
+
+- [阶段 5 第 9 节：edge 边是什么](../notes/langgraph-stage5-09-what-is-edge.md)
+  - 用途：理解 edge 是节点之间的连接关系，掌握固定 edge、`add_edge()`、`START` 入口、`END` 出口、edge 和 node 的区别，以及固定边和条件边的边界。
+
+- [阶段 5 第 10 节：conditional edge 条件分支](../notes/langgraph-stage5-10-conditional-edge.md)
+  - 用途：理解 conditional edge 如何根据 State 动态选择下一步节点，掌握 routing function、path map、`add_conditional_edges()`、普通 edge 与条件 edge 的区别，以及智能工单 Agent 中意图分流、字段完整性分流、工具结果分流的基础。
+
 ## 13. RAG / 向量库
 
 ### 主资料
