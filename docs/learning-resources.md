@@ -289,6 +289,32 @@
 - [LangChain Academy: Introduction to LangGraph](https://academy.langchain.com/courses/intro-to-langgraph)
   - 用途：系统课程辅助理解。
 
+### 阶段 5 使用方式
+
+阶段 5：LangGraph 智能工单 Agent。当前先按 26 节主线推进，资料使用顺序如下：
+
+1. 第 1-3 节优先看 LangGraph Overview，理解 LangGraph 为什么用于有状态 Agent 流程。
+2. 第 4-12 节配合 LangGraph Quickstart，重点理解 State、Reducer、MessagesState、StateGraph、node、edge、conditional edge、START/END、invoke 和 stream。
+3. 第 13-22 节结合 LangGraph Workflows and agents，把智能工单流程拆成意图识别、RAG 回答、工单字段提取、用户确认、Java API 调用、checkpoint、interrupt 和 human-in-the-loop。
+4. 第 23-26 节回到项目代码，重点做错误处理、trace_id、fake 测试、阶段复盘和面试表达。
+
+### 本仓库阶段 5 笔记
+
+- [阶段 5 第 1 节：LangGraph 是什么，为什么现在才学](../notes/langgraph-stage5-01-what-is-langgraph.md)
+  - 用途：理解 LangGraph 的定位、为什么在 Tool Calling 和 RAG 之后学习、它和 LangChain / 普通函数流程的边界，以及阶段 5 智能工单 Agent 的整体学习路线。
+
+- [阶段 5 第 2 节：LangGraph 和 LangChain / 普通函数流程的区别](../notes/langgraph-stage5-02-langgraph-vs-langchain-function-flow.md)
+  - 用途：建立普通函数 / service、LangChain、LangGraph 的三层分工，理解 workflow 与 agent 的区别，并明确后续智能工单 Agent 为什么要用 LangGraph 编排但不能把所有业务逻辑都塞进图里。
+
+- [阶段 5 第 3 节：Agent 流程和状态机基础](../notes/langgraph-stage5-03-agent-flow-state-machine-basics.md)
+  - 用途：理解 Agent 为什么是多步骤、有状态、会在状态之间转移的业务流程，掌握状态、事件、转移、动作、守卫条件、副作用、HTTP 无状态与 Agent 有状态等基础，为后续 StateGraph 代码做准备。
+
+- [阶段 5 第 4 节：State 是什么：Agent 为什么需要状态](../notes/langgraph-stage5-04-state-agent-needs-state.md)
+  - 用途：理解 LangGraph State 是所有节点共享的结构化流程快照，区分 State 与局部变量、请求体、响应体、messages、缓存和日志，并掌握智能工单 Agent 的初版 State 字段设计原则。
+
+- [阶段 5 第 5 节：Reducer 是什么：状态字段怎么合并](../notes/langgraph-stage5-05-reducer-state-merge.md)
+  - 用途：理解 State 字段的新旧值如何合并，掌握默认覆盖、自定义 reducer、`Annotated`、`operator.add`、messages 追加、ticket_fields 字典合并和并行节点更新冲突等基础。
+
 ## 13. RAG / 向量库
 
 ### 主资料

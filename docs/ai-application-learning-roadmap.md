@@ -90,7 +90,7 @@ Java 后端能力
 | M1 | 第 1-2 周 | Python AI 服务基础 | FastAPI AI 服务、聊天接口、流式输出、结构化输出 |
 | M2 | 第 3-4 周 | LangChain + Java 工具调用 | 客服助手 v1、Java mock 业务服务、tool 调用 |
 | M3 | 第 5-7 周 | 企业知识库 RAG | 文档入库、检索问答、引用来源、权限过滤、初版评测 |
-| M4 | 第 8-9 周 | LangGraph 智能工单 | 分类、检索、字段提取、用户确认、创建工单 |
+| M4 | 第 8-9 周 | LangGraph 智能工单 | 26 节主线，完成可控、可测试、可恢复的工单 Agent v1 |
 | M5 | 第 10-11 周 | 生产化与评测 | trace、日志、限流、重试、eval、Docker Compose |
 | M6 | 第 12 周 | 作品整理 | README、架构图、截图、面试讲稿、简历描述 |
 
@@ -320,17 +320,38 @@ created_at
 
 目标：完成第二个主项目：智能工单 Agent。
 
-学习内容：
+阶段 5 固定为 26 节主线。第 1-12 节先打 LangGraph 基础，第 13-22 节接入智能工单业务，第 23-26 节补错误处理、日志、测试和项目整理。不要为了赶进度压缩成 16 或 22 节；Agent 评测、LangSmith tracing、Docker Compose、前端工作台等更生产化内容放到后续阶段。
 
-- StateGraph。
-- state schema。
-- node。
-- edge。
-- conditional edge。
-- checkpoint。
-- thread_id。
-- interrupt。
-- human-in-the-loop。
+细化学习清单：
+
+| 节 | 主题 | 目标 |
+| --- | --- | --- |
+| 1 | LangGraph 是什么，为什么现在才学 | 理解 LangGraph 解决多步骤、有状态、可恢复 Agent 流程 |
+| 2 | LangGraph 和 LangChain / 普通函数流程的区别 | 区分组件封装、普通编排和图式状态机 |
+| 3 | Agent 流程和状态机基础 | 理解 Agent 为什么可以被看成状态流转 |
+| 4 | State 是什么：Agent 为什么需要状态 | 设计保存用户输入、中间结果、分支决策的 state |
+| 5 | Reducer 是什么：状态字段怎么合并 | 理解状态更新、列表追加、消息合并等规则 |
+| 6 | MessagesState：多轮对话消息怎么保存 | 理解多轮消息状态和普通业务 state 的区别 |
+| 7 | StateGraph 最小图 | 创建最小可运行 graph |
+| 8 | node 节点是什么 | 把流程步骤拆成单一职责节点 |
+| 9 | edge 边是什么 | 理解节点之间的固定流转 |
+| 10 | conditional edge 条件分支 | 根据 state 决定下一步 |
+| 11 | START / END 和流程结束 | 理解图入口、出口和何时结束 |
+| 12 | graph.invoke / graph.stream：普通执行和流式执行 | 理解一次性执行和流式观察中间状态 |
+| 13 | 智能工单 Agent 总流程设计 | 画出完整业务流程和节点分工 |
+| 14 | 意图识别节点 | 判断用户是问知识、查订单还是需要创建工单 |
+| 15 | RAG 知识库回答节点 | 接入阶段 4 的知识库回答能力 |
+| 16 | 判断是否需要创建工单 | 根据 RAG/意图/用户诉求决定是否进入工单流程 |
+| 17 | 工单字段提取节点 | 从用户描述中提取 title、category、description 等字段 |
+| 18 | 缺失字段追问节点 | 用户信息不完整时继续追问 |
+| 19 | 用户确认节点 | 创建工单前必须确认敏感动作 |
+| 20 | 调用 Java mock 创建工单节点 | 接回阶段 3 的 Java mock API |
+| 21 | checkpoint 和 thread_id：中断、恢复、继续对话 | 保存流程状态并支持同一任务继续 |
+| 22 | interrupt / human-in-the-loop | 学会在图执行中等待人工输入 |
+| 23 | 节点错误处理、fallback 和流程兜底 | 处理模型失败、RAG 无资料、Java API 失败 |
+| 24 | LangGraph 日志、trace_id 和可观测性 | 串联图节点日志和已有 trace_id |
+| 25 | LangGraph 测试：fake LLM / fake RAG / fake Java client | 不依赖真实外部服务测试流程分支 |
+| 26 | 阶段 5 项目整理和面试表达 | 复盘架构、验收清单和讲解版本 |
 
 流程：
 

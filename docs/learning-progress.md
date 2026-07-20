@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 4 企业知识库 RAG 基础已完成，第 39 节 企业知识库 RAG 最终收尾复盘已完成，下一步进入阶段 5 LangGraph 智能工单 Agent。
+当前阶段：阶段 5 LangGraph 智能工单 Agent 进行中，第 5 节 Reducer 是什么：状态字段怎么合并已完成，下一步进入阶段 5 第 6 节 MessagesState：多轮对话消息怎么保存。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -17,7 +17,7 @@
 | M1 | 第 1-2 周 | Python AI 服务基础 | 已完成 | `projects/ai-service`、聊天接口、流式输出、结构化输出 |
 | M2 | 第 3-4 周 | LangChain + Java 工具调用 | 已完成 | 客服助手 v1、Java mock 业务服务 |
 | M3 | 第 5-7 周 | 企业知识库 RAG | 已完成 | 文档入库、检索问答、引用来源、权限过滤、Milvus 对比、初版评测 |
-| M4 | 第 8-9 周 | LangGraph 智能工单 | 未开始 | 工单 Agent v1 |
+| M4 | 第 8-9 周 | LangGraph 智能工单 | 进行中 | 26 节主线，目标是工单 Agent v1 |
 | M5 | 第 10-11 周 | 生产化与评测 | 未开始 | trace、日志、限流、重试、eval、Docker Compose |
 | M6 | 第 12 周 | 作品整理 | 未开始 | README、架构图、截图、面试讲稿、简历描述 |
 
@@ -157,6 +157,11 @@
 - [x] 完成阶段 4 第 37 节：RAG 检索评测基础
 - [x] 完成阶段 4 第 38 节：给当前 RAG 项目做一个最小检索评测脚本
 - [x] 完成阶段 4 第 39 节：企业知识库 RAG 最终收尾复盘
+- [x] 完成阶段 5 第 1 节：LangGraph 是什么，为什么现在才学
+- [x] 完成阶段 5 第 2 节：LangGraph 和 LangChain / 普通函数流程的区别
+- [x] 完成阶段 5 第 3 节：Agent 流程和状态机基础
+- [x] 完成阶段 5 第 4 节：State 是什么：Agent 为什么需要状态
+- [x] 完成阶段 5 第 5 节：Reducer 是什么：状态字段怎么合并
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -282,6 +287,39 @@
 | 38 | 给当前 RAG 项目做一个最小检索评测脚本 | 已完成 | `notes/rag-stage4-38-rag-retrieval-evaluation-script.md`、`app/rag/evaluation.py`、`data/rag_eval/retrieval_cases.json`、`scripts/rag_retrieval_eval.py`、固定评测样本、match_level、Hit Rate@K、Recall@K、Precision@K、MRR、no-result case、bad case 报告 |
 | 39 | 企业知识库 RAG 最终收尾复盘 | 已完成 | `notes/rag-stage4-39-final-review.md`、阶段 4 总学习地图、入库链路、问答链路、模块职责、Qdrant/Milvus 选型、检索质量、安全、性能、评测、生产级差距、阶段 5 LangGraph 衔接 |
 
+## 阶段 5 细化学习清单
+
+阶段 5 目标：完成智能工单 Agent v1。这个阶段不是只学 LangGraph API，而是把 FastAPI AI 服务、LLM API、Tool Calling、Java mock 业务服务、用户确认机制和 RAG 知识库组织成一个可控、可测试、可恢复的 Agent 流程。阶段 5 主线固定为 26 节，后续不要压缩成 16 或 22 节；Agent 评测、LangSmith tracing、Docker Compose、前端工作台等更生产化内容放到阶段 6。
+
+| 节 | 主题 | 学习状态 | 对应产出 |
+| --- | --- | --- | --- |
+| 1 | LangGraph 是什么，为什么现在才学 | 已完成 | `notes/langgraph-stage5-01-what-is-langgraph.md`、LangGraph 定位、为什么现在才学、LangGraph/LangChain/普通函数流程边界、Agent/state/node/edge/conditional edge/checkpoint/thread_id/interrupt/human-in-the-loop 基础认知、阶段 5 路线 |
+| 2 | LangGraph 和 LangChain / 普通函数流程的区别 | 已完成 | `notes/langgraph-stage5-02-langgraph-vs-langchain-function-flow.md`、普通函数 / service、LangChain、LangGraph 三层分工、workflow 与 agent 区别、智能工单 Agent 架构边界 |
+| 3 | Agent 流程和状态机基础 | 已完成 | `notes/langgraph-stage5-03-agent-flow-state-machine-basics.md`、流程、状态、状态机、事件、转移、动作、守卫条件、副作用、HTTP 无状态与 Agent 有状态、智能工单 Agent 初版状态机 |
+| 4 | State 是什么：Agent 为什么需要状态 | 已完成 | `notes/langgraph-stage5-04-state-agent-needs-state.md`、State 定义、State 与变量/messages/请求体/响应体区别、State schema、TypedDict/Pydantic/dataclass 选择、智能工单 Agent 初版 State 设计 |
+| 5 | Reducer 是什么：状态字段怎么合并 | 已完成 | `notes/langgraph-stage5-05-reducer-state-merge.md`、默认覆盖、自定义 reducer、left/right、Annotated、operator.add、messages 追加、ticket_fields 字典合并、并行更新冲突 |
+| 6 | MessagesState：多轮对话消息怎么保存 | 未开始 | 待新增 |
+| 7 | StateGraph 最小图 | 未开始 | 待新增 |
+| 8 | node 节点是什么 | 未开始 | 待新增 |
+| 9 | edge 边是什么 | 未开始 | 待新增 |
+| 10 | conditional edge 条件分支 | 未开始 | 待新增 |
+| 11 | START / END 和流程结束 | 未开始 | 待新增 |
+| 12 | graph.invoke / graph.stream：普通执行和流式执行 | 未开始 | 待新增 |
+| 13 | 智能工单 Agent 总流程设计 | 未开始 | 待新增 |
+| 14 | 意图识别节点 | 未开始 | 待新增 |
+| 15 | RAG 知识库回答节点 | 未开始 | 待新增 |
+| 16 | 判断是否需要创建工单 | 未开始 | 待新增 |
+| 17 | 工单字段提取节点 | 未开始 | 待新增 |
+| 18 | 缺失字段追问节点 | 未开始 | 待新增 |
+| 19 | 用户确认节点 | 未开始 | 待新增 |
+| 20 | 调用 Java mock 创建工单节点 | 未开始 | 待新增 |
+| 21 | checkpoint 和 thread_id：中断、恢复、继续对话 | 未开始 | 待新增 |
+| 22 | interrupt / human-in-the-loop | 未开始 | 待新增 |
+| 23 | 节点错误处理、fallback 和流程兜底 | 未开始 | 待新增 |
+| 24 | LangGraph 日志、trace_id 和可观测性 | 未开始 | 待新增 |
+| 25 | LangGraph 测试：fake LLM / fake RAG / fake Java client | 未开始 | 待新增 |
+| 26 | 阶段 5 项目整理和面试表达 | 未开始 | 待新增 |
+
 ## 当前 Sprint 验收标准
 
 M0/M1 第一阶段完成时，必须满足：
@@ -402,13 +440,26 @@ M0/M1 第一阶段完成时，必须满足：
 
 - [ ] StateGraph
 - [ ] state schema
+- [ ] reducer
+- [ ] MessagesState
 - [ ] node
 - [ ] edge
 - [ ] conditional edge
+- [ ] START / END
+- [ ] graph.invoke / graph.stream
 - [ ] checkpoint
 - [ ] interrupt
 - [ ] human-in-the-loop
 - [ ] thread_id
+- [ ] 智能工单 Agent 总流程
+- [ ] 意图识别节点
+- [ ] RAG 知识库回答节点
+- [ ] 工单字段提取节点
+- [ ] 缺失字段追问节点
+- [ ] 用户确认节点
+- [ ] Java mock 创建工单节点
+- [ ] 节点错误处理 / fallback
+- [ ] LangGraph 测试
 
 ### Java 集成
 

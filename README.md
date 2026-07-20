@@ -177,6 +177,39 @@ projects/ 练习项目、Demo 和完整作品
 | 38 | 给当前 RAG 项目做一个最小检索评测脚本 | [notes/rag-stage4-38-rag-retrieval-evaluation-script.md](notes/rag-stage4-38-rag-retrieval-evaluation-script.md) | [projects/ai-service/app/rag/evaluation.py](projects/ai-service/app/rag/evaluation.py)、[projects/ai-service/data/rag_eval/retrieval_cases.json](projects/ai-service/data/rag_eval/retrieval_cases.json)、[projects/ai-service/scripts/rag_retrieval_eval.py](projects/ai-service/scripts/rag_retrieval_eval.py) |
 | 39 | 企业知识库 RAG 最终收尾复盘 | [notes/rag-stage4-39-final-review.md](notes/rag-stage4-39-final-review.md) | 阶段 4 总复盘，无代码改动 |
 
+## 阶段 5：LangGraph 智能工单 Agent 学习规划
+
+阶段 5 已确定按 26 节推进，目标是做出智能工单 Agent v1。第 1-12 节先学 LangGraph 基础和图执行方式，第 13-22 节接入智能工单业务流程，第 23-26 节补错误处理、日志、测试和项目整理。
+
+| 顺序 | 主题 | 笔记路径 | 代码路径 |
+| --- | --- | --- | --- |
+| 1 | LangGraph 是什么，为什么现在才学 | [notes/langgraph-stage5-01-what-is-langgraph.md](notes/langgraph-stage5-01-what-is-langgraph.md) | 概念讲解，无代码改动 |
+| 2 | LangGraph 和 LangChain / 普通函数流程的区别 | [notes/langgraph-stage5-02-langgraph-vs-langchain-function-flow.md](notes/langgraph-stage5-02-langgraph-vs-langchain-function-flow.md) | 概念讲解，无代码改动 |
+| 3 | Agent 流程和状态机基础 | [notes/langgraph-stage5-03-agent-flow-state-machine-basics.md](notes/langgraph-stage5-03-agent-flow-state-machine-basics.md) | 概念讲解，无代码改动 |
+| 4 | State 是什么：Agent 为什么需要状态 | [notes/langgraph-stage5-04-state-agent-needs-state.md](notes/langgraph-stage5-04-state-agent-needs-state.md) | 概念讲解，无代码改动 |
+| 5 | Reducer 是什么：状态字段怎么合并 | [notes/langgraph-stage5-05-reducer-state-merge.md](notes/langgraph-stage5-05-reducer-state-merge.md) | 概念讲解，无代码改动 |
+| 6 | MessagesState：多轮对话消息怎么保存 | 待新增 | 待新增 |
+| 7 | StateGraph 最小图 | 待新增 | 待新增 |
+| 8 | node 节点是什么 | 待新增 | 待新增 |
+| 9 | edge 边是什么 | 待新增 | 待新增 |
+| 10 | conditional edge 条件分支 | 待新增 | 待新增 |
+| 11 | START / END 和流程结束 | 待新增 | 待新增 |
+| 12 | graph.invoke / graph.stream：普通执行和流式执行 | 待新增 | 待新增 |
+| 13 | 智能工单 Agent 总流程设计 | 待新增 | 待新增 |
+| 14 | 意图识别节点 | 待新增 | 待新增 |
+| 15 | RAG 知识库回答节点 | 待新增 | 待新增 |
+| 16 | 判断是否需要创建工单 | 待新增 | 待新增 |
+| 17 | 工单字段提取节点 | 待新增 | 待新增 |
+| 18 | 缺失字段追问节点 | 待新增 | 待新增 |
+| 19 | 用户确认节点 | 待新增 | 待新增 |
+| 20 | 调用 Java mock 创建工单节点 | 待新增 | 待新增 |
+| 21 | checkpoint 和 thread_id：中断、恢复、继续对话 | 待新增 | 待新增 |
+| 22 | interrupt / human-in-the-loop | 待新增 | 待新增 |
+| 23 | 节点错误处理、fallback 和流程兜底 | 待新增 | 待新增 |
+| 24 | LangGraph 日志、trace_id 和可观测性 | 待新增 | 待新增 |
+| 25 | LangGraph 测试：fake LLM / fake RAG / fake Java client | 待新增 | 待新增 |
+| 26 | 阶段 5 项目整理和面试表达 | 待新增 | 待新增 |
+
 ## 当前目标
 
 12 周内完成两个能展示的项目：
