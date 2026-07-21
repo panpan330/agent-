@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 5 LangGraph 智能工单 Agent 进行中，第 14 节意图识别节点已完成，下一步进入阶段 5 第 15 节 RAG 知识库回答节点。
+当前阶段：阶段 5 LangGraph 智能工单 Agent 进行中，第 20 节调用 Java mock 创建工单节点已完成，下一步进入阶段 5 第 21 节 checkpoint 和 thread_id。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -171,6 +171,12 @@
 - [x] 完成阶段 5 第 12 节：graph.invoke / graph.stream：普通执行和流式执行
 - [x] 完成阶段 5 第 13 节：智能工单 Agent 总流程设计
 - [x] 完成阶段 5 第 14 节：意图识别节点
+- [x] 完成阶段 5 第 15 节：RAG 知识库回答节点
+- [x] 完成阶段 5 第 16 节：判断是否需要创建工单
+- [x] 完成阶段 5 第 17 节：工单字段提取节点
+- [x] 完成阶段 5 第 18 节：缺失字段追问节点
+- [x] 完成阶段 5 第 19 节：用户确认节点
+- [x] 完成阶段 5 第 20 节：调用 Java mock 创建工单节点
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -316,12 +322,12 @@
 | 12 | graph.invoke / graph.stream：普通执行和流式执行 | 已完成 | `notes/langgraph-stage5-12-invoke-stream.md`、`build_minimal_graph_input`、`run_minimal_graph`、`stream_minimal_graph_updates`、`stream_minimal_graph_values`、`stream_mode="updates"`、`stream_mode="values"`、`version="v2"`、invoke 与 stream 对比 |
 | 13 | 智能工单 Agent 总流程设计 | 已完成 | `notes/langgraph-stage5-13-ticket-agent-overall-design.md`、智能工单 Agent v1 业务边界、主路线、State 设计、节点设计、edge/conditional edge 设计、确认机制、RAG/订单/工单路线、后续 14-22 节实现顺序 |
 | 14 | 意图识别节点 | 已完成 | `notes/langgraph-stage5-14-intent-classification-node.md`、`app/agents/ticket_agent.py`、`TicketIntent`、`TicketAgentState`、`classify_ticket_intent`、`classify_intent_node`、`route_by_intent`、`TICKET_AGENT_INTENT_ROUTES`、六类 intent、占位业务路线、stream 路由测试 |
-| 15 | RAG 知识库回答节点 | 未开始 | 待新增 |
-| 16 | 判断是否需要创建工单 | 未开始 | 待新增 |
-| 17 | 工单字段提取节点 | 未开始 | 待新增 |
-| 18 | 缺失字段追问节点 | 未开始 | 待新增 |
-| 19 | 用户确认节点 | 未开始 | 待新增 |
-| 20 | 调用 Java mock 创建工单节点 | 未开始 | 待新增 |
+| 15 | RAG 知识库回答节点 | 已完成 | `notes/langgraph-stage5-15-rag-policy-node.md`、`app/agents/ticket_agent.py`、`PolicyRagService`、`FakePolicyRagService`、`retrieve_policy_node`、`rag_query`、`rag_answer_status`、`rag_citations`、`rag_no_context_reason`、`rag_suggestions`、有资料回答、无资料兜底、完整图和 stream 测试 |
+| 16 | 判断是否需要创建工单 | 已完成 | `notes/langgraph-stage5-16-decide-ticket-need.md`、`TicketNeedRoute`、`TicketNeedSource`、`TicketNeedDecision`、`decide_ticket_need`、`decide_ticket_need_node`、`route_by_ticket_need`、`needs_ticket`、`ticket_need_reason`、`ticket_need_source`、RAG answered 不建工单、RAG no_context 进入工单流程、明确投诉进入工单流程 |
+| 17 | 工单字段提取节点 | 已完成 | `notes/langgraph-stage5-17-ticket-field-extraction-node.md`、`TicketFields`、`TicketIssueType`、`TicketUrgencyLevel`、`extract_ticket_fields`、`find_missing_ticket_fields`、`extract_ticket_fields_node`、`ticket_fields`、`missing_ticket_fields`、`ticket_fields_complete`、规则抽取订单号/问题类型/诉求/紧急程度、policy_gap、字段完整和缺失测试 |
+| 18 | 缺失字段追问节点 | 已完成 | `notes/langgraph-stage5-18-missing-field-follow-up-node.md`、`TicketFieldCompletionRoute`、`TICKET_AGENT_FIELD_COMPLETION_ROUTES`、`route_by_ticket_fields_complete`、`build_missing_ticket_fields_question`、`ask_missing_ticket_fields_node`、`missing_ticket_field_question`、`missing_ticket_field_question_fields`、字段缺失进入追问、字段完整不追问、stream 追问节点测试 |
+| 19 | 用户确认节点 | 已完成 | `notes/langgraph-stage5-19-ticket-confirmation-node.md`、`TicketConfirmationStatus`、`PendingTicketConfirmation`、`ticket_confirmation_required`、`ticket_confirmation_message`、`pending_ticket_confirmation`、`build_ticket_confirmation_id`、`build_ticket_confirmation_message`、`build_pending_ticket_confirmation`、`request_ticket_confirmation_node`、字段完整进入确认、字段缺失仍追问、待确认工单和 stream 确认节点测试 |
+| 20 | 调用 Java mock 创建工单节点 | 已完成 | `notes/langgraph-stage5-20-java-mock-create-ticket-node.md`、`TicketCreator`、`TicketConfirmationRoute`、`TICKET_AGENT_CONFIRMATION_ROUTES`、`route_by_ticket_confirmation`、`build_create_ticket_args_from_fields`、`create_ticket_node`、`ticket_confirmation_approved`、`ticket_creation_status`、`created_ticket`、确认后条件边、fake ticket creator 图测试、`policy_gap` 工单类别契约 |
 | 21 | checkpoint 和 thread_id：中断、恢复、继续对话 | 未开始 | 待新增 |
 | 22 | interrupt / human-in-the-loop | 未开始 | 待新增 |
 | 23 | 节点错误处理、fallback 和流程兜底 | 未开始 | 待新增 |
@@ -460,13 +466,14 @@ M0/M1 第一阶段完成时，必须满足：
 - [ ] interrupt
 - [ ] human-in-the-loop
 - [ ] thread_id
-- [ ] 智能工单 Agent 总流程
+- [x] 智能工单 Agent 总流程
 - [x] 意图识别节点
-- [ ] RAG 知识库回答节点
-- [ ] 工单字段提取节点
-- [ ] 缺失字段追问节点
-- [ ] 用户确认节点
-- [ ] Java mock 创建工单节点
+- [x] RAG 知识库回答节点
+- [x] 判断是否需要创建工单
+- [x] 工单字段提取节点
+- [x] 缺失字段追问节点
+- [x] 用户确认节点
+- [x] Java mock 创建工单节点
 - [ ] 节点错误处理 / fallback
 - [ ] LangGraph 测试
 

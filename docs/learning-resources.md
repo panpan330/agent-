@@ -286,6 +286,9 @@
 - [LangGraph Workflows and agents](https://docs.langchain.com/oss/python/langgraph/workflows-agents)
   - 用途：理解固定工作流和动态 Agent 的区别。
 
+- [LangGraph Thinking in LangGraph](https://docs.langchain.com/oss/python/langgraph/thinking-in-langgraph)
+  - 用途：理解如何把客服 Agent 拆成离散节点、设计 State，并区分 LLM step、data step、action step 和 user input step。
+
 - [LangChain Academy: Introduction to LangGraph](https://academy.langchain.com/courses/intro-to-langgraph)
   - 用途：系统课程辅助理解。
 
@@ -341,6 +344,24 @@
 
 - [阶段 5 第 14 节：意图识别节点](../notes/langgraph-stage5-14-intent-classification-node.md)
   - 用途：实现智能工单 Agent 的第一层业务分流，理解意图识别、规则分类器、固定 intent 集合、`classify_intent_node`、`route_by_intent`、六类业务路线和占位节点测试。
+
+- [阶段 5 第 15 节：RAG 知识库回答节点](../notes/langgraph-stage5-15-rag-policy-node.md)
+  - 用途：把 `policy_question` 路线从占位节点升级成 RAG 知识库回答节点，理解 `PolicyRagService`、fake RAG service、`RagAnswer`、引用来源、无资料兜底和 RAG 结果写入 Agent State。
+
+- [阶段 5 第 16 节：判断是否需要创建工单](../notes/langgraph-stage5-16-decide-ticket-need.md)
+  - 用途：理解智能客服 Agent 为什么不能所有问题都创建工单，也不能所有问题都只回答，掌握 `decide_ticket_need` 判断节点、`needs_ticket`、`ticket_need_reason`、`ticket_need_source`、条件边和工单流程入口分支。
+
+- [阶段 5 第 17 节：工单字段提取节点](../notes/langgraph-stage5-17-ticket-field-extraction-node.md)
+  - 用途：理解工单字段、字段抽取、字段缺失和结构化 State，掌握 `TicketFields`、`extract_ticket_fields`、`find_missing_ticket_fields`、`ticket_fields`、`missing_ticket_fields` 和 `ticket_fields_complete`。
+
+- [阶段 5 第 18 节：缺失字段追问节点](../notes/langgraph-stage5-18-missing-field-follow-up-node.md)
+  - 用途：理解字段缺失时为什么要追问、字段完整时为什么不追问，掌握 `route_by_ticket_fields_complete`、`build_missing_ticket_fields_question`、`ask_missing_ticket_fields_node` 和追问 State 字段设计。
+
+- [阶段 5 第 19 节：用户确认节点](../notes/langgraph-stage5-19-ticket-confirmation-node.md)
+  - 用途：理解字段完整不等于用户授权，掌握用户确认节点、待确认工单、确认 ID、`pending_ticket_confirmation`、确认话术、字段完整进入确认和字段缺失仍追问的业务边界。
+
+- [阶段 5 第 20 节：调用 Java mock 创建工单节点](../notes/langgraph-stage5-20-java-mock-create-ticket-node.md)
+  - 用途：理解创建工单这种写操作为什么必须在用户确认之后执行，掌握 `TicketFields` 到 `CreateTicketArgs` 的契约映射、幂等键、`TicketCreator` 依赖注入、`create_ticket_node`、确认后条件边和 fake client 测试。
 
 ## 13. RAG / 向量库
 

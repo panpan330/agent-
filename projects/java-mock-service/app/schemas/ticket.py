@@ -9,6 +9,7 @@ class TicketCategory(StrEnum):
     ORDER_QUERY = "order_query"
     LOGISTICS = "logistics"
     COMPLAINT = "complaint"
+    POLICY_GAP = "policy_gap"
 
 
 class TicketPriority(StrEnum):

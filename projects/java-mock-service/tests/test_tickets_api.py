@@ -21,6 +21,25 @@ def test_create_ticket_api_returns_created_ticket(client: TestClient) -> None:
     assert data["category"] == "complaint"
 
 
+def test_create_ticket_api_accepts_policy_gap_ticket(client: TestClient) -> None:
+    response = client.post(
+        "/tickets",
+        json={
+            "requester_id": "demo_user_001",
+            "title": "会员等级政策知识库缺口",
+            "description": "用户询问会员等级政策，但知识库没有足够资料。",
+            "category": "policy_gap",
+            "priority": "normal",
+            "related_order_id": None,
+        },
+    )
+
+    assert response.status_code == 201
+    data = response.json()
+    assert data["ticket_id"] == "T1001"
+    assert data["category"] == "policy_gap"
+
+
 def test_create_ticket_api_reuses_ticket_for_same_idempotency_key(
     client: TestClient,
 ) -> None:

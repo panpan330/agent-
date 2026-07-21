@@ -197,12 +197,12 @@ projects/ 练习项目、Demo 和完整作品
 | 12 | graph.invoke / graph.stream：普通执行和流式执行 | [notes/langgraph-stage5-12-invoke-stream.md](notes/langgraph-stage5-12-invoke-stream.md) | [projects/ai-service/app/agents/minimal_graph.py](projects/ai-service/app/agents/minimal_graph.py)、[projects/ai-service/scripts/langgraph_minimal_graph_smoke.py](projects/ai-service/scripts/langgraph_minimal_graph_smoke.py)、[projects/ai-service/tests/test_langgraph_minimal_graph.py](projects/ai-service/tests/test_langgraph_minimal_graph.py) |
 | 13 | 智能工单 Agent 总流程设计 | [notes/langgraph-stage5-13-ticket-agent-overall-design.md](notes/langgraph-stage5-13-ticket-agent-overall-design.md) | 设计笔记，无代码改动 |
 | 14 | 意图识别节点 | [notes/langgraph-stage5-14-intent-classification-node.md](notes/langgraph-stage5-14-intent-classification-node.md) | [projects/ai-service/app/agents/ticket_agent.py](projects/ai-service/app/agents/ticket_agent.py)、[projects/ai-service/tests/test_ticket_agent_intent.py](projects/ai-service/tests/test_ticket_agent_intent.py) |
-| 15 | RAG 知识库回答节点 | 待新增 | 待新增 |
-| 16 | 判断是否需要创建工单 | 待新增 | 待新增 |
-| 17 | 工单字段提取节点 | 待新增 | 待新增 |
-| 18 | 缺失字段追问节点 | 待新增 | 待新增 |
-| 19 | 用户确认节点 | 待新增 | 待新增 |
-| 20 | 调用 Java mock 创建工单节点 | 待新增 | 待新增 |
+| 15 | RAG 知识库回答节点 | [notes/langgraph-stage5-15-rag-policy-node.md](notes/langgraph-stage5-15-rag-policy-node.md) | [projects/ai-service/app/agents/ticket_agent.py](projects/ai-service/app/agents/ticket_agent.py)、[projects/ai-service/tests/test_ticket_agent_intent.py](projects/ai-service/tests/test_ticket_agent_intent.py) |
+| 16 | 判断是否需要创建工单 | [notes/langgraph-stage5-16-decide-ticket-need.md](notes/langgraph-stage5-16-decide-ticket-need.md) | [projects/ai-service/app/agents/ticket_agent.py](projects/ai-service/app/agents/ticket_agent.py)、[projects/ai-service/tests/test_ticket_agent_intent.py](projects/ai-service/tests/test_ticket_agent_intent.py) |
+| 17 | 工单字段提取节点 | [notes/langgraph-stage5-17-ticket-field-extraction-node.md](notes/langgraph-stage5-17-ticket-field-extraction-node.md) | [projects/ai-service/app/agents/ticket_agent.py](projects/ai-service/app/agents/ticket_agent.py)、[projects/ai-service/tests/test_ticket_agent_intent.py](projects/ai-service/tests/test_ticket_agent_intent.py) |
+| 18 | 缺失字段追问节点 | [notes/langgraph-stage5-18-missing-field-follow-up-node.md](notes/langgraph-stage5-18-missing-field-follow-up-node.md) | [projects/ai-service/app/agents/ticket_agent.py](projects/ai-service/app/agents/ticket_agent.py)、[projects/ai-service/tests/test_ticket_agent_intent.py](projects/ai-service/tests/test_ticket_agent_intent.py) |
+| 19 | 用户确认节点 | [notes/langgraph-stage5-19-ticket-confirmation-node.md](notes/langgraph-stage5-19-ticket-confirmation-node.md) | [projects/ai-service/app/agents/ticket_agent.py](projects/ai-service/app/agents/ticket_agent.py)、[projects/ai-service/tests/test_ticket_agent_intent.py](projects/ai-service/tests/test_ticket_agent_intent.py) |
+| 20 | 调用 Java mock 创建工单节点 | [notes/langgraph-stage5-20-java-mock-create-ticket-node.md](notes/langgraph-stage5-20-java-mock-create-ticket-node.md) | [projects/ai-service/app/agents/ticket_agent.py](projects/ai-service/app/agents/ticket_agent.py)、[projects/ai-service/app/schemas/ticket.py](projects/ai-service/app/schemas/ticket.py)、[projects/java-mock-service/app/schemas/ticket.py](projects/java-mock-service/app/schemas/ticket.py)、[projects/ai-service/tests/test_ticket_agent_intent.py](projects/ai-service/tests/test_ticket_agent_intent.py)、[projects/java-mock-service/tests/test_tickets_api.py](projects/java-mock-service/tests/test_tickets_api.py) |
 | 21 | checkpoint 和 thread_id：中断、恢复、继续对话 | 待新增 | 待新增 |
 | 22 | interrupt / human-in-the-loop | 待新增 | 待新增 |
 | 23 | 节点错误处理、fallback 和流程兜底 | 待新增 | 待新增 |
