@@ -193,10 +193,10 @@ projects/ 练习项目、Demo 和完整作品
 | 8 | node 节点是什么 | [notes/langgraph-stage5-08-what-is-node.md](notes/langgraph-stage5-08-what-is-node.md) | [projects/ai-service/app/agents/minimal_graph.py](projects/ai-service/app/agents/minimal_graph.py)、[projects/ai-service/tests/test_langgraph_minimal_graph.py](projects/ai-service/tests/test_langgraph_minimal_graph.py) |
 | 9 | edge 边是什么 | [notes/langgraph-stage5-09-what-is-edge.md](notes/langgraph-stage5-09-what-is-edge.md) | [projects/ai-service/app/agents/minimal_graph.py](projects/ai-service/app/agents/minimal_graph.py)、[projects/ai-service/tests/test_langgraph_minimal_graph.py](projects/ai-service/tests/test_langgraph_minimal_graph.py) |
 | 10 | conditional edge 条件分支 | [notes/langgraph-stage5-10-conditional-edge.md](notes/langgraph-stage5-10-conditional-edge.md) | [projects/ai-service/app/agents/minimal_graph.py](projects/ai-service/app/agents/minimal_graph.py)、[projects/ai-service/tests/test_langgraph_minimal_graph.py](projects/ai-service/tests/test_langgraph_minimal_graph.py) |
-| 11 | START / END 和流程结束 | 待新增 | 待新增 |
-| 12 | graph.invoke / graph.stream：普通执行和流式执行 | 待新增 | 待新增 |
-| 13 | 智能工单 Agent 总流程设计 | 待新增 | 待新增 |
-| 14 | 意图识别节点 | 待新增 | 待新增 |
+| 11 | START / END 和流程结束 | [notes/langgraph-stage5-11-start-end-flow-finish.md](notes/langgraph-stage5-11-start-end-flow-finish.md) | [projects/ai-service/app/agents/minimal_graph.py](projects/ai-service/app/agents/minimal_graph.py)、[projects/ai-service/tests/test_langgraph_minimal_graph.py](projects/ai-service/tests/test_langgraph_minimal_graph.py) |
+| 12 | graph.invoke / graph.stream：普通执行和流式执行 | [notes/langgraph-stage5-12-invoke-stream.md](notes/langgraph-stage5-12-invoke-stream.md) | [projects/ai-service/app/agents/minimal_graph.py](projects/ai-service/app/agents/minimal_graph.py)、[projects/ai-service/scripts/langgraph_minimal_graph_smoke.py](projects/ai-service/scripts/langgraph_minimal_graph_smoke.py)、[projects/ai-service/tests/test_langgraph_minimal_graph.py](projects/ai-service/tests/test_langgraph_minimal_graph.py) |
+| 13 | 智能工单 Agent 总流程设计 | [notes/langgraph-stage5-13-ticket-agent-overall-design.md](notes/langgraph-stage5-13-ticket-agent-overall-design.md) | 设计笔记，无代码改动 |
+| 14 | 意图识别节点 | [notes/langgraph-stage5-14-intent-classification-node.md](notes/langgraph-stage5-14-intent-classification-node.md) | [projects/ai-service/app/agents/ticket_agent.py](projects/ai-service/app/agents/ticket_agent.py)、[projects/ai-service/tests/test_ticket_agent_intent.py](projects/ai-service/tests/test_ticket_agent_intent.py) |
 | 15 | RAG 知识库回答节点 | 待新增 | 待新增 |
 | 16 | 判断是否需要创建工单 | 待新增 | 待新增 |
 | 17 | 工单字段提取节点 | 待新增 | 待新增 |

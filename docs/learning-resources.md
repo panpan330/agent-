@@ -330,6 +330,18 @@
 - [阶段 5 第 10 节：conditional edge 条件分支](../notes/langgraph-stage5-10-conditional-edge.md)
   - 用途：理解 conditional edge 如何根据 State 动态选择下一步节点，掌握 routing function、path map、`add_conditional_edges()`、普通 edge 与条件 edge 的区别，以及智能工单 Agent 中意图分流、字段完整性分流、工具结果分流的基础。
 
+- [阶段 5 第 11 节：START / END 和流程结束](../notes/langgraph-stage5-11-start-end-flow-finish.md)
+  - 用途：理解 `START` 是虚拟入口、`END` 是虚拟终点，掌握入口边、结束边、条件分支直接进入 `END`、本轮流程结束和业务成功的区别，以及智能工单 Agent 中何时继续、何时结束。
+
+- [阶段 5 第 12 节：graph.invoke / graph.stream：普通执行和流式执行](../notes/langgraph-stage5-12-invoke-stream.md)
+  - 用途：理解 `invoke` 一次性返回最终 State，`stream` 逐步观察执行过程，掌握 `stream_mode="updates"`、`stream_mode="values"`、`version="v2"`、节点增量更新和完整 State 快照的区别。
+
+- [阶段 5 第 13 节：智能工单 Agent 总流程设计](../notes/langgraph-stage5-13-ticket-agent-overall-design.md)
+  - 用途：把前 12 节 LangGraph 基础接入智能工单 Agent v1，明确业务边界、主流程、State 字段、节点拆分、普通边和条件边设计、RAG/订单查询/工单创建路线、用户确认机制和后续实现顺序。
+
+- [阶段 5 第 14 节：意图识别节点](../notes/langgraph-stage5-14-intent-classification-node.md)
+  - 用途：实现智能工单 Agent 的第一层业务分流，理解意图识别、规则分类器、固定 intent 集合、`classify_intent_node`、`route_by_intent`、六类业务路线和占位节点测试。
+
 ## 13. RAG / 向量库
 
 ### 主资料

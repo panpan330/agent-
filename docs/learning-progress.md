@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 5 LangGraph 智能工单 Agent 进行中，第 10 节 conditional edge 条件分支已完成，下一步进入阶段 5 第 11 节 START / END 和流程结束。
+当前阶段：阶段 5 LangGraph 智能工单 Agent 进行中，第 14 节意图识别节点已完成，下一步进入阶段 5 第 15 节 RAG 知识库回答节点。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -167,6 +167,10 @@
 - [x] 完成阶段 5 第 8 节：node 节点是什么
 - [x] 完成阶段 5 第 9 节：edge 边是什么
 - [x] 完成阶段 5 第 10 节：conditional edge 条件分支
+- [x] 完成阶段 5 第 11 节：START / END 和流程结束
+- [x] 完成阶段 5 第 12 节：graph.invoke / graph.stream：普通执行和流式执行
+- [x] 完成阶段 5 第 13 节：智能工单 Agent 总流程设计
+- [x] 完成阶段 5 第 14 节：意图识别节点
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -308,10 +312,10 @@
 | 8 | node 节点是什么 | 已完成 | `notes/langgraph-stage5-08-what-is-node.md`、`classify_message_node`、node 单一职责、局部 State 更新、node 命名、node 粒度、node 测试、副作用和幂等性 |
 | 9 | edge 边是什么 | 已完成 | `notes/langgraph-stage5-09-what-is-edge.md`、`MINIMAL_GRAPH_EDGES`、固定 edge、START/END 入口出口、add_edge、edge 和 node 区别、固定边适用场景 |
 | 10 | conditional edge 条件分支 | 已完成 | `notes/langgraph-stage5-10-conditional-edge.md`、`MessageRoute`、`MINIMAL_GRAPH_CONDITIONAL_ROUTES`、`route_by_message_status`、`add_conditional_edges`、path map、ready/blank 分支、条件边测试 |
-| 11 | START / END 和流程结束 | 未开始 | 待新增 |
-| 12 | graph.invoke / graph.stream：普通执行和流式执行 | 未开始 | 待新增 |
-| 13 | 智能工单 Agent 总流程设计 | 未开始 | 待新增 |
-| 14 | 意图识别节点 | 未开始 | 待新增 |
+| 11 | START / END 和流程结束 | 已完成 | `notes/langgraph-stage5-11-start-end-flow-finish.md`、`MessageStatus`、`stop -> END`、`START` 虚拟入口、`END` 虚拟终点、入口边、结束边、条件分支直接终止、`/stop` 路线测试 |
+| 12 | graph.invoke / graph.stream：普通执行和流式执行 | 已完成 | `notes/langgraph-stage5-12-invoke-stream.md`、`build_minimal_graph_input`、`run_minimal_graph`、`stream_minimal_graph_updates`、`stream_minimal_graph_values`、`stream_mode="updates"`、`stream_mode="values"`、`version="v2"`、invoke 与 stream 对比 |
+| 13 | 智能工单 Agent 总流程设计 | 已完成 | `notes/langgraph-stage5-13-ticket-agent-overall-design.md`、智能工单 Agent v1 业务边界、主路线、State 设计、节点设计、edge/conditional edge 设计、确认机制、RAG/订单/工单路线、后续 14-22 节实现顺序 |
+| 14 | 意图识别节点 | 已完成 | `notes/langgraph-stage5-14-intent-classification-node.md`、`app/agents/ticket_agent.py`、`TicketIntent`、`TicketAgentState`、`classify_ticket_intent`、`classify_intent_node`、`route_by_intent`、`TICKET_AGENT_INTENT_ROUTES`、六类 intent、占位业务路线、stream 路由测试 |
 | 15 | RAG 知识库回答节点 | 未开始 | 待新增 |
 | 16 | 判断是否需要创建工单 | 未开始 | 待新增 |
 | 17 | 工单字段提取节点 | 未开始 | 待新增 |
@@ -450,14 +454,14 @@ M0/M1 第一阶段完成时，必须满足：
 - [x] node
 - [x] edge
 - [x] conditional edge
-- [ ] START / END
-- [ ] graph.invoke / graph.stream
+- [x] START / END
+- [x] graph.invoke / graph.stream
 - [ ] checkpoint
 - [ ] interrupt
 - [ ] human-in-the-loop
 - [ ] thread_id
 - [ ] 智能工单 Agent 总流程
-- [ ] 意图识别节点
+- [x] 意图识别节点
 - [ ] RAG 知识库回答节点
 - [ ] 工单字段提取节点
 - [ ] 缺失字段追问节点

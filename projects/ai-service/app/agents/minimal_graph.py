@@ -1,11 +1,13 @@
 from operator import add
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 from typing_extensions import TypedDict
 
 from langgraph.graph import END, START, StateGraph
 
 
-MessageRoute = Literal["ready", "blank"]
+MessageStatus = Literal["blank", "ready", "stop"]
+MessageRoute = Literal["ready", "blank", "stop"]
+MinimalGraphStreamPart = dict[str, Any]
 
 MINIMAL_GRAPH_EDGES: tuple[tuple[str, str], ...] = (
     (START, "normalize_message"),
@@ -17,6 +19,7 @@ MINIMAL_GRAPH_EDGES: tuple[tuple[str, str], ...] = (
 MINIMAL_GRAPH_CONDITIONAL_ROUTES: dict[MessageRoute, str] = {
     "ready": "build_ready_reply",
     "blank": "build_blank_reply",
+    "stop": END,
 }
 
 
@@ -25,7 +28,7 @@ class MinimalGraphState(TypedDict, total=False):
 
     user_message: str
     normalized_message: str
-    message_status: Literal["blank", "ready"]
+    message_status: MessageStatus
     reply: str
     node_history: Annotated[list[str], add]
 
@@ -41,7 +44,12 @@ def normalize_message_node(state: MinimalGraphState) -> MinimalGraphState:
 
 def classify_message_node(state: MinimalGraphState) -> MinimalGraphState:
     normalized_message = state.get("normalized_message", "")
-    message_status = "ready" if normalized_message else "blank"
+    if normalized_message == "/stop":
+        message_status: MessageStatus = "stop"
+    elif normalized_message:
+        message_status = "ready"
+    else:
+        message_status = "blank"
 
     return {
         "message_status": message_status,
@@ -50,7 +58,12 @@ def classify_message_node(state: MinimalGraphState) -> MinimalGraphState:
 
 
 def route_by_message_status(state: MinimalGraphState) -> MessageRoute:
-    return "ready" if state.get("message_status") == "ready" else "blank"
+    message_status = state.get("message_status")
+    if message_status == "ready":
+        return "ready"
+    if message_status == "stop":
+        return "stop"
+    return "blank"
 
 
 def build_ready_reply_node(state: MinimalGraphState) -> MinimalGraphState:
@@ -92,10 +105,32 @@ def build_minimal_graph():
 minimal_graph = build_minimal_graph()
 
 
+def build_minimal_graph_input(user_message: str) -> MinimalGraphState:
+    return {
+        "user_message": user_message,
+        "node_history": [],
+    }
+
+
 def run_minimal_graph(user_message: str) -> MinimalGraphState:
-    return minimal_graph.invoke(
-        {
-            "user_message": user_message,
-            "node_history": [],
-        }
+    return minimal_graph.invoke(build_minimal_graph_input(user_message))
+
+
+def stream_minimal_graph_updates(user_message: str) -> list[MinimalGraphStreamPart]:
+    return list(
+        minimal_graph.stream(
+            build_minimal_graph_input(user_message),
+            stream_mode="updates",
+            version="v2",
+        )
+    )
+
+
+def stream_minimal_graph_values(user_message: str) -> list[MinimalGraphStreamPart]:
+    return list(
+        minimal_graph.stream(
+            build_minimal_graph_input(user_message),
+            stream_mode="values",
+            version="v2",
+        )
     )
