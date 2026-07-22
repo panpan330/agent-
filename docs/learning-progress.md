@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 5 LangGraph 智能工单 Agent 进行中，第 20 节调用 Java mock 创建工单节点已完成，下一步进入阶段 5 第 21 节 checkpoint 和 thread_id。
+当前阶段：阶段 5 LangGraph 智能工单 Agent 进行中，第 24 节 LangGraph 日志、trace_id 和可观测性已完成，下一步进入阶段 5 第 25 节 LangGraph 测试：fake LLM / fake RAG / fake Java client。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -177,6 +177,10 @@
 - [x] 完成阶段 5 第 18 节：缺失字段追问节点
 - [x] 完成阶段 5 第 19 节：用户确认节点
 - [x] 完成阶段 5 第 20 节：调用 Java mock 创建工单节点
+- [x] 完成阶段 5 第 21 节：checkpoint 和 thread_id
+- [x] 完成阶段 5 第 22 节：interrupt / human-in-the-loop
+- [x] 完成阶段 5 第 23 节：节点错误处理、fallback 和流程兜底
+- [x] 完成阶段 5 第 24 节：LangGraph 日志、trace_id 和可观测性
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -328,10 +332,10 @@
 | 18 | 缺失字段追问节点 | 已完成 | `notes/langgraph-stage5-18-missing-field-follow-up-node.md`、`TicketFieldCompletionRoute`、`TICKET_AGENT_FIELD_COMPLETION_ROUTES`、`route_by_ticket_fields_complete`、`build_missing_ticket_fields_question`、`ask_missing_ticket_fields_node`、`missing_ticket_field_question`、`missing_ticket_field_question_fields`、字段缺失进入追问、字段完整不追问、stream 追问节点测试 |
 | 19 | 用户确认节点 | 已完成 | `notes/langgraph-stage5-19-ticket-confirmation-node.md`、`TicketConfirmationStatus`、`PendingTicketConfirmation`、`ticket_confirmation_required`、`ticket_confirmation_message`、`pending_ticket_confirmation`、`build_ticket_confirmation_id`、`build_ticket_confirmation_message`、`build_pending_ticket_confirmation`、`request_ticket_confirmation_node`、字段完整进入确认、字段缺失仍追问、待确认工单和 stream 确认节点测试 |
 | 20 | 调用 Java mock 创建工单节点 | 已完成 | `notes/langgraph-stage5-20-java-mock-create-ticket-node.md`、`TicketCreator`、`TicketConfirmationRoute`、`TICKET_AGENT_CONFIRMATION_ROUTES`、`route_by_ticket_confirmation`、`build_create_ticket_args_from_fields`、`create_ticket_node`、`ticket_confirmation_approved`、`ticket_creation_status`、`created_ticket`、确认后条件边、fake ticket creator 图测试、`policy_gap` 工单类别契约 |
-| 21 | checkpoint 和 thread_id：中断、恢复、继续对话 | 未开始 | 待新增 |
-| 22 | interrupt / human-in-the-loop | 未开始 | 待新增 |
-| 23 | 节点错误处理、fallback 和流程兜底 | 未开始 | 待新增 |
-| 24 | LangGraph 日志、trace_id 和可观测性 | 未开始 | 待新增 |
+| 21 | checkpoint 和 thread_id：中断、恢复、继续对话 | 已完成 | `notes/langgraph-stage5-21-checkpoint-thread-id.md`、`MemorySaver`、`build_checkpointed_ticket_agent_graph`、`build_ticket_agent_thread_config`、`run_ticket_agent_in_thread`、`get_ticket_agent_thread_state`、`approve_ticket_confirmation_and_resume`、`graph.get_state`、`graph.update_state`、`as_node="request_ticket_confirmation"`、`graph.invoke(None)`、thread 状态保存、恢复和隔离测试 |
+| 22 | interrupt / human-in-the-loop | 已完成 | `notes/langgraph-stage5-22-interrupt-human-in-the-loop.md`、`Command`、`interrupt`、`request_ticket_confirmation_interrupt_node`、`build_interrupting_ticket_agent_graph`、`build_ticket_confirmation_interrupt_payload`、`get_ticket_confirmation_interrupt_payload`、`resume_ticket_confirmation_interrupt`、`TICKET_CONFIRMATION_INTERRUPT_KIND`、`TICKET_CONFIRMATION_REJECTED_MESSAGE`、`__interrupt__`、`Command(resume=...)`、approved/rejected 恢复测试 |
+| 23 | 节点错误处理、fallback 和流程兜底 | 已完成 | `notes/langgraph-stage5-23-node-error-fallback.md`、`agent_error_code`、`agent_error_message`、`agent_error_node`、`fallback_used`、`build_ticket_agent_fallback_state`、`build_ticket_creation_failure_state`、`run_ticket_agent_safely`、`resume_ticket_confirmation_interrupt_safely`、创建工单 AppException/未知异常兜底、图级安全执行和 interrupt 恢复失败测试 |
+| 24 | LangGraph 日志、trace_id 和可观测性 | 已完成 | `notes/langgraph-stage5-24-observability-trace-logging.md`、`agent_trace_id`、`build_ticket_agent_observation_metadata`、`log_ticket_agent_run_started`、`log_ticket_agent_run_finished`、`log_ticket_agent_run_failed`、`run_ticket_agent`/`run_ticket_agent_safely`/`run_ticket_agent_in_thread`/`resume_ticket_confirmation_interrupt` 运行日志、创建工单节点 started/finished/failed 日志、trace_id 与日志安全测试 |
 | 25 | LangGraph 测试：fake LLM / fake RAG / fake Java client | 未开始 | 待新增 |
 | 26 | 阶段 5 项目整理和面试表达 | 未开始 | 待新增 |
 
@@ -462,10 +466,10 @@ M0/M1 第一阶段完成时，必须满足：
 - [x] conditional edge
 - [x] START / END
 - [x] graph.invoke / graph.stream
-- [ ] checkpoint
-- [ ] interrupt
-- [ ] human-in-the-loop
-- [ ] thread_id
+- [x] checkpoint
+- [x] interrupt
+- [x] human-in-the-loop
+- [x] thread_id
 - [x] 智能工单 Agent 总流程
 - [x] 意图识别节点
 - [x] RAG 知识库回答节点
@@ -474,7 +478,7 @@ M0/M1 第一阶段完成时，必须满足：
 - [x] 缺失字段追问节点
 - [x] 用户确认节点
 - [x] Java mock 创建工单节点
-- [ ] 节点错误处理 / fallback
+- [x] 节点错误处理 / fallback
 - [ ] LangGraph 测试
 
 ### Java 集成

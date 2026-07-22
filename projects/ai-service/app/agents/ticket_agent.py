@@ -1,12 +1,15 @@
 import hashlib
 import json
+import logging
 import re
 from operator import add
+from time import perf_counter
 from typing import Annotated, Any, Literal, Protocol
 from typing_extensions import TypedDict
 
 from app.core.config import get_settings
 from app.core.exceptions import AppException
+from app.core.trace import get_trace_id
 from app.rag.documents import RetrievedChunk
 from app.rag.generator import RagAnswer, build_grounded_rag_answer, build_no_context_rag_answer
 from app.schemas.ticket import (
@@ -16,7 +19,12 @@ from app.schemas.ticket import (
     TicketPriority,
 )
 from app.services.java_ticket_client import JavaTicketClient
+from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
+from langgraph.types import Command, interrupt
+
+
+logger = logging.getLogger(__name__)
 
 
 TicketIntent = Literal[
@@ -129,6 +137,7 @@ class TicketAgentState(TypedDict, total=False):
     """State shared by the ticket agent learning graph."""
 
     user_message: str
+    agent_trace_id: str
     normalized_message: str
     intent: TicketIntent
     intent_reason: str
@@ -156,6 +165,10 @@ class TicketAgentState(TypedDict, total=False):
     ticket_creation_error_code: str | None
     ticket_creation_error_message: str | None
     created_ticket: dict[str, Any]
+    agent_error_code: str | None
+    agent_error_message: str | None
+    agent_error_node: str | None
+    fallback_used: bool
     final_answer: str
     node_history: Annotated[list[str], add]
 
@@ -283,6 +296,16 @@ TICKET_URGENCY_TO_PRIORITY: dict[TicketUrgencyLevel, TicketPriority] = {
     "high": TicketPriority.HIGH,
 }
 DEFAULT_TICKET_ACTOR_ID = "demo_user_001"
+TICKET_CONFIRMATION_NOT_FOUND_MESSAGE = "当前会话没有待确认工单，请先发起工单流程。"
+TICKET_CONFIRMATION_INTERRUPT_NOT_FOUND_MESSAGE = "当前执行结果里没有待处理的工单确认中断。"
+TICKET_CONFIRMATION_REJECTED_MESSAGE = "已取消创建工单；如需创建，请重新发起工单流程。"
+TICKET_CONFIRMATION_INTERRUPT_KIND = "ticket_confirmation"
+TICKET_AGENT_FALLBACK_ERROR_CODE = "TICKET_AGENT_UNEXPECTED_ERROR"
+TICKET_AGENT_FALLBACK_MESSAGE = "智能工单流程暂时遇到异常，请稍后重试或联系人工客服。"
+TICKET_CREATION_UNEXPECTED_ERROR_CODE = "TICKET_CREATION_UNEXPECTED_ERROR"
+TICKET_CREATION_UNEXPECTED_ERROR_MESSAGE = "创建工单时遇到异常，请稍后重试或联系人工客服。"
+TICKET_THREAD_ID_INVALID_ERROR_CODE = "TICKET_THREAD_ID_INVALID"
+TICKET_AGENT_LOG_VALUE_EMPTY = "-"
 
 
 class FakePolicyRagService:
@@ -582,6 +605,37 @@ def build_pending_ticket_confirmation(fields: TicketFields) -> PendingTicketConf
     }
 
 
+def build_ticket_confirmation_interrupt_payload(
+    pending_confirmation: PendingTicketConfirmation,
+) -> dict[str, Any]:
+    return {
+        "kind": TICKET_CONFIRMATION_INTERRUPT_KIND,
+        "confirmation_id": pending_confirmation["confirmation_id"],
+        "message": pending_confirmation["message"],
+        "pending_ticket_confirmation": pending_confirmation,
+    }
+
+
+def is_ticket_confirmation_resume_approved(resume_value: Any) -> bool:
+    if isinstance(resume_value, bool):
+        return resume_value
+    if isinstance(resume_value, dict):
+        return resume_value.get("approved") is True
+    return False
+
+
+def get_ticket_confirmation_resume_actor_id(resume_value: Any) -> str | None:
+    if not isinstance(resume_value, dict):
+        return None
+
+    actor_id = resume_value.get("actor_id")
+    if not isinstance(actor_id, str):
+        return None
+
+    normalized_actor_id = actor_id.strip()
+    return normalized_actor_id or None
+
+
 def build_create_ticket_args_from_fields(
     fields: TicketFields,
     *,
@@ -602,6 +656,141 @@ def build_create_ticket_args_from_fields(
         category=category,
         priority=TICKET_URGENCY_TO_PRIORITY[fields["urgency"]],
         related_order_id=fields["order_id"],
+    )
+
+
+def build_ticket_agent_fallback_state(
+    *,
+    node_name: str,
+    code: str = TICKET_AGENT_FALLBACK_ERROR_CODE,
+    message: str = TICKET_AGENT_FALLBACK_MESSAGE,
+) -> TicketAgentState:
+    return {
+        "agent_error_code": code,
+        "agent_error_message": message,
+        "agent_error_node": node_name,
+        "fallback_used": True,
+        "final_answer": message,
+        "node_history": [node_name],
+    }
+
+
+def build_ticket_creation_failure_state(
+    *,
+    code: str,
+    message: str,
+) -> TicketAgentState:
+    update = build_ticket_agent_fallback_state(
+        node_name="create_ticket",
+        code=code,
+        message=message,
+    )
+    update.update(
+        {
+            "ticket_creation_status": "failed",
+            "ticket_creation_error_code": code,
+            "ticket_creation_error_message": message,
+        }
+    )
+    return update
+
+
+def build_ticket_agent_observation_metadata(
+    state: dict[str, Any],
+    *,
+    operation: str,
+    thread_id: str | None = None,
+    elapsed_ms: float | None = None,
+) -> dict[str, Any]:
+    node_history = list(state.get("node_history", []))
+    metadata: dict[str, Any] = {
+        "operation": operation,
+        "trace_id": state.get("agent_trace_id") or get_trace_id(),
+        "thread_id": _safe_log_value(thread_id),
+        "intent": _safe_log_value(state.get("intent")),
+        "node_count": len(node_history),
+        "last_node": _safe_log_value(node_history[-1] if node_history else None),
+        "interrupted": bool(state.get("__interrupt__")),
+        "fallback_used": state.get("fallback_used") is True,
+        "agent_error_code": _safe_log_value(state.get("agent_error_code")),
+        "ticket_creation_status": _safe_log_value(
+            state.get("ticket_creation_status")
+        ),
+    }
+    if elapsed_ms is not None:
+        metadata["elapsed_ms"] = round(elapsed_ms, 2)
+    return metadata
+
+
+def log_ticket_agent_run_started(
+    *,
+    operation: str,
+    user_message: str | None = None,
+    thread_id: str | None = None,
+    actor_id: str | None = None,
+) -> None:
+    logger.info(
+        (
+            "ticket_agent_started operation=%s thread_id=%s actor_id=%s "
+            "message_length=%s"
+        ),
+        operation,
+        _safe_log_value(thread_id),
+        _safe_log_value(actor_id),
+        len(user_message or ""),
+    )
+
+
+def log_ticket_agent_run_finished(
+    state: dict[str, Any],
+    *,
+    operation: str,
+    elapsed_ms: float,
+    thread_id: str | None = None,
+) -> None:
+    metadata = build_ticket_agent_observation_metadata(
+        state,
+        operation=operation,
+        thread_id=thread_id,
+        elapsed_ms=elapsed_ms,
+    )
+    logger.info(
+        (
+            "ticket_agent_finished operation=%s thread_id=%s elapsed_ms=%.2f "
+            "intent=%s node_count=%s last_node=%s interrupted=%s "
+            "fallback_used=%s agent_error_code=%s ticket_creation_status=%s"
+        ),
+        metadata["operation"],
+        metadata["thread_id"],
+        metadata["elapsed_ms"],
+        metadata["intent"],
+        metadata["node_count"],
+        metadata["last_node"],
+        metadata["interrupted"],
+        metadata["fallback_used"],
+        metadata["agent_error_code"],
+        metadata["ticket_creation_status"],
+    )
+
+
+def log_ticket_agent_run_failed(
+    exc: Exception,
+    *,
+    operation: str,
+    elapsed_ms: float,
+    thread_id: str | None = None,
+) -> None:
+    error_code = exc.code if isinstance(exc, AppException) else TICKET_AGENT_FALLBACK_ERROR_CODE
+    logger.warning(
+        (
+            "ticket_agent_failed operation=%s thread_id=%s elapsed_ms=%.2f "
+            "code=%s error_type=%s"
+        ),
+        operation,
+        _safe_log_value(thread_id),
+        elapsed_ms,
+        error_code,
+        type(exc).__name__,
     )
 
 
@@ -683,12 +872,53 @@ def request_ticket_confirmation_node(state: TicketAgentState) -> TicketAgentStat
     }
 
 
+def request_ticket_confirmation_interrupt_node(
+    state: TicketAgentState,
+) -> TicketAgentState:
+    fields = state.get("ticket_fields")
+    if fields is None:
+        message = "当前还没有可确认的工单字段，请先补充问题信息。"
+        return {
+            "ticket_confirmation_required": False,
+            "ticket_confirmation_message": message,
+            "final_answer": message,
+            "node_history": ["request_ticket_confirmation"],
+        }
+
+    pending_confirmation = build_pending_ticket_confirmation(fields)
+    resume_value = interrupt(
+        build_ticket_confirmation_interrupt_payload(pending_confirmation)
+    )
+    approved = is_ticket_confirmation_resume_approved(resume_value)
+
+    update: TicketAgentState = {
+        "ticket_confirmation_required": True,
+        "ticket_confirmation_approved": approved,
+        "ticket_confirmation_message": pending_confirmation["message"],
+        "pending_ticket_confirmation": pending_confirmation,
+        "final_answer": (
+            "用户已确认创建工单，正在继续执行。"
+            if approved
+            else TICKET_CONFIRMATION_REJECTED_MESSAGE
+        ),
+        "node_history": ["request_ticket_confirmation"],
+    }
+    actor_id = get_ticket_confirmation_resume_actor_id(resume_value)
+    if actor_id is not None:
+        update["ticket_actor_id"] = actor_id
+    return update
+
+
 def create_ticket_node(
     state: TicketAgentState,
     creator: TicketCreator | None = None,
 ) -> TicketAgentState:
     if state.get("ticket_confirmation_approved") is not True:
         message = "创建工单前需要先得到用户确认。"
+        logger.info(
+            "ticket_agent_create_ticket_blocked code=%s",
+            "TICKET_CONFIRMATION_REQUIRED",
+        )
         return {
             "ticket_creation_status": "blocked",
             "ticket_creation_error_code": "TICKET_CONFIRMATION_REQUIRED",
@@ -700,33 +930,62 @@ def create_ticket_node(
     fields = _get_confirmed_ticket_fields(state)
     if fields is None:
         message = "没有找到可创建工单的确认字段，请重新整理工单信息。"
-        return {
-            "ticket_creation_status": "failed",
-            "ticket_creation_error_code": "TICKET_FIELDS_NOT_FOUND",
-            "ticket_creation_error_message": message,
-            "final_answer": message,
-            "node_history": ["create_ticket"],
-        }
+        logger.warning("ticket_agent_create_ticket_failed code=%s", "TICKET_FIELDS_NOT_FOUND")
+        return build_ticket_creation_failure_state(
+            code="TICKET_FIELDS_NOT_FOUND",
+            message=message,
+        )
 
     actor_id = state.get("ticket_actor_id") or DEFAULT_TICKET_ACTOR_ID
     idempotency_key = _get_ticket_creation_idempotency_key(state, fields)
 
     try:
         arguments = build_create_ticket_args_from_fields(fields, actor_id=actor_id)
+        logger.info(
+            (
+                "ticket_agent_create_ticket_started category=%s priority=%s "
+                "related_order_id=%s idempotency_key=%s"
+            ),
+            arguments.category,
+            arguments.priority,
+            _safe_log_value(arguments.related_order_id),
+            idempotency_key,
+        )
         ticket_creator = creator or create_ticket_creator()
         ticket = ticket_creator.create_ticket(
             arguments,
             idempotency_key=idempotency_key,
         )
     except AppException as exc:
-        return {
-            "ticket_creation_status": "failed",
-            "ticket_creation_error_code": exc.code,
-            "ticket_creation_error_message": exc.message,
-            "final_answer": exc.message,
-            "node_history": ["create_ticket"],
-        }
+        logger.warning(
+            "ticket_agent_create_ticket_failed code=%s error_type=%s",
+            exc.code,
+            type(exc).__name__,
+        )
+        return build_ticket_creation_failure_state(
+            code=exc.code,
+            message=exc.message,
+        )
+    except Exception as exc:
+        logger.warning(
+            "ticket_agent_create_ticket_failed code=%s error_type=%s",
+            TICKET_CREATION_UNEXPECTED_ERROR_CODE,
+            type(exc).__name__,
+        )
+        return build_ticket_creation_failure_state(
+            code=TICKET_CREATION_UNEXPECTED_ERROR_CODE,
+            message=TICKET_CREATION_UNEXPECTED_ERROR_MESSAGE,
+        )
 
+    logger.info(
+        (
+            "ticket_agent_create_ticket_finished status=created ticket_id=%s "
+            "category=%s priority=%s"
+        ),
+        ticket.ticket_id,
+        ticket.category,
+        ticket.priority,
+    )
     return {
         "ticket_creation_args": arguments.model_dump(mode="json"),
         "ticket_creation_status": "created",
@@ -761,7 +1020,12 @@ def ask_clarifying_question_node(state: TicketAgentState) -> TicketAgentState:
     }
 
 
-def build_ticket_agent_graph(ticket_creator: TicketCreator | None = None):
+def build_ticket_agent_graph(
+    ticket_creator: TicketCreator | None = None,
+    *,
+    checkpointer: Any | None = None,
+    interrupt_confirmation: bool = False,
+):
     builder = StateGraph(TicketAgentState)
 
     builder.add_node("normalize_user_input", normalize_user_input_node)
@@ -771,7 +1035,14 @@ def build_ticket_agent_graph(ticket_creator: TicketCreator | None = None):
     builder.add_node("query_order", query_order_node)
     builder.add_node("extract_ticket_fields", extract_ticket_fields_node)
     builder.add_node("ask_missing_ticket_fields", ask_missing_ticket_fields_node)
-    builder.add_node("request_ticket_confirmation", request_ticket_confirmation_node)
+    builder.add_node(
+        "request_ticket_confirmation",
+        (
+            request_ticket_confirmation_interrupt_node
+            if interrupt_confirmation
+            else request_ticket_confirmation_node
+        ),
+    )
     builder.add_node(
         "create_ticket",
         lambda state: create_ticket_node(state, creator=ticket_creator),
@@ -804,21 +1075,285 @@ def build_ticket_agent_graph(ticket_creator: TicketCreator | None = None):
         TICKET_AGENT_CONFIRMATION_ROUTES,
     )
 
-    return builder.compile()
+    return builder.compile(checkpointer=checkpointer)
 
 
 ticket_agent_graph = build_ticket_agent_graph()
 
 
+def build_checkpointed_ticket_agent_graph(ticket_creator: TicketCreator | None = None):
+    return build_ticket_agent_graph(
+        ticket_creator=ticket_creator,
+        checkpointer=MemorySaver(),
+    )
+
+
+def build_interrupting_ticket_agent_graph(ticket_creator: TicketCreator | None = None):
+    return build_ticket_agent_graph(
+        ticket_creator=ticket_creator,
+        checkpointer=MemorySaver(),
+        interrupt_confirmation=True,
+    )
+
+
 def build_ticket_agent_input(user_message: str) -> TicketAgentState:
     return {
         "user_message": user_message,
+        "agent_trace_id": get_trace_id(),
         "node_history": [],
     }
 
 
+def build_ticket_agent_thread_config(thread_id: str) -> dict[str, Any]:
+    normalized_thread_id = thread_id.strip()
+    if not normalized_thread_id:
+        raise ValueError("thread_id 不能为空。")
+
+    return {"configurable": {"thread_id": normalized_thread_id}}
+
+
 def run_ticket_agent(user_message: str) -> TicketAgentState:
-    return ticket_agent_graph.invoke(build_ticket_agent_input(user_message))
+    start_time = perf_counter()
+    log_ticket_agent_run_started(
+        operation="invoke",
+        user_message=user_message,
+    )
+    try:
+        result = ticket_agent_graph.invoke(build_ticket_agent_input(user_message))
+    except Exception as exc:
+        log_ticket_agent_run_failed(
+            exc,
+            operation="invoke",
+            elapsed_ms=_elapsed_ms_since(start_time),
+        )
+        raise
+    log_ticket_agent_run_finished(
+        result,
+        operation="invoke",
+        elapsed_ms=_elapsed_ms_since(start_time),
+    )
+    return result
+
+
+def run_ticket_agent_safely(
+    user_message: str,
+    *,
+    graph: Any | None = None,
+) -> TicketAgentState:
+    selected_graph = graph or ticket_agent_graph
+    start_time = perf_counter()
+    log_ticket_agent_run_started(
+        operation="invoke_safe",
+        user_message=user_message,
+    )
+    try:
+        result = selected_graph.invoke(build_ticket_agent_input(user_message))
+    except AppException as exc:
+        elapsed_ms = _elapsed_ms_since(start_time)
+        log_ticket_agent_run_failed(
+            exc,
+            operation="invoke_safe",
+            elapsed_ms=elapsed_ms,
+        )
+        fallback = build_ticket_agent_fallback_state(
+            node_name="ticket_agent_graph",
+            code=exc.code,
+            message=exc.message,
+        )
+        log_ticket_agent_run_finished(
+            fallback,
+            operation="invoke_safe",
+            elapsed_ms=elapsed_ms,
+        )
+        return fallback
+    except Exception as exc:
+        elapsed_ms = _elapsed_ms_since(start_time)
+        log_ticket_agent_run_failed(
+            exc,
+            operation="invoke_safe",
+            elapsed_ms=elapsed_ms,
+        )
+        fallback = build_ticket_agent_fallback_state(
+            node_name="ticket_agent_graph",
+        )
+        log_ticket_agent_run_finished(
+            fallback,
+            operation="invoke_safe",
+            elapsed_ms=elapsed_ms,
+        )
+        return fallback
+    log_ticket_agent_run_finished(
+        result,
+        operation="invoke_safe",
+        elapsed_ms=_elapsed_ms_since(start_time),
+    )
+    return result
+
+
+def run_ticket_agent_in_thread(
+    graph: Any,
+    user_message: str,
+    *,
+    thread_id: str,
+    actor_id: str | None = None,
+) -> TicketAgentState:
+    initial_state = build_ticket_agent_input(user_message)
+    if actor_id is not None:
+        initial_state["ticket_actor_id"] = actor_id
+
+    start_time = perf_counter()
+    log_ticket_agent_run_started(
+        operation="invoke_thread",
+        user_message=user_message,
+        thread_id=thread_id,
+        actor_id=actor_id,
+    )
+    try:
+        result = graph.invoke(
+            initial_state,
+            config=build_ticket_agent_thread_config(thread_id),
+        )
+    except Exception as exc:
+        log_ticket_agent_run_failed(
+            exc,
+            operation="invoke_thread",
+            elapsed_ms=_elapsed_ms_since(start_time),
+            thread_id=thread_id,
+        )
+        raise
+    log_ticket_agent_run_finished(
+        result,
+        operation="invoke_thread",
+        elapsed_ms=_elapsed_ms_since(start_time),
+        thread_id=thread_id,
+    )
+    return result
+
+
+def get_ticket_agent_thread_state(graph: Any, *, thread_id: str) -> TicketAgentState:
+    snapshot = graph.get_state(build_ticket_agent_thread_config(thread_id))
+    return dict(snapshot.values)
+
+
+def approve_ticket_confirmation_and_resume(
+    graph: Any,
+    *,
+    thread_id: str,
+    actor_id: str | None = None,
+) -> TicketAgentState:
+    config = build_ticket_agent_thread_config(thread_id)
+    current_state = graph.get_state(config).values
+    if current_state.get("pending_ticket_confirmation") is None:
+        raise AppException(
+            code="TICKET_CONFIRMATION_NOT_FOUND",
+            message=TICKET_CONFIRMATION_NOT_FOUND_MESSAGE,
+            status_code=409,
+        )
+
+    approved_update: TicketAgentState = {"ticket_confirmation_approved": True}
+    if actor_id is not None:
+        approved_update["ticket_actor_id"] = actor_id
+
+    graph.update_state(
+        config,
+        approved_update,
+        as_node="request_ticket_confirmation",
+    )
+    return graph.invoke(None, config=config)
+
+
+def get_ticket_confirmation_interrupt_payload(result: dict[str, Any]) -> dict[str, Any]:
+    interrupts = result.get("__interrupt__")
+    if not interrupts:
+        raise AppException(
+            code="TICKET_CONFIRMATION_INTERRUPT_NOT_FOUND",
+            message=TICKET_CONFIRMATION_INTERRUPT_NOT_FOUND_MESSAGE,
+            status_code=409,
+        )
+
+    interrupt_value = interrupts[0].value
+    if (
+        not isinstance(interrupt_value, dict)
+        or interrupt_value.get("kind") != TICKET_CONFIRMATION_INTERRUPT_KIND
+    ):
+        raise AppException(
+            code="TICKET_CONFIRMATION_INTERRUPT_NOT_FOUND",
+            message=TICKET_CONFIRMATION_INTERRUPT_NOT_FOUND_MESSAGE,
+            status_code=409,
+        )
+
+    return interrupt_value
+
+
+def resume_ticket_confirmation_interrupt(
+    graph: Any,
+    *,
+    thread_id: str,
+    approved: bool,
+    actor_id: str | None = None,
+) -> TicketAgentState:
+    resume_payload: dict[str, Any] = {"approved": approved}
+    if actor_id is not None:
+        resume_payload["actor_id"] = actor_id
+
+    start_time = perf_counter()
+    log_ticket_agent_run_started(
+        operation="resume_interrupt",
+        thread_id=thread_id,
+        actor_id=actor_id,
+    )
+    try:
+        result = graph.invoke(
+            Command(resume=resume_payload),
+            config=build_ticket_agent_thread_config(thread_id),
+        )
+    except Exception as exc:
+        log_ticket_agent_run_failed(
+            exc,
+            operation="resume_interrupt",
+            elapsed_ms=_elapsed_ms_since(start_time),
+            thread_id=thread_id,
+        )
+        raise
+    log_ticket_agent_run_finished(
+        result,
+        operation="resume_interrupt",
+        elapsed_ms=_elapsed_ms_since(start_time),
+        thread_id=thread_id,
+    )
+    return result
+
+
+def resume_ticket_confirmation_interrupt_safely(
+    graph: Any,
+    *,
+    thread_id: str,
+    approved: bool,
+    actor_id: str | None = None,
+) -> TicketAgentState:
+    try:
+        return resume_ticket_confirmation_interrupt(
+            graph,
+            thread_id=thread_id,
+            approved=approved,
+            actor_id=actor_id,
+        )
+    except AppException as exc:
+        return build_ticket_agent_fallback_state(
+            node_name="resume_ticket_confirmation_interrupt",
+            code=exc.code,
+            message=exc.message,
+        )
+    except ValueError as exc:
+        return build_ticket_agent_fallback_state(
+            node_name="resume_ticket_confirmation_interrupt",
+            code=TICKET_THREAD_ID_INVALID_ERROR_CODE,
+            message=str(exc),
+        )
+    except Exception:
+        return build_ticket_agent_fallback_state(
+            node_name="resume_ticket_confirmation_interrupt",
+        )
 
 
 def stream_ticket_agent_updates(user_message: str) -> list[TicketAgentStreamPart]:
@@ -860,6 +1395,17 @@ def _make_fake_retrieved_chunk(
         },
         score=0.91,
     )
+
+
+def _elapsed_ms_since(start_time: float) -> float:
+    return (perf_counter() - start_time) * 1000
+
+
+def _safe_log_value(value: object | None) -> str:
+    if value is None:
+        return TICKET_AGENT_LOG_VALUE_EMPTY
+    text = str(value).strip()
+    return text or TICKET_AGENT_LOG_VALUE_EMPTY
 
 
 def _contains_any(message: str, keywords: tuple[str, ...]) -> bool:

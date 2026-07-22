@@ -289,6 +289,18 @@
 - [LangGraph Thinking in LangGraph](https://docs.langchain.com/oss/python/langgraph/thinking-in-langgraph)
   - 用途：理解如何把客服 Agent 拆成离散节点、设计 State，并区分 LLM step、data step、action step 和 user input step。
 
+- [LangGraph Fault tolerance](https://docs.langchain.com/oss/python/langgraph/fault-tolerance)
+  - 用途：理解 LangGraph 中临时错误、LLM 可恢复错误、用户可修复错误、恢复分支、未知错误、retry 和 error handler 的边界。
+
+- [LangGraph LangSmith Observability](https://docs.langchain.com/oss/python/langgraph/observability)
+  - 用途：理解 LangGraph/LangSmith 里的 trace、run、metadata、tracing 开关和敏感信息脱敏思路，作为第 24 节本地 logging 的生产化参考。
+
+- [LangGraph Streaming](https://docs.langchain.com/oss/python/langgraph/streaming)
+  - 用途：理解 `updates`、`values`、`messages`、`checkpoints`、`tasks`、`debug` 等 stream mode，以及 stream 与日志、trace 的区别。
+
+- [LangSmith Observability concepts](https://docs.langchain.com/langsmith/observability-concepts)
+  - 用途：理解 LangSmith 里 trace/run 的概念，为后续把本地日志升级成可视化 tracing 做准备。
+
 - [LangChain Academy: Introduction to LangGraph](https://academy.langchain.com/courses/intro-to-langgraph)
   - 用途：系统课程辅助理解。
 
@@ -362,6 +374,18 @@
 
 - [阶段 5 第 20 节：调用 Java mock 创建工单节点](../notes/langgraph-stage5-20-java-mock-create-ticket-node.md)
   - 用途：理解创建工单这种写操作为什么必须在用户确认之后执行，掌握 `TicketFields` 到 `CreateTicketArgs` 的契约映射、幂等键、`TicketCreator` 依赖注入、`create_ticket_node`、确认后条件边和 fake client 测试。
+
+- [阶段 5 第 21 节：checkpoint 和 thread_id：中断、恢复、继续对话](../notes/langgraph-stage5-21-checkpoint-thread-id.md)
+  - 用途：理解多轮 Agent 为什么需要保存 State，掌握 checkpoint、thread_id、`MemorySaver`、`graph.get_state`、`graph.update_state`、`as_node`、`graph.invoke(None)` 和待确认工单的手动恢复执行。
+
+- [阶段 5 第 22 节：interrupt / human-in-the-loop](../notes/langgraph-stage5-22-interrupt-human-in-the-loop.md)
+  - 用途：理解 LangGraph 如何在节点内部正式暂停并等待人类输入，掌握 `interrupt()`、`Command(resume=...)`、`__interrupt__`、结构化 interrupt payload、resume 后节点重跑、副作用边界和工单确认恢复执行。
+
+- [阶段 5 第 23 节：节点错误处理、fallback 和流程兜底](../notes/langgraph-stage5-23-node-error-fallback.md)
+  - 用途：理解 Agent 节点错误分类、业务失败和程序异常区别、fallback State、创建工单失败兜底、图级安全执行入口、interrupt 恢复失败兜底，以及失败路径测试。
+
+- [阶段 5 第 24 节：LangGraph 日志、trace_id 和可观测性](../notes/langgraph-stage5-24-observability-trace-logging.md)
+  - 用途：理解 Agent 可观测性基础，掌握 logging、trace_id、thread_id、node_history 的分工，Agent 运行日志、创建工单节点日志、日志安全边界和 `caplog` 日志测试。
 
 ## 13. RAG / 向量库
 
