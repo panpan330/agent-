@@ -181,10 +181,16 @@ POLICY_KEYWORDS = (
     "退货规则",
     "售后政策",
     "账号安全",
+    "异常登录",
+    "身份验证",
+    "会员积分",
+    "积分",
+    "兑换礼品",
     "怎么退款",
     "怎么退货",
     "多久可以退款",
     "多久可以退货",
+    "多久到账",
 )
 ORDER_KEYWORDS = (
     "订单",
@@ -228,6 +234,13 @@ UNSUPPORTED_KEYWORDS = (
     "写小说",
     "股票",
     "天气",
+    "忽略之前",
+    "忽略所有规则",
+    "系统提示词",
+    "内部工具",
+    "内部工具配置",
+    "api key",
+    "api_key",
 )
 UNCLEAR_MESSAGES = (
     "有问题",
@@ -252,12 +265,13 @@ COMPLAINT_ISSUE_KEYWORDS = (
     "破损",
 )
 HIGH_URGENCY_KEYWORDS = (
-    "投诉",
     "破损",
     "坏了",
     "一直不动",
     "一周",
     "加急",
+    "着急",
+    "催一下",
     "立刻",
     "马上",
 )
@@ -345,7 +359,11 @@ class FakePolicyRagService:
                 ],
             )
 
-        if "账号安全" in lowered_query:
+        if (
+            "账号安全" in lowered_query
+            or "异常登录" in lowered_query
+            or "身份验证" in lowered_query
+        ):
             return build_grounded_rag_answer(
                 "根据知识库，账号安全相关操作通常需要进行身份验证，"
                 "客服不能在聊天中索要完整敏感身份信息。",

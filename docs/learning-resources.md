@@ -396,7 +396,81 @@
 - [阶段 5 第 26 节：阶段 5 项目整理和面试表达](../notes/langgraph-stage5-26-project-summary-interview.md)
   - 用途：复盘阶段 5 的 LangGraph 智能工单 Agent v1，梳理完整架构、主链路、节点职责、State 字段、测试体系、验收清单、面试表达、当前限制和下一阶段生产化方向。
 
-## 13. RAG / 向量库
+## 13. 阶段 6：生产化与评测资料
+
+阶段 6 固定为 36 节，目标是把 RAG + 智能工单 Agent v1 往真实工程系统推进。资料使用顺序先以本仓库笔记为主，再结合官方文档理解 eval、tracing、OpenTelemetry 和 Docker Compose。
+
+### 主资料
+
+- [LangSmith Evaluation](https://docs.langchain.com/langsmith/evaluation)
+  - 用途：理解 dataset、evaluator、experiment、offline evaluation、online evaluation，以及如何用固定样本评测 AI 应用质量。
+
+- [LangSmith Evaluation Concepts](https://docs.langchain.com/langsmith/evaluation-concepts)
+  - 用途：理解为什么 LLM 输出不稳定，为什么需要把“好”拆成可衡量的标准。
+
+- [LangSmith Evaluation Types](https://docs.langchain.com/langsmith/evaluation-types)
+  - 用途：理解 LLM-as-judge、code evaluator、summary evaluator、pairwise evaluator 等评测器类型，后续判断什么指标适合自动化，什么指标适合人工复核。
+
+- [LangSmith How to evaluate agents](https://docs.langchain.com/langsmith/evaluate-llm-application)
+  - 用途：理解 Agent 评测如何围绕 dataset、target function、evaluator 和 experiment 组织，而不是只靠临时试问。
+
+- [LangSmith Manage Datasets](https://docs.langchain.com/langsmith/manage-datasets)
+  - 用途：理解评测数据集如何版本化、筛选、拆分和导出，为后续回归评测做准备。
+
+- [LangSmith Example data format](https://docs.langchain.com/langsmith/example-data-format)
+  - 用途：理解评测样本里的 inputs、outputs/reference outputs 和 metadata 字段，对照本地 agent_cases.json 的 inputs/expected/metadata 结构。
+
+- [OpenAI Evals Guide](https://platform.openai.com/docs/guides/evals)
+  - 用途：作为 eval 概念和评测流程的补充资料，帮助理解模型应用上线前为什么需要固定样本、指标和报告。
+
+- [LangGraph Persistence / Memory](https://docs.langchain.com/oss/python/langgraph/persistence)
+  - 用途：理解 checkpoint、thread、持久化状态和多轮 Agent 恢复能力。
+
+- [LangGraph LangSmith Observability](https://docs.langchain.com/oss/python/langgraph/observability)
+  - 用途：理解 LangGraph 流程如何接入 LangSmith tracing，观察节点执行、metadata 和错误。
+
+- [OpenTelemetry Documentation](https://opentelemetry.io/docs/)
+  - 用途：理解 vendor-neutral observability，掌握 traces、metrics、logs 的基础定位。
+
+- [OpenTelemetry Traces](https://opentelemetry.io/docs/concepts/signals/traces/)
+  - 用途：理解 trace、span、tracer、exporter，以及一次请求链路如何被拆成多个操作。
+
+- [Docker Compose](https://docs.docker.com/compose/)
+  - 用途：理解如何用一个 YAML 文件定义并运行多容器应用，后续编排 Python AI 服务、Java mock、Qdrant/Milvus。
+
+### 本仓库阶段 6 笔记
+
+- [阶段 6 第 1 节：Agent 评测基础：为什么 AI 应用不能只靠感觉判断好坏](../notes/stage6-01-agent-evaluation-basics.md)
+  - 用途：建立 Agent 评测的第一层基础概念，理解评测集、expected output、pass/fail、bad case、回归评测、offline evaluation、online evaluation、evaluator，以及为什么当前智能工单 Agent 要先从结构化行为评测开始。
+
+- [阶段 6 第 2 节：什么是 eval：测试和评测的区别](../notes/stage6-02-test-vs-eval.md)
+  - 用途：区分传统 test 和 AI eval，理解 pytest 负责确定性代码契约，eval 负责 AI 行为质量；掌握 evaluator、metric、bad case、pytest 跑 eval、CI 分层和当前智能工单 Agent 的质量保障边界。
+
+- [阶段 6 第 3 节：设计 Agent 测试集](../notes/stage6-03-agent-eval-dataset-design.md)
+  - 用途：学习如何把智能工单 Agent 的评测目标落成第一版固定样本集，理解 inputs、expected、metadata、task_type、business_domain、case_type、priority、p0/p1、golden case、bad case 候选，以及本地 agent_cases.json 如何服务后续评测脚本。
+
+- [阶段 6 第 4 节：意图识别评测](../notes/stage6-04-agent-intent-evaluation.md)
+  - 用途：学习如何用固定 Agent 测试集评测意图分类，理解 expected intent、actual intent、intent_route、classifier、evaluator、pass/fail、accuracy、p0_accuracy、bad case，以及如何用脚本和 pytest 固定第一版意图识别回归保护。
+
+- [阶段 6 第 5 节：工单字段提取评测](../notes/stage6-05-agent-ticket-field-evaluation.md)
+  - 用途：学习如何用固定 Agent 测试集评测工单字段提取，理解 expected fields、actual fields、missing_ticket_fields、confirmation_required、ticket_need_source、case_pass_rate、field_accuracy、字段级 bad case，以及 eval 如何反向推动字段规则修正。
+
+- [阶段 6 第 6 节：Agent 路由评测](../notes/stage6-06-agent-route-evaluation.md)
+  - 用途：学习如何用固定 Agent 测试集评测节点路径，理解 node_history、expected node path、actual node path、path exact match、required nodes、forbidden nodes、terminal node、route_pass_rate、exact_match_rate，以及为什么 intent 对了仍然可能路由错误。
+
+- [阶段 6 第 7 节：RAG + Agent 组合评测](../notes/stage6-07-rag-agent-combination-evaluation.md)
+  - 用途：学习如何把 RAG 结构信号和 Agent 后续业务决策放在一起评测，理解 rag_answer_status、answered、no_context、citations、expected_sources、actual_sources、source_recall、must_cite、ticket_decision_passed_count、policy_gap，以及为什么 RAG 有答案时不创建工单、RAG 无上下文时进入 policy_gap 工单。
+
+### 阶段 6 使用方式
+
+1. 第 1-12 节先看 LangSmith Evaluation 相关资料，建立 Agent 评测、测试集、evaluator 和回归评测概念。
+2. 第 13-18 节回到模型调用和结构化输出，重点看真实 LLM 节点、Pydantic 校验、fake/real 双模式和 prompt 版本管理。
+3. 第 19-25 节结合 LangGraph persistence，把真实工具链路、checkpoint 持久化、thread 生命周期和会话清理补齐。
+4. 第 26-30 节看 LangSmith Observability 和 OpenTelemetry，理解 trace、span、logs、metrics、成本和延迟指标。
+5. 第 31-35 节补 timeout、retry、rate limit、circuit breaker、Docker Compose、health check 和 CI 自动回归。
+6. 第 36 节做阶段 6 项目整理和面试表达。
+
+## 14. RAG / 向量库
 
 ### 主资料
 
@@ -493,7 +567,7 @@
 - [RAGFlow 文档](https://ragflow.io/docs/)
   - 用途：参考 RAG 产品化能力，如数据集、解析、引用、问答流程。
 
-## 14. LLM API 基础调用
+## 15. LLM API 基础调用
 
 ### 主资料
 
@@ -599,7 +673,7 @@
 - [JSON Schema：Creating your first schema](https://json-schema.org/learn/getting-started-step-by-step)
   - 用途：理解 JSON Schema 如何描述对象、字段、类型、必填项和枚举值。
 
-## 15. Tool Calling / 工具调用
+## 16. Tool Calling / 工具调用
 
 ### 主资料
 

@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 5 LangGraph 智能工单 Agent 已完成，第 26 节 阶段 5 项目整理和面试表达 已完成。下一步进入生产化与评测主线，重点补 Agent 评测、真实模型节点、持久化状态、追踪监控、限流重试和部署编排。
+当前阶段：阶段 6 生产化与评测进行中，第 7 节 RAG + Agent 组合评测 已完成。下一步进入阶段 6 第 8 节 评测脚本设计。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -18,7 +18,7 @@
 | M2 | 第 3-4 周 | LangChain + Java 工具调用 | 已完成 | 客服助手 v1、Java mock 业务服务 |
 | M3 | 第 5-7 周 | 企业知识库 RAG | 已完成 | 文档入库、检索问答、引用来源、权限过滤、Milvus 对比、初版评测 |
 | M4 | 第 8-9 周 | LangGraph 智能工单 | 已完成 | 26 节主线，完成可控、可测试、可恢复的工单 Agent v1 |
-| M5 | 第 10-11 周 | 生产化与评测 | 未开始 | trace、日志、限流、重试、eval、Docker Compose |
+| M5 | 第 10-11 周 | 生产化与评测 | 进行中 | 36 节主线，补 Agent 评测、真实模型节点、持久化状态、追踪监控、稳定性保护和部署编排 |
 | M6 | 第 12 周 | 作品整理 | 未开始 | README、架构图、截图、面试讲稿、简历描述 |
 
 ## 近期任务
@@ -183,6 +183,13 @@
 - [x] 完成阶段 5 第 24 节：LangGraph 日志、trace_id 和可观测性
 - [x] 完成阶段 5 第 25 节：LangGraph 测试：fake LLM / fake RAG / fake Java client
 - [x] 完成阶段 5 第 26 节：阶段 5 项目整理和面试表达
+- [x] 完成阶段 6 第 1 节：Agent 评测基础：为什么 AI 应用不能只靠感觉判断好坏
+- [x] 完成阶段 6 第 2 节：什么是 eval：测试和评测的区别
+- [x] 完成阶段 6 第 3 节：设计 Agent 测试集
+- [x] 完成阶段 6 第 4 节：意图识别评测
+- [x] 完成阶段 6 第 5 节：工单字段提取评测
+- [x] 完成阶段 6 第 6 节：Agent 路由评测
+- [x] 完成阶段 6 第 7 节：RAG + Agent 组合评测
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -340,6 +347,49 @@
 | 24 | LangGraph 日志、trace_id 和可观测性 | 已完成 | `notes/langgraph-stage5-24-observability-trace-logging.md`、`agent_trace_id`、`build_ticket_agent_observation_metadata`、`log_ticket_agent_run_started`、`log_ticket_agent_run_finished`、`log_ticket_agent_run_failed`、`run_ticket_agent`/`run_ticket_agent_safely`/`run_ticket_agent_in_thread`/`resume_ticket_confirmation_interrupt` 运行日志、创建工单节点 started/finished/failed 日志、trace_id 与日志安全测试 |
 | 25 | LangGraph 测试：fake LLM / fake RAG / fake Java client | 已完成 | `notes/langgraph-stage5-25-agent-testing-fakes.md`、`build_ticket_agent_graph(policy_rag_service=...)`、`FakePolicyRagService`、`FakeNoContextPolicyRagService`、compiled graph `graph.nodes[...]` 节点级测试、fake RAG 整图路径测试、checkpoint `update_state(..., as_node=...)` 局部执行测试、fake Java client 调用记录和异常模拟测试 |
 | 26 | 阶段 5 项目整理和面试表达 | 已完成 | `notes/langgraph-stage5-26-project-summary-interview.md`、阶段 5 三段式复盘、智能工单 Agent v1 总架构、完整执行链路、节点职责表、State 字段分组、测试体系、项目验收清单、面试 30 秒/1 分钟/3 分钟表达、当前 v1 限制和下一阶段生产化方向 |
+
+## 阶段 6 细化学习清单
+
+阶段 6 目标：把已经能运行的 RAG + 智能工单 Agent 往真实工程系统推进。这一阶段固定为 36 节，不只是学 eval、Docker 或 tracing，而是系统补齐 Agent 评测、真实模型节点、工具链路生产化、持久化 checkpoint、可观测性、稳定性保护、部署编排和阶段复盘。
+
+| 节 | 主题 | 学习状态 | 对应产出 |
+| --- | --- | --- | --- |
+| 1 | Agent 评测基础：为什么 AI 应用不能只靠感觉判断好坏 | 已完成 | `notes/stage6-01-agent-evaluation-basics.md`、评测集、expected output、pass/fail、bad case、回归评测、offline evaluation、online evaluation、evaluator、Agent 结构化评测对象 |
+| 2 | 什么是 eval：测试和评测的区别 | 已完成 | `notes/stage6-02-test-vs-eval.md`、test/eval 边界、Arrange/Act/Assert/Cleanup、确定性测试、AI 效果评测、evaluator、metric、bad case、pytest 跑 eval、CI 分层 |
+| 3 | 设计 Agent 测试集 | 已完成 | `notes/stage6-03-agent-eval-dataset-design.md`、`projects/ai-service/data/agent_eval/agent_cases.json`、`projects/ai-service/data/agent_eval/README.md`、inputs/expected/metadata、task_type、business_domain、case_type、priority、p0/p1、golden case、bad case 候选、12 条第一版 Agent eval cases |
+| 4 | 意图识别评测 | 已完成 | `notes/stage6-04-agent-intent-evaluation.md`、`app/agents/intent_evaluation.py`、`scripts/agent_intent_eval.py`、`tests/test_agent_intent_evaluation.py`、expected intent、actual intent、intent_route、classifier、evaluator、pass/fail、accuracy、p0_accuracy、bad case、12 条样本全部通过 |
+| 5 | 工单字段提取评测 | 已完成 | `notes/stage6-05-agent-ticket-field-evaluation.md`、`app/agents/field_evaluation.py`、`scripts/agent_ticket_field_eval.py`、`tests/test_agent_field_evaluation.py`、expected fields、actual fields、missing_ticket_fields、confirmation_required、ticket_need_source、case_pass_rate、field_accuracy、bad case、4 条工单样本和 16 个字段全部通过 |
+| 6 | Agent 路由评测 | 已完成 | `notes/stage6-06-agent-route-evaluation.md`、`app/agents/route_evaluation.py`、`scripts/agent_route_eval.py`、`tests/test_agent_route_evaluation.py`、node_history、expected node path、actual node path、path exact match、required nodes、forbidden nodes、terminal node、route_pass_rate、exact_match_rate、12 条样本全部通过 |
+| 7 | RAG + Agent 组合评测 | 已完成 | `notes/stage6-07-rag-agent-combination-evaluation.md`、`app/agents/rag_agent_evaluation.py`、`scripts/agent_rag_eval.py`、`tests/test_agent_rag_evaluation.py`、rag_answer_status、answered、no_context、citations、expected_sources、actual_sources、source_recall、must_cite、ticket_decision_passed_count、policy_gap、3 条 RAG 样本全部通过 |
+| 8 | 评测脚本设计 | 未开始 | 待新增 |
+| 9 | 评测报告 | 未开始 | 待新增 |
+| 10 | 坏例分析 | 未开始 | 待新增 |
+| 11 | 回归评测 | 未开始 | 待新增 |
+| 12 | evaluator 类型 | 未开始 | 待新增 |
+| 13 | 真实 LLM 意图识别节点 | 未开始 | 待新增 |
+| 14 | 真实 LLM 字段提取节点 | 未开始 | 待新增 |
+| 15 | Pydantic 校验模型输出 | 未开始 | 待新增 |
+| 16 | fake LLM 和真实 LLM 双模式 | 未开始 | 待新增 |
+| 17 | prompt 版本管理 | 未开始 | 待新增 |
+| 18 | 模型输出失败处理 | 未开始 | 待新增 |
+| 19 | 接入真实 `query_order` 到 LangGraph | 未开始 | 待新增 |
+| 20 | 工具节点错误处理升级 | 未开始 | 待新增 |
+| 21 | 工具权限和写操作安全回归 | 未开始 | 待新增 |
+| 22 | 持久化 checkpoint 基础 | 未开始 | 待新增 |
+| 23 | checkpoint 存储选型 | 未开始 | 待新增 |
+| 24 | `thread_id` 生命周期 | 未开始 | 待新增 |
+| 25 | 会话过期与清理 | 未开始 | 待新增 |
+| 26 | LangSmith tracing 基础 | 未开始 | 待新增 |
+| 27 | OpenTelemetry 基础 | 未开始 | 待新增 |
+| 28 | trace/span/log/metrics 的关系 | 未开始 | 待新增 |
+| 29 | 生产日志字段设计 | 未开始 | 待新增 |
+| 30 | 成本、token 和延迟指标 | 未开始 | 待新增 |
+| 31 | timeout 超时策略 | 未开始 | 待新增 |
+| 32 | retry 重试策略 | 未开始 | 待新增 |
+| 33 | rate limit、circuit breaker 和降级 | 未开始 | 待新增 |
+| 34 | Docker Compose 本地编排 | 未开始 | 待新增 |
+| 35 | health check、readiness 和 CI 自动回归 | 未开始 | 待新增 |
+| 36 | 阶段 6 项目整理和面试表达 | 未开始 | 待新增 |
 
 ## 当前 Sprint 验收标准
 

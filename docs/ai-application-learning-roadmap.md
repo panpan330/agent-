@@ -91,7 +91,7 @@ Java 后端能力
 | M2 | 第 3-4 周 | LangChain + Java 工具调用 | 客服助手 v1、Java mock 业务服务、tool 调用 |
 | M3 | 第 5-7 周 | 企业知识库 RAG | 文档入库、检索问答、引用来源、权限过滤、初版评测 |
 | M4 | 第 8-9 周 | LangGraph 智能工单 | 26 节主线，完成可控、可测试、可恢复的工单 Agent v1 |
-| M5 | 第 10-11 周 | 生产化与评测 | trace、日志、限流、重试、eval、Docker Compose |
+| M5 | 第 10-11 周 | 生产化与评测 | 36 节主线，补 Agent 评测、真实模型节点、持久化状态、追踪监控、稳定性保护和部署编排 |
 | M6 | 第 12 周 | 作品整理 | README、架构图、截图、面试讲稿、简历描述 |
 
 如果每天只有 1-2 小时，可以把 M3 和 M5 各延长 1 周。不要为了赶进度牺牲项目质量。
@@ -393,6 +393,49 @@ evidence
 时间：第 10-11 周
 
 目标：把项目从 demo 提升到可上线雏形。
+
+阶段 6 固定为 36 节主线。目标不是继续堆 Agent 功能，而是把已经能运行的 RAG + 智能工单 Agent 往真实工程系统推进：能评测、能接真实模型、能追踪、能保存状态、能处理上游失败、能控制成本和延迟、能用 Docker Compose 编排本地多服务。不要把这一阶段压缩成只学 eval、Docker 或 tracing；这三者都只是生产化的一部分。
+
+细化学习清单：
+
+| 节 | 主题 | 目标 |
+| --- | --- | --- |
+| 1 | Agent 评测基础：为什么 AI 应用不能只靠感觉判断好坏 | 理解 AI 输出不稳定，必须用固定样本和指标判断质量 |
+| 2 | 什么是 eval：测试和评测的区别 | 区分功能正确性测试、效果评测、回归评测和线上监控 |
+| 3 | 设计 Agent 测试集 | 设计 query、expected intent、expected route、expected tool、expected fields |
+| 4 | 意图识别评测 | 衡量 `policy_question`、`order_query`、`ticket_request` 等分类是否正确 |
+| 5 | 工单字段提取评测 | 衡量 `order_id`、`issue_type`、`urgency`、`need_human_review` 等字段正确率 |
+| 6 | Agent 路由评测 | 判断 RAG、工单、订单查询、闲聊、不支持、追问分支是否走对 |
+| 7 | RAG + Agent 组合评测 | 评估检索结果、RAG 回答和 Agent 决策如何共同影响最终行为 |
+| 8 | 评测脚本设计 | 用 JSON 样本和 Python 脚本写可重复运行的本地评测 |
+| 9 | 评测报告 | 输出 pass/fail、命中率、字段正确率、坏例列表和改进建议 |
+| 10 | 坏例分析 | 分析 bad case 是数据问题、prompt 问题、模型问题还是流程问题 |
+| 11 | 回归评测 | 改 prompt、改节点、改工具后防止旧能力退化 |
+| 12 | evaluator 类型 | 理解规则 evaluator、代码 evaluator、人类评审、LLM-as-judge 和 pairwise 对比 |
+| 13 | 真实 LLM 意图识别节点 | 把规则版分类逐步升级为模型版分类 |
+| 14 | 真实 LLM 字段提取节点 | 用模型提取工单字段，并保持结构化输出 |
+| 15 | Pydantic 校验模型输出 | 模型结果不能直接信，必须做 schema 校验和错误兜底 |
+| 16 | fake LLM 和真实 LLM 双模式 | 测试用 fake，手动验收和 smoke test 用真实模型 |
+| 17 | prompt 版本管理 | 记录 prompt 版本、变更原因、评测结果和回滚方式 |
+| 18 | 模型输出失败处理 | 处理空输出、非 JSON、字段缺失、拒答、超时和安全拒绝 |
+| 19 | 接入真实 `query_order` 到 LangGraph | 把阶段 3 的订单查询工具链路接入 `query_order` 节点 |
+| 20 | 工具节点错误处理升级 | 处理 Java 服务超时、404、500、字段异常和上游不可用 |
+| 21 | 工具权限和写操作安全回归 | 复查工具白名单、风险等级、用户确认、幂等和敏感操作边界 |
+| 22 | 持久化 checkpoint 基础 | 理解为什么 `MemorySaver` 不适合生产 |
+| 23 | checkpoint 存储选型 | 对比内存、SQLite、Postgres、Redis 的适用场景 |
+| 24 | `thread_id` 生命周期 | 设计 thread 创建、恢复、结束、过期和清理策略 |
+| 25 | 会话过期与清理 | 防止长期堆积 checkpoint、过期确认和无效上下文 |
+| 26 | LangSmith tracing 基础 | 理解 trace、run、metadata、dataset、experiment 在 Agent 里的作用 |
+| 27 | OpenTelemetry 基础 | 理解 trace、span、logs、metrics 和 vendor-neutral observability |
+| 28 | trace/span/log/metrics 的关系 | 区分一次请求链路、单个操作、日志事件和聚合指标 |
+| 29 | 生产日志字段设计 | 设计 trace_id、thread_id、node、route、error_code、latency、status 等字段 |
+| 30 | 成本、token 和延迟指标 | 观察模型成本、token 用量、RAG/工具耗时和端到端延迟 |
+| 31 | timeout 超时策略 | 给模型、RAG、向量库、Java 服务和整体 Agent 设置合理超时 |
+| 32 | retry 重试策略 | 判断哪些错误可以重试，哪些错误不能重试，避免重复写操作 |
+| 33 | rate limit、circuit breaker 和降级 | 学习限流、熔断、持续失败保护和降级回答 |
+| 34 | Docker Compose 本地编排 | 编排 Python AI 服务、Java mock、Qdrant/Milvus 等多服务 |
+| 35 | health check、readiness 和 CI 自动回归 | 让服务启动可检查，测试和评测可自动运行 |
+| 36 | 阶段 6 项目整理和面试表达 | 复盘生产化与评测能力，整理项目讲解版本 |
 
 必须补充：
 
