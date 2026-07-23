@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 5 LangGraph 智能工单 Agent 进行中，第 24 节 LangGraph 日志、trace_id 和可观测性已完成，下一步进入阶段 5 第 25 节 LangGraph 测试：fake LLM / fake RAG / fake Java client。
+当前阶段：阶段 5 LangGraph 智能工单 Agent 已完成，第 26 节 阶段 5 项目整理和面试表达 已完成。下一步进入生产化与评测主线，重点补 Agent 评测、真实模型节点、持久化状态、追踪监控、限流重试和部署编排。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -17,7 +17,7 @@
 | M1 | 第 1-2 周 | Python AI 服务基础 | 已完成 | `projects/ai-service`、聊天接口、流式输出、结构化输出 |
 | M2 | 第 3-4 周 | LangChain + Java 工具调用 | 已完成 | 客服助手 v1、Java mock 业务服务 |
 | M3 | 第 5-7 周 | 企业知识库 RAG | 已完成 | 文档入库、检索问答、引用来源、权限过滤、Milvus 对比、初版评测 |
-| M4 | 第 8-9 周 | LangGraph 智能工单 | 进行中 | 26 节主线，目标是工单 Agent v1 |
+| M4 | 第 8-9 周 | LangGraph 智能工单 | 已完成 | 26 节主线，完成可控、可测试、可恢复的工单 Agent v1 |
 | M5 | 第 10-11 周 | 生产化与评测 | 未开始 | trace、日志、限流、重试、eval、Docker Compose |
 | M6 | 第 12 周 | 作品整理 | 未开始 | README、架构图、截图、面试讲稿、简历描述 |
 
@@ -181,6 +181,8 @@
 - [x] 完成阶段 5 第 22 节：interrupt / human-in-the-loop
 - [x] 完成阶段 5 第 23 节：节点错误处理、fallback 和流程兜底
 - [x] 完成阶段 5 第 24 节：LangGraph 日志、trace_id 和可观测性
+- [x] 完成阶段 5 第 25 节：LangGraph 测试：fake LLM / fake RAG / fake Java client
+- [x] 完成阶段 5 第 26 节：阶段 5 项目整理和面试表达
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -336,8 +338,8 @@
 | 22 | interrupt / human-in-the-loop | 已完成 | `notes/langgraph-stage5-22-interrupt-human-in-the-loop.md`、`Command`、`interrupt`、`request_ticket_confirmation_interrupt_node`、`build_interrupting_ticket_agent_graph`、`build_ticket_confirmation_interrupt_payload`、`get_ticket_confirmation_interrupt_payload`、`resume_ticket_confirmation_interrupt`、`TICKET_CONFIRMATION_INTERRUPT_KIND`、`TICKET_CONFIRMATION_REJECTED_MESSAGE`、`__interrupt__`、`Command(resume=...)`、approved/rejected 恢复测试 |
 | 23 | 节点错误处理、fallback 和流程兜底 | 已完成 | `notes/langgraph-stage5-23-node-error-fallback.md`、`agent_error_code`、`agent_error_message`、`agent_error_node`、`fallback_used`、`build_ticket_agent_fallback_state`、`build_ticket_creation_failure_state`、`run_ticket_agent_safely`、`resume_ticket_confirmation_interrupt_safely`、创建工单 AppException/未知异常兜底、图级安全执行和 interrupt 恢复失败测试 |
 | 24 | LangGraph 日志、trace_id 和可观测性 | 已完成 | `notes/langgraph-stage5-24-observability-trace-logging.md`、`agent_trace_id`、`build_ticket_agent_observation_metadata`、`log_ticket_agent_run_started`、`log_ticket_agent_run_finished`、`log_ticket_agent_run_failed`、`run_ticket_agent`/`run_ticket_agent_safely`/`run_ticket_agent_in_thread`/`resume_ticket_confirmation_interrupt` 运行日志、创建工单节点 started/finished/failed 日志、trace_id 与日志安全测试 |
-| 25 | LangGraph 测试：fake LLM / fake RAG / fake Java client | 未开始 | 待新增 |
-| 26 | 阶段 5 项目整理和面试表达 | 未开始 | 待新增 |
+| 25 | LangGraph 测试：fake LLM / fake RAG / fake Java client | 已完成 | `notes/langgraph-stage5-25-agent-testing-fakes.md`、`build_ticket_agent_graph(policy_rag_service=...)`、`FakePolicyRagService`、`FakeNoContextPolicyRagService`、compiled graph `graph.nodes[...]` 节点级测试、fake RAG 整图路径测试、checkpoint `update_state(..., as_node=...)` 局部执行测试、fake Java client 调用记录和异常模拟测试 |
+| 26 | 阶段 5 项目整理和面试表达 | 已完成 | `notes/langgraph-stage5-26-project-summary-interview.md`、阶段 5 三段式复盘、智能工单 Agent v1 总架构、完整执行链路、节点职责表、State 字段分组、测试体系、项目验收清单、面试 30 秒/1 分钟/3 分钟表达、当前 v1 限制和下一阶段生产化方向 |
 
 ## 当前 Sprint 验收标准
 
@@ -479,7 +481,7 @@ M0/M1 第一阶段完成时，必须满足：
 - [x] 用户确认节点
 - [x] Java mock 创建工单节点
 - [x] 节点错误处理 / fallback
-- [ ] LangGraph 测试
+- [x] LangGraph 测试
 
 ### Java 集成
 

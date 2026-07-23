@@ -4,7 +4,6 @@ import pytest
 from langgraph.graph import END, START
 
 from app.agents.ticket_agent import (
-    FakePolicyRagService,
     TICKET_AGENT_CONFIRMATION_ROUTES,
     TICKET_AGENT_FIELD_COMPLETION_ROUTES,
     TICKET_AGENT_FIXED_EDGES,
@@ -63,7 +62,11 @@ from app.core.logging import install_trace_id_log_record_factory
 from app.core.exceptions import AppException
 from app.core.trace import reset_trace_id, set_trace_id
 from app.rag.generator import RAG_NO_CONTEXT_REPLY
-from tests.tool_fakes import FakeTicketCreator
+from tests.tool_fakes import (
+    FakeNoContextPolicyRagService,
+    FakePolicyRagService,
+    FakeTicketCreator,
+)
 
 
 def make_complete_ticket_fields() -> dict[str, object]:
@@ -684,7 +687,7 @@ def test_retrieve_policy_node_returns_grounded_rag_answer() -> None:
 def test_retrieve_policy_node_returns_no_context_fallback() -> None:
     update = retrieve_policy_node(
         {"normalized_message": "会员等级政策是什么？"},
-        service=FakePolicyRagService(),
+        service=FakeNoContextPolicyRagService(),
     )
 
     assert update["rag_query"] == "会员等级政策是什么？"
@@ -788,6 +791,103 @@ def test_run_ticket_agent_complete_ticket_fields_requests_confirmation() -> None
         "extract_ticket_fields",
         "request_ticket_confirmation",
     ]
+
+
+def test_compiled_graph_node_can_be_invoked_for_node_level_test() -> None:
+    graph = build_ticket_agent_graph()
+
+    update = graph.nodes["classify_intent"].invoke({"normalized_message": "你好"})
+
+    assert update["intent"] == "smalltalk"
+    assert update["intent_reason"]
+    assert update["node_history"] == ["classify_intent"]
+
+
+def test_build_ticket_agent_graph_uses_injected_fake_rag_service() -> None:
+    service = FakePolicyRagService()
+    graph = build_ticket_agent_graph(policy_rag_service=service)
+
+    result = graph.invoke(
+        {
+            "user_message": "退款规则是什么？",
+            "node_history": [],
+        }
+    )
+
+    assert service.queries == ["退款规则是什么？"]
+    assert result["intent"] == "policy_question"
+    assert result["rag_answer_status"] == "answered"
+    assert result["rag_citations"][0]["source"] == "fake-policy.md"
+    assert result["needs_ticket"] is False
+    assert result["ticket_need_source"] == "rag_answered"
+    assert result["node_history"] == [
+        "normalize_user_input",
+        "classify_intent",
+        "retrieve_policy",
+        "decide_ticket_need",
+    ]
+
+
+def test_build_ticket_agent_graph_uses_fake_rag_no_context_ticket_flow() -> None:
+    service = FakeNoContextPolicyRagService()
+    graph = build_ticket_agent_graph(policy_rag_service=service)
+
+    result = graph.invoke(
+        {
+            "user_message": "会员等级政策是什么？",
+            "node_history": [],
+        }
+    )
+
+    assert service.queries == ["会员等级政策是什么？"]
+    assert result["intent"] == "policy_question"
+    assert result["rag_answer_status"] == "no_context"
+    assert result["needs_ticket"] is True
+    assert result["ticket_need_source"] == "rag_no_context"
+    assert result["ticket_fields"]["issue_type"] == "policy_gap"
+    assert result["ticket_fields_complete"] is True
+    assert result["ticket_confirmation_required"] is True
+    assert result["node_history"] == [
+        "normalize_user_input",
+        "classify_intent",
+        "retrieve_policy",
+        "decide_ticket_need",
+        "extract_ticket_fields",
+        "request_ticket_confirmation",
+    ]
+
+
+def test_checkpointed_graph_can_resume_partial_execution_after_classify() -> None:
+    graph = build_checkpointed_ticket_agent_graph(ticket_creator=FakeTicketCreator())
+    config = build_ticket_agent_thread_config("ticket-partial-001")
+
+    graph.update_state(
+        config,
+        {
+            "user_message": "我要投诉订单 1001，物流一直不动",
+            "normalized_message": "我要投诉订单 1001，物流一直不动",
+            "intent": "ticket_request",
+            "node_history": ["normalize_user_input", "classify_intent"],
+        },
+        as_node="classify_intent",
+    )
+    result = graph.invoke(
+        None,
+        config=config,
+        interrupt_after=["extract_ticket_fields"],
+    )
+    snapshot = graph.get_state(config)
+
+    assert result["needs_ticket"] is True
+    assert result["ticket_fields"]["order_id"] == "1001"
+    assert result["ticket_fields_complete"] is True
+    assert result["node_history"] == [
+        "normalize_user_input",
+        "classify_intent",
+        "decide_ticket_need",
+        "extract_ticket_fields",
+    ]
+    assert snapshot.next == ("request_ticket_confirmation",)
 
 
 def test_graph_executes_ticket_creation_when_confirmation_is_approved() -> None:

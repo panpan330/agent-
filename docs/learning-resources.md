@@ -298,6 +298,9 @@
 - [LangGraph Streaming](https://docs.langchain.com/oss/python/langgraph/streaming)
   - 用途：理解 `updates`、`values`、`messages`、`checkpoints`、`tasks`、`debug` 等 stream mode，以及 stream 与日志、trace 的区别。
 
+- [LangGraph Test](https://docs.langchain.com/oss/python/langgraph/test)
+  - 用途：理解如何用 pytest 测试 LangGraph，包括节点级测试、编译图测试、checkpoint、`update_state(..., as_node=...)`、`interrupt_after` 和局部执行。
+
 - [LangSmith Observability concepts](https://docs.langchain.com/langsmith/observability-concepts)
   - 用途：理解 LangSmith 里 trace/run 的概念，为后续把本地日志升级成可视化 tracing 做准备。
 
@@ -386,6 +389,12 @@
 
 - [阶段 5 第 24 节：LangGraph 日志、trace_id 和可观测性](../notes/langgraph-stage5-24-observability-trace-logging.md)
   - 用途：理解 Agent 可观测性基础，掌握 logging、trace_id、thread_id、node_history 的分工，Agent 运行日志、创建工单节点日志、日志安全边界和 `caplog` 日志测试。
+
+- [阶段 5 第 25 节：LangGraph 测试：fake LLM / fake RAG / fake Java client](../notes/langgraph-stage5-25-agent-testing-fakes.md)
+  - 用途：理解复杂 Agent 测试分层，掌握 fake LLM / fake RAG / fake Java client、依赖注入、节点级测试、整图路径测试、checkpoint 局部执行、interrupt/fallback/logging 测试和测试替身设计。
+
+- [阶段 5 第 26 节：阶段 5 项目整理和面试表达](../notes/langgraph-stage5-26-project-summary-interview.md)
+  - 用途：复盘阶段 5 的 LangGraph 智能工单 Agent v1，梳理完整架构、主链路、节点职责、State 字段、测试体系、验收清单、面试表达、当前限制和下一阶段生产化方向。
 
 ## 13. RAG / 向量库
 

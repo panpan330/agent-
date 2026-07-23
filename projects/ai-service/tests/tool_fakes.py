@@ -2,8 +2,14 @@ from collections.abc import Mapping
 from datetime import datetime, timezone
 from typing import Any
 
+from app.rag.generator import (
+    RagAnswer,
+    build_grounded_rag_answer,
+    build_no_context_rag_answer,
+)
 from app.schemas.structured import TicketExtraction, TicketIntent, TicketUrgency
 from app.schemas.ticket import CreateTicketArgs, CreatedTicket
+from tests.rag_fakes import make_retrieved_chunk
 
 
 def make_java_order_payload(**overrides: Any) -> dict[str, Any]:
@@ -63,6 +69,50 @@ class FakeTicketExtractor:
     def extract_ticket(self, user_message: str) -> TicketExtraction:
         self.messages.append(user_message)
         return self.extraction
+
+
+def make_policy_rag_answer(
+    *,
+    answer: str = "根据测试知识库，退款通常需要核对订单状态和售后条件。",
+) -> RagAnswer:
+    return build_grounded_rag_answer(
+        answer,
+        [
+            make_retrieved_chunk(
+                chunk_id="fake_policy_chunk_0001",
+                content="退款通常需要核对订单状态和售后条件。",
+                metadata={
+                    "source": "fake-policy.md",
+                    "title": "测试政策",
+                    "section": "退款",
+                    "chunk_id": "fake_policy_chunk_0001",
+                },
+            )
+        ],
+    )
+
+
+class FakePolicyRagService:
+    def __init__(
+        self,
+        answer: RagAnswer | None = None,
+        *,
+        error: Exception | None = None,
+    ) -> None:
+        self.answer = answer or make_policy_rag_answer()
+        self.error = error
+        self.queries: list[str] = []
+
+    def answer_policy_question(self, query: str) -> RagAnswer:
+        self.queries.append(query)
+        if self.error is not None:
+            raise self.error
+        return self.answer
+
+
+class FakeNoContextPolicyRagService(FakePolicyRagService):
+    def __init__(self) -> None:
+        super().__init__(build_no_context_rag_answer())
 
 
 def make_created_ticket(

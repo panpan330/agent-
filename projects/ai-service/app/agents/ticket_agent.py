@@ -1023,6 +1023,7 @@ def ask_clarifying_question_node(state: TicketAgentState) -> TicketAgentState:
 def build_ticket_agent_graph(
     ticket_creator: TicketCreator | None = None,
     *,
+    policy_rag_service: PolicyRagService | None = None,
     checkpointer: Any | None = None,
     interrupt_confirmation: bool = False,
 ):
@@ -1030,7 +1031,10 @@ def build_ticket_agent_graph(
 
     builder.add_node("normalize_user_input", normalize_user_input_node)
     builder.add_node("classify_intent", classify_intent_node)
-    builder.add_node("retrieve_policy", retrieve_policy_node)
+    builder.add_node(
+        "retrieve_policy",
+        lambda state: retrieve_policy_node(state, service=policy_rag_service),
+    )
     builder.add_node("decide_ticket_need", decide_ticket_need_node)
     builder.add_node("query_order", query_order_node)
     builder.add_node("extract_ticket_fields", extract_ticket_fields_node)
@@ -1081,16 +1085,26 @@ def build_ticket_agent_graph(
 ticket_agent_graph = build_ticket_agent_graph()
 
 
-def build_checkpointed_ticket_agent_graph(ticket_creator: TicketCreator | None = None):
+def build_checkpointed_ticket_agent_graph(
+    ticket_creator: TicketCreator | None = None,
+    *,
+    policy_rag_service: PolicyRagService | None = None,
+):
     return build_ticket_agent_graph(
         ticket_creator=ticket_creator,
+        policy_rag_service=policy_rag_service,
         checkpointer=MemorySaver(),
     )
 
 
-def build_interrupting_ticket_agent_graph(ticket_creator: TicketCreator | None = None):
+def build_interrupting_ticket_agent_graph(
+    ticket_creator: TicketCreator | None = None,
+    *,
+    policy_rag_service: PolicyRagService | None = None,
+):
     return build_ticket_agent_graph(
         ticket_creator=ticket_creator,
+        policy_rag_service=policy_rag_service,
         checkpointer=MemorySaver(),
         interrupt_confirmation=True,
     )
