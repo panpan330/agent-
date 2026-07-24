@@ -1,5 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -7,6 +8,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 ENV_FILE = PROJECT_ROOT / ".env"
+
+TicketAgentModelMode = Literal["rule_based", "fake_llm", "real_llm"]
 
 
 class Settings(BaseSettings):
@@ -23,6 +26,7 @@ class Settings(BaseSettings):
     request_timeout_seconds: float = Field(default=30.0, gt=0)
     llm_max_retries: int = Field(default=2, ge=0, le=5)
     max_output_tokens: int = Field(default=1024, gt=0)
+    ticket_agent_model_mode: TicketAgentModelMode = Field(default="rule_based")
     java_mock_service_base_url: str = Field(default="http://127.0.0.1:8001")
     java_mock_service_timeout_seconds: float = Field(default=5.0, gt=0)
     qdrant_base_url: str = Field(default="http://127.0.0.1:6333")

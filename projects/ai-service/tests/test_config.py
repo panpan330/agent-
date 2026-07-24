@@ -22,6 +22,7 @@ def test_settings_use_default_values() -> None:
     assert settings.request_timeout_seconds == 30.0
     assert settings.llm_max_retries == 2
     assert settings.max_output_tokens == 1024
+    assert settings.ticket_agent_model_mode == "rule_based"
     assert settings.java_mock_service_base_url == "http://127.0.0.1:8001"
     assert settings.resolved_java_mock_service_base_url == "http://127.0.0.1:8001"
     assert settings.java_mock_service_timeout_seconds == 5.0
@@ -71,6 +72,7 @@ def test_settings_read_environment_variables(monkeypatch: pytest.MonkeyPatch) ->
     monkeypatch.setenv("REQUEST_TIMEOUT_SECONDS", "12.5")
     monkeypatch.setenv("LLM_MAX_RETRIES", "3")
     monkeypatch.setenv("MAX_OUTPUT_TOKENS", "256")
+    monkeypatch.setenv("TICKET_AGENT_MODEL_MODE", "fake_llm")
     monkeypatch.setenv("JAVA_MOCK_SERVICE_BASE_URL", " http://localhost:9001/ ")
     monkeypatch.setenv("JAVA_MOCK_SERVICE_TIMEOUT_SECONDS", "2.5")
     monkeypatch.setenv("QDRANT_BASE_URL", " http://localhost:6333/ ")
@@ -111,6 +113,7 @@ def test_settings_read_environment_variables(monkeypatch: pytest.MonkeyPatch) ->
     assert settings.request_timeout_seconds == 12.5
     assert settings.llm_max_retries == 3
     assert settings.max_output_tokens == 256
+    assert settings.ticket_agent_model_mode == "fake_llm"
     assert settings.resolved_java_mock_service_base_url == "http://localhost:9001"
     assert settings.java_mock_service_timeout_seconds == 2.5
     assert settings.resolved_qdrant_base_url == "http://localhost:6333"
@@ -225,6 +228,7 @@ def test_settings_read_env_file(tmp_path: Path) -> None:
                 'LLM_API_KEY=""',
                 "LLM_MAX_RETRIES=4",
                 "MAX_OUTPUT_TOKENS=512",
+                'TICKET_AGENT_MODEL_MODE="real_llm"',
                 'JAVA_MOCK_SERVICE_BASE_URL="http://localhost:9001/"',
                 "JAVA_MOCK_SERVICE_TIMEOUT_SECONDS=3",
                 'QDRANT_BASE_URL="http://localhost:6333/"',
@@ -266,6 +270,7 @@ def test_settings_read_env_file(tmp_path: Path) -> None:
     assert settings.has_llm_api_key is False
     assert settings.llm_max_retries == 4
     assert settings.max_output_tokens == 512
+    assert settings.ticket_agent_model_mode == "real_llm"
     assert settings.resolved_java_mock_service_base_url == "http://localhost:9001"
     assert settings.java_mock_service_timeout_seconds == 3.0
     assert settings.resolved_qdrant_base_url == "http://localhost:6333"
@@ -421,6 +426,15 @@ def test_settings_reject_too_many_llm_max_retries() -> None:
     error = exc_info.value.errors()[0]
     assert error["loc"] == ("llm_max_retries",)
     assert error["type"] == "less_than_equal"
+
+
+def test_settings_reject_invalid_ticket_agent_model_mode() -> None:
+    with pytest.raises(ValidationError) as exc_info:
+        Settings(ticket_agent_model_mode="production", _env_file=None)
+
+    error = exc_info.value.errors()[0]
+    assert error["loc"] == ("ticket_agent_model_mode",)
+    assert error["type"] == "literal_error"
 
 
 def test_get_settings_is_cached(monkeypatch: pytest.MonkeyPatch) -> None:

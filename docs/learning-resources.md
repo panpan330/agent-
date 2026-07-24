@@ -473,6 +473,21 @@
 - [阶段 6 第 11 节：回归评测](../notes/stage6-11-regression-evaluation.md)
   - 用途：学习如何防止旧能力退化，理解 regression、regression evaluation、回归样本、P0 回归集、full suite regression、targeted regression、case_filter、selected_cases、空筛选保护，以及如何用 `scripts/agent_eval.py --regression --priority p0` 跑当前 10 条 P0 回归样本并生成回归评测报告。
 
+- [阶段 6 第 12 节：evaluator 类型](../notes/stage6-12-evaluator-types.md)
+  - 用途：系统理解 evaluator 类型，区分规则/代码 evaluator、人工 evaluator、LLM-as-judge、pairwise evaluator、composite evaluator、summary evaluator、reference-based、reference-free、deterministic、non-deterministic，并把这些类型映射到当前项目的 intent、field、route、RAG + Agent、eval_suite、eval_report、bad_case_analysis。
+
+- [阶段 6 第 13 节：真实 LLM 意图识别节点](../notes/stage6-13-real-llm-intent-node.md)
+  - 用途：学习如何把 `classify_intent` 从固定规则分类升级为支持真实 LLM 分类器注入，理解 JSON mode、Pydantic 输出校验、模型输出边界、`TicketIntentClassifier` Protocol、fake/real 双模式、默认规则图和真实 LLM smoke 脚本的工程边界。
+
+- [阶段 6 第 14 节：真实 LLM 字段提取节点](../notes/stage6-14-real-llm-field-extraction-node.md)
+  - 用途：学习如何把 `extract_ticket_fields` 从固定规则提取升级为支持真实 LLM 字段提取器注入，理解字段提取和意图识别的区别、工单字段 schema、JSON mode + Pydantic 二次校验、模型输出信任边界、缺字段判断仍由代码控制、fake/real 双模式和真实 LLM 字段提取 smoke 脚本。
+
+- [阶段 6 第 15 节：Pydantic 校验模型输出](../notes/stage6-15-pydantic-validate-model-output.md)
+  - 用途：学习为什么模型输出属于不可信输入，区分 JSON 解析和业务校验，理解 `ConfigDict(extra="forbid")`、`Field(pattern=...)`、`StrictBool`、`field_validator(mode="before")`、多余字段拒绝、订单号格式校验、空值归一化、统一异常转换，以及如何用 fake 测试主动覆盖模型乱输出。
+
+- [阶段 6 第 16 节：fake LLM 和真实 LLM 双模式](../notes/stage6-16-fake-real-llm-modes.md)
+  - 用途：学习为什么生产化 AI 项目要区分 `rule_based`、`fake_llm` 和 `real_llm`，理解 fake/mock/stub、运行模式配置、依赖注入、工厂函数、默认防误调用、真实模型 API key 检查、自动测试不真实调用模型，以及 fake LLM 只验证工程边界不代表真实模型效果。
+
 ### 阶段 6 使用方式
 
 1. 第 1-12 节先看 LangSmith Evaluation 相关资料，建立 Agent 评测、测试集、evaluator 和回归评测概念。

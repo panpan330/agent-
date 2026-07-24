@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 6 生产化与评测进行中，第 11 节 回归评测 已完成。下一步进入阶段 6 第 12 节 evaluator 类型。
+当前阶段：阶段 6 生产化与评测进行中，第 16 节 fake LLM 和真实 LLM 双模式 已完成。下一步进入阶段 6 第 17 节 prompt 版本管理。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -194,6 +194,11 @@
 - [x] 完成阶段 6 第 9 节：评测报告
 - [x] 完成阶段 6 第 10 节：坏例分析
 - [x] 完成阶段 6 第 11 节：回归评测
+- [x] 完成阶段 6 第 12 节：evaluator 类型
+- [x] 完成阶段 6 第 13 节：真实 LLM 意图识别节点
+- [x] 完成阶段 6 第 14 节：真实 LLM 字段提取节点
+- [x] 完成阶段 6 第 15 节：Pydantic 校验模型输出
+- [x] 完成阶段 6 第 16 节：fake LLM 和真实 LLM 双模式
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -369,11 +374,11 @@
 | 9 | 评测报告 | 已完成 | `notes/stage6-09-agent-eval-report.md`、`app/agents/eval_report.py`、`scripts/agent_eval.py --report-path`、`tests/test_agent_eval_report.py`、`data/agent_eval/reports/agent_eval_report.md`、Markdown report、Overall、Suite Summary、Summary、Bad Cases、PASS/FAIL、UTF-8 写入、3 条新增报告测试通过 |
 | 10 | 坏例分析 | 已完成 | `notes/stage6-10-bad-case-analysis.md`、`app/agents/bad_case_analysis.py`、`scripts/agent_eval.py --bad-case-analysis-path`、`tests/test_bad_case_analysis.py`、`data/agent_eval/reports/agent_bad_case_analysis.md`、`data/agent_eval/reports/bad_case_analysis_sample.md`、BadCaseAnalysisItem、BadCaseAnalysisReport、bad case vs bug、expected issue、dataset issue、first divergence、root cause category、recommended action、regression action、5 条新增坏例分析测试通过 |
 | 11 | 回归评测 | 已完成 | `notes/stage6-11-regression-evaluation.md`、`agent_cases.json` 中 10 条 P0 样本增加 `regression`/`p0_regression` 标签、`AgentEvalCaseFilter`、`filter_agent_eval_cases`、`describe_agent_eval_case_filter`、`scripts/agent_eval.py --regression --tag --priority`、`case_filter`、`selected_cases`、`data/agent_eval/reports/agent_regression_report.md`、`data/agent_eval/reports/agent_regression_bad_case_analysis.md`、P0 regression selected_cases=10、5 条新增回归筛选测试通过 |
-| 12 | evaluator 类型 | 未开始 | 待新增 |
-| 13 | 真实 LLM 意图识别节点 | 未开始 | 待新增 |
-| 14 | 真实 LLM 字段提取节点 | 未开始 | 待新增 |
-| 15 | Pydantic 校验模型输出 | 未开始 | 待新增 |
-| 16 | fake LLM 和真实 LLM 双模式 | 未开始 | 待新增 |
+| 12 | evaluator 类型 | 已完成 | `notes/stage6-12-evaluator-types.md`、evaluator、eval dataset、eval runner、eval report、bad case analysis、rule/code evaluator、human evaluator、LLM-as-judge、pairwise evaluator、composite evaluator、summary evaluator、reference-based、reference-free、deterministic、non-deterministic、当前项目 evaluator 类型映射、为什么当前阶段优先代码/规则 evaluator、后续真实模型评测选择原则 |
+| 13 | 真实 LLM 意图识别节点 | 已完成 | `notes/stage6-13-real-llm-intent-node.md`、`LLMTicketIntentClassification`、`TicketIntentClassifier`、`LLMTicketIntentClassifier`、`build_ticket_intent_classification_messages()`、`parse_ticket_intent_classification_json()`、`create_llm_ticket_intent_classifier()`、`classify_intent_node(..., classifier=...)`、`build_ticket_agent_graph(intent_classifier=...)`、JSON mode、Pydantic 输出校验、fake/real 注入、`tests/test_ticket_agent_llm_intent.py`、`scripts/ticket_agent_llm_intent_smoke.py` |
+| 14 | 真实 LLM 字段提取节点 | 已完成 | `notes/stage6-14-real-llm-field-extraction-node.md`、`LLMTicketFields`、`TicketFieldExtractor`、`LLMTicketFieldExtractor`、`TICKET_FIELD_EXTRACTION_SYSTEM_PROMPT`、`build_ticket_field_extraction_messages()`、`parse_ticket_field_extraction_json()`、`create_llm_ticket_field_extractor()`、`extract_ticket_fields_node(..., extractor=...)`、`build_ticket_agent_graph(field_extractor=...)`、JSON mode + Pydantic 二次校验、fake/real 注入、`tests/test_ticket_agent_llm_fields.py`、`scripts/ticket_agent_llm_field_smoke.py` |
+| 15 | Pydantic 校验模型输出 | 已完成 | `notes/stage6-15-pydantic-validate-model-output.md`、`ConfigDict(extra="forbid")`、`StrictBool`、`Field(pattern=...)`、`field_validator(mode="before")`、意图识别输出拒绝多余字段、字段提取输出拒绝 `should_create_ticket`、订单号格式校验、订单号空值归一化、空 reason/description 校验、`tests/test_ticket_agent_llm_output_validation.py` |
+| 16 | fake LLM 和真实 LLM 双模式 | 已完成 | `notes/stage6-16-fake-real-llm-modes.md`、`TICKET_AGENT_MODEL_MODE`、`TicketAgentModelMode`、`FakeLLMTicketIntentClassifier`、`FakeLLMTicketFieldExtractor`、`create_ticket_agent_model_dependencies()`、`build_ticket_agent_graph_for_model_mode()`、默认 `rule_based` 防误调用、`fake_llm` 走 JSON/Pydantic 边界、`real_llm` API key 检查、`tests/test_ticket_agent_llm_modes.py` |
 | 17 | prompt 版本管理 | 未开始 | 待新增 |
 | 18 | 模型输出失败处理 | 未开始 | 待新增 |
 | 19 | 接入真实 `query_order` 到 LangGraph | 未开始 | 待新增 |
