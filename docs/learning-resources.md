@@ -461,6 +461,18 @@
 - [阶段 6 第 7 节：RAG + Agent 组合评测](../notes/stage6-07-rag-agent-combination-evaluation.md)
   - 用途：学习如何把 RAG 结构信号和 Agent 后续业务决策放在一起评测，理解 rag_answer_status、answered、no_context、citations、expected_sources、actual_sources、source_recall、must_cite、ticket_decision_passed_count、policy_gap，以及为什么 RAG 有答案时不创建工单、RAG 无上下文时进入 policy_gap 工单。
 
+- [阶段 6 第 8 节：评测脚本设计](../notes/stage6-08-agent-eval-script-design.md)
+  - 用途：学习如何把分散的 Agent evaluator 组织成统一命令行入口，理解评测脚本、CLI、argparse、argv、exit code、stdout、eval suite、registry、脚本入口要薄、核心编排逻辑要可测试，以及 `scripts/agent_eval.py` 如何默认运行完整 Agent eval suite 并支持 `--suite`、`--list-suites`、`--cases-path`。
+
+- [阶段 6 第 9 节：评测报告](../notes/stage6-09-agent-eval-report.md)
+  - 用途：学习如何把一次 Agent eval suite 运行结果保存成 Markdown 报告，理解评测报告、终端输出、Markdown 报告、JSON 报告、Overall、Suite Summary、Summary、Bad Cases、PASS/FAIL、报告路径、UTF-8 写入、CI artifact，并掌握 `scripts/agent_eval.py --report-path` 和 `data/agent_eval/reports/agent_eval_report.md` 的使用。
+
+- [阶段 6 第 10 节：坏例分析](../notes/stage6-10-bad-case-analysis.md)
+  - 用途：学习如何从 bad cases 进入根因分析，理解 bad case 和 bug 的区别、expected issue、dataset issue、first divergence、RAG retrieval/citation issue、Agent routing issue、ticket field extraction issue、recommended action、regression action，以及如何用 `scripts/agent_eval.py --bad-case-analysis-path` 生成真实坏例分析报告，并阅读 synthetic 坏例分析样例。
+
+- [阶段 6 第 11 节：回归评测](../notes/stage6-11-regression-evaluation.md)
+  - 用途：学习如何防止旧能力退化，理解 regression、regression evaluation、回归样本、P0 回归集、full suite regression、targeted regression、case_filter、selected_cases、空筛选保护，以及如何用 `scripts/agent_eval.py --regression --priority p0` 跑当前 10 条 P0 回归样本并生成回归评测报告。
+
 ### 阶段 6 使用方式
 
 1. 第 1-12 节先看 LangSmith Evaluation 相关资料，建立 Agent 评测、测试集、evaluator 和回归评测概念。

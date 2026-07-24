@@ -4,7 +4,7 @@
 
 ```text
 路线已确定：Java 后端 + Python AI 服务 + LangChain/LangGraph + RAG/Agent 工程化
-当前阶段：阶段 6 生产化与评测进行中，第 7 节 RAG + Agent 组合评测 已完成。下一步进入阶段 6 第 8 节 评测脚本设计。
+当前阶段：阶段 6 生产化与评测进行中，第 11 节 回归评测 已完成。下一步进入阶段 6 第 12 节 evaluator 类型。
 主要仓库：D:\wendang\java+python+ai
 执行路线：docs/ai-application-learning-roadmap.md
 ```
@@ -190,6 +190,10 @@
 - [x] 完成阶段 6 第 5 节：工单字段提取评测
 - [x] 完成阶段 6 第 6 节：Agent 路由评测
 - [x] 完成阶段 6 第 7 节：RAG + Agent 组合评测
+- [x] 完成阶段 6 第 8 节：评测脚本设计
+- [x] 完成阶段 6 第 9 节：评测报告
+- [x] 完成阶段 6 第 10 节：坏例分析
+- [x] 完成阶段 6 第 11 节：回归评测
 - [x] 写 FastAPI 项目结构学习笔记
 
 ## 阶段 1 细化学习清单
@@ -361,10 +365,10 @@
 | 5 | 工单字段提取评测 | 已完成 | `notes/stage6-05-agent-ticket-field-evaluation.md`、`app/agents/field_evaluation.py`、`scripts/agent_ticket_field_eval.py`、`tests/test_agent_field_evaluation.py`、expected fields、actual fields、missing_ticket_fields、confirmation_required、ticket_need_source、case_pass_rate、field_accuracy、bad case、4 条工单样本和 16 个字段全部通过 |
 | 6 | Agent 路由评测 | 已完成 | `notes/stage6-06-agent-route-evaluation.md`、`app/agents/route_evaluation.py`、`scripts/agent_route_eval.py`、`tests/test_agent_route_evaluation.py`、node_history、expected node path、actual node path、path exact match、required nodes、forbidden nodes、terminal node、route_pass_rate、exact_match_rate、12 条样本全部通过 |
 | 7 | RAG + Agent 组合评测 | 已完成 | `notes/stage6-07-rag-agent-combination-evaluation.md`、`app/agents/rag_agent_evaluation.py`、`scripts/agent_rag_eval.py`、`tests/test_agent_rag_evaluation.py`、rag_answer_status、answered、no_context、citations、expected_sources、actual_sources、source_recall、must_cite、ticket_decision_passed_count、policy_gap、3 条 RAG 样本全部通过 |
-| 8 | 评测脚本设计 | 未开始 | 待新增 |
-| 9 | 评测报告 | 未开始 | 待新增 |
-| 10 | 坏例分析 | 未开始 | 待新增 |
-| 11 | 回归评测 | 未开始 | 待新增 |
+| 8 | 评测脚本设计 | 已完成 | `notes/stage6-08-agent-eval-script-design.md`、`app/agents/eval_suite.py`、`scripts/agent_eval.py`、`tests/test_agent_eval_suite.py`、AgentEvalSuite、AgentEvalRunReport、suite registry、`--suite`、`--list-suites`、`--cases-path`、统一 Agent eval suite、Overall、exit code、8 条新测试通过 |
+| 9 | 评测报告 | 已完成 | `notes/stage6-09-agent-eval-report.md`、`app/agents/eval_report.py`、`scripts/agent_eval.py --report-path`、`tests/test_agent_eval_report.py`、`data/agent_eval/reports/agent_eval_report.md`、Markdown report、Overall、Suite Summary、Summary、Bad Cases、PASS/FAIL、UTF-8 写入、3 条新增报告测试通过 |
+| 10 | 坏例分析 | 已完成 | `notes/stage6-10-bad-case-analysis.md`、`app/agents/bad_case_analysis.py`、`scripts/agent_eval.py --bad-case-analysis-path`、`tests/test_bad_case_analysis.py`、`data/agent_eval/reports/agent_bad_case_analysis.md`、`data/agent_eval/reports/bad_case_analysis_sample.md`、BadCaseAnalysisItem、BadCaseAnalysisReport、bad case vs bug、expected issue、dataset issue、first divergence、root cause category、recommended action、regression action、5 条新增坏例分析测试通过 |
+| 11 | 回归评测 | 已完成 | `notes/stage6-11-regression-evaluation.md`、`agent_cases.json` 中 10 条 P0 样本增加 `regression`/`p0_regression` 标签、`AgentEvalCaseFilter`、`filter_agent_eval_cases`、`describe_agent_eval_case_filter`、`scripts/agent_eval.py --regression --tag --priority`、`case_filter`、`selected_cases`、`data/agent_eval/reports/agent_regression_report.md`、`data/agent_eval/reports/agent_regression_bad_case_analysis.md`、P0 regression selected_cases=10、5 条新增回归筛选测试通过 |
 | 12 | evaluator 类型 | 未开始 | 待新增 |
 | 13 | 真实 LLM 意图识别节点 | 未开始 | 待新增 |
 | 14 | 真实 LLM 字段提取节点 | 未开始 | 待新增 |

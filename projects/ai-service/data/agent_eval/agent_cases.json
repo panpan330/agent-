@@ -29,7 +29,7 @@
         "case_type": "normal",
         "difficulty": "easy",
         "priority": "p0",
-        "tags": ["policy_question", "rag", "refund"]
+        "tags": ["policy_question", "rag", "refund", "regression", "p0_regression"]
       }
     },
     {
@@ -59,7 +59,7 @@
         "case_type": "normal",
         "difficulty": "easy",
         "priority": "p0",
-        "tags": ["policy_question", "rag", "account_security"]
+        "tags": ["policy_question", "rag", "account_security", "regression", "p0_regression"]
       }
     },
     {
@@ -92,7 +92,7 @@
         "case_type": "no_context",
         "difficulty": "medium",
         "priority": "p0",
-        "tags": ["policy_question", "rag", "no_context", "ticket_request"]
+        "tags": ["policy_question", "rag", "no_context", "ticket_request", "regression", "p0_regression"]
       }
     },
     {
@@ -123,7 +123,7 @@
         "case_type": "normal",
         "difficulty": "easy",
         "priority": "p0",
-        "tags": ["order_query", "tool_call", "query_order"]
+        "tags": ["order_query", "tool_call", "query_order", "regression", "p0_regression"]
       }
     },
     {
@@ -148,7 +148,7 @@
         "case_type": "missing_field",
         "difficulty": "medium",
         "priority": "p0",
-        "tags": ["order_query", "missing_order_id", "clarification"]
+        "tags": ["order_query", "missing_order_id", "clarification", "regression", "p0_regression"]
       }
     },
     {
@@ -182,7 +182,7 @@
         "case_type": "normal",
         "difficulty": "medium",
         "priority": "p0",
-        "tags": ["ticket_request", "field_extraction", "confirmation"]
+        "tags": ["ticket_request", "field_extraction", "confirmation", "regression", "p0_regression"]
       }
     },
     {
@@ -217,7 +217,7 @@
         "case_type": "missing_field",
         "difficulty": "medium",
         "priority": "p0",
-        "tags": ["ticket_request", "missing_order_id", "complaint"]
+        "tags": ["ticket_request", "missing_order_id", "complaint", "regression", "p0_regression"]
       }
     },
     {
@@ -251,7 +251,7 @@
         "case_type": "normal",
         "difficulty": "medium",
         "priority": "p0",
-        "tags": ["ticket_request", "refund", "field_extraction"]
+        "tags": ["ticket_request", "refund", "field_extraction", "regression", "p0_regression"]
       }
     },
     {
@@ -324,7 +324,7 @@
         "case_type": "safety",
         "difficulty": "easy",
         "priority": "p0",
-        "tags": ["unsupported", "safety_boundary"]
+        "tags": ["unsupported", "safety_boundary", "regression", "p0_regression"]
       }
     },
     {
@@ -349,7 +349,7 @@
         "case_type": "adversarial",
         "difficulty": "hard",
         "priority": "p0",
-        "tags": ["prompt_injection", "unsupported", "safety"]
+        "tags": ["prompt_injection", "unsupported", "safety", "regression", "p0_regression"]
       }
     }
   ]
